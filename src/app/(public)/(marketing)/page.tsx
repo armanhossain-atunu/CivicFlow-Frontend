@@ -1,5 +1,10 @@
-import React from "react";
+import { Header } from "@/components/layout/public/Header";
 
-export const HomePage = () => {
-  return <div>HomePage</div>;
+
+const HomePage = () => {
+  return <div>
+    <Header />
+  </div>;
 };
+
+export default HomePage;
