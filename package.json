@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-      "format:check": "npx @biomejs/biome format ./src",
+    "format:check": "npx @biomejs/biome format ./src",
     "format:fix": "npx @biomejs/biome format --write ./src",
     "lint:check": "npx @biomejs/biome lint ./src",
     "lint:fix": "npx @biomejs/biome lint --write ./src"
@@ -36,5 +36,5 @@
     "tailwindcss": "^4",
     "typescript": "^5"
   },
-  "packageManager": "pnpm@12.6.0"
+  "packageManager": "pnpm@12.8.1"
 }

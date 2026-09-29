@@ -1,5 +1,6 @@
 "use client";
 
+import Logo from "@/assets/svg/logo";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -17,9 +18,10 @@ export const Header = () => {
     <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/80 backdrop-blur-sm">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground">
+          {/* <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground">
             CF
-          </span>
+          </span> */}
+          <Logo/>
           <span className="text-xl font-bold tracking-tight text-slate-900">
             CivicFlow
           </span>
