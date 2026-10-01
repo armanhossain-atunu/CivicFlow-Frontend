@@ -1,9 +1,7 @@
-/** biome-ignore-all lint/a11y/noSvgWithoutTitle: <explanation> */
+/** biome-ignore-all lint/a11y/noSvgWithoutTitle: GitHub icon is decorative */
 "use client";
-
-import { useForm } from "@tanstack/react-form";
 import Link from "next/link";
-
+import { useForm } from "@tanstack/react-form";
 import { LoginZodSchema } from "@/validation";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,8 +13,22 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { cn } from "cn";
+import { Eye, EyeOff } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useLogin } from "@/hooks";
+import { toast } from "../ui/toast";
 
 export function LoginForm() {
+  const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
+
+  const {
+    mutate: login,
+    isPending: loginPending,
+  
+  } = useLogin();
+
   const form = useForm({
     defaultValues: {
       email: "",
@@ -27,11 +39,30 @@ export function LoginForm() {
       onSubmit: LoginZodSchema,
     },
 
-    onSubmit: async ({ value }) => {
-      console.log("Login data:", value);
+    onSubmit: ({ value }) => {
+      const loginData = {
+        email: value.email,
+        password: value.password,
+      };
 
-      // API call
-      // await loginMutation.mutateAsync(value)
+      login(loginData, {
+        onSuccess: (res) => {
+          console.log(res);
+          toast.add({
+            title: "Login successful",
+            description: "Welcome back CivicFlow!",
+            type: "success",
+          });
+          router.push("/");
+        },
+        onError: (err) => {
+          toast.add({
+            title: "Login failed",
+            description: err.message,
+            type: "error",
+          });
+        },
+      });
     },
   });
 
@@ -105,17 +136,35 @@ export function LoginForm() {
                   </Link>
                 </div>
 
-                <Input
-                  id={field.name}
-                  name={field.name}
-                  type="password"
-                  placeholder="Enter your password"
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  aria-invalid={isInvalid}
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    aria-invalid={isInvalid}
+                    className="pr-10"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((visible) => !visible)}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                    aria-pressed={showPassword}
+                    className="absolute top-1/2 right-1 flex size-6 -translate-y-1/2 items-center justify-center text-muted-foreground hover:text-foreground"
+                  >
+                    {showPassword ? (
+                      <EyeOff aria-hidden="true" className="size-4" />
+                    ) : (
+                      <Eye aria-hidden="true" className="size-4" />
+                    )}
+                  </button>
+                </div>
 
                 {isInvalid && field.state.meta.errors.length > 0 && (
                   <p className="text-sm text-destructive">
@@ -129,9 +178,16 @@ export function LoginForm() {
 
         {/* Login */}
         <Field>
-          <Button type="submit" className="w-full">
-            Login
+          <Button type="submit" className="w-full" disabled={loginPending}>
+            {loginPending ? "Logging in..." : "Login"}
           </Button>
+          {/* {loginError && (
+            <p className="text-sm text-destructive">
+              {loginError instanceof Error
+                ? loginError.message
+                : "Login failed. Please check your credentials."}
+            </p>
+          )} */}
         </Field>
 
         <FieldSeparator>Or continue with</FieldSeparator>
