@@ -1,14 +1,26 @@
 import apiClient from "@/lib/apiClient";
 // login
 export function userLogin(payload: { email: string; password: string }) {
-  return apiClient ( "/auth/login",{  method: "POST",  body: payload });
+  return apiClient("/auth/login", { method: "POST", body: payload });
 }
 // get current user
 export function getme() {
-  return apiClient ( "/auth/me", { method: "GET" });
+  return apiClient("/auth/me", { method: "GET" });
 }
 // logout
 export function logout() {
-  return apiClient ( "/auth/logout", { method: "POST" });
+  return apiClient("/auth/logout", { method: "POST" });
 }
-// register
+// profile update
+export function updateProfile(profileImage: File) {
+  return apiClient("/user/profile-image", {
+    method: "PATCH",
+    body: profileImage,
+  });
+}
+
+//google login
+export function googleOAuth(payload: { idToken: string }) {
+  return apiClient("/auth/google", {method: "POST", body: payload });
+}
+

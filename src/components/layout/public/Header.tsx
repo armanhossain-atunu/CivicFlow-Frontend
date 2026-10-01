@@ -1,4 +1,3 @@
-
 "use client";
 
 import {
@@ -37,7 +36,6 @@ export const Header = () => {
     { name: "Contact", url: "/contact" },
   ];
 
-  // যদি API response { data: user } হয়
   const user = data?.data;
 
   const handleLogout = () => {
@@ -107,7 +105,7 @@ export const Header = () => {
                   >
                     <Avatar>
                       <AvatarImage
-                        src={user?.imageUrl ?? ""}
+                        src={user?.imageUrl || undefined}
                         alt={user?.name ?? "User"}
                       />
 
@@ -132,16 +130,12 @@ export const Header = () => {
                 <DropdownMenuSeparator />
 
                 <DropdownMenuGroup>
-                  <DropdownMenuItem
-                    onClick={() => router.push("/profile")}
-                  >
+                  <DropdownMenuItem onClick={() => router.push("/profile")}>
                     <BadgeCheckIcon />
                     Profile
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem
-                    onClick={() => router.push("/billing")}
-                  >
+                  <DropdownMenuItem onClick={() => router.push("/billing")}>
                     <CreditCardIcon />
                     Billing
                   </DropdownMenuItem>
@@ -192,4 +186,3 @@ export const Header = () => {
 };
 
 export default Header;
-
