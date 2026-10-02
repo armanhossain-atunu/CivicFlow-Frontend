@@ -1,9 +1,9 @@
 /** biome-ignore-all lint/a11y/noSvgWithoutTitle: GitHub icon is decorative */
+/** biome-ignore-all lint/correctness/noUnusedImports: <explanation> */
 "use client";
 
 import Link from "next/link";
 import { useForm } from "@tanstack/react-form";
-import { GoogleLogin } from "@react-oauth/google";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
