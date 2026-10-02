@@ -1,5 +1,22 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { getme, googleOAuth, logout, updateProfile, userLogin } from "@/api";
+import {
+  forgotPassword,
+  getme,
+  googleOAuth,
+  logout,
+  registerUser,
+  resetPassword,
+  updateProfile,
+  userLogin,
+  verifyEmail,
+} from "@/api";
+// register
+export function useRegister() {
+  return useMutation({
+    mutationFn: registerUser,
+  });
+}
+
 // login
 export function useLogin() {
   return useMutation({
@@ -7,9 +24,43 @@ export function useLogin() {
   });
 }
 // google login
-export function useGoogleOAuth(){
-return useMutation({
+export function useGoogleOAuth() {
+  return useMutation({
     mutationFn: googleOAuth,
+  });
+}
+
+// get current user
+export function useGetme() {
+  return useQuery({
+    queryKey: ["user"],
+    queryFn: getme,
+    retry: false,
+  });
+}
+// update profile
+export function useUpdateProfile() {
+  return useMutation({
+    mutationFn: updateProfile,
+  });
+}
+// user email verification
+export function useVerifyEmail() {
+  return useMutation({
+    mutationFn: verifyEmail,
+  });
+}
+// forget-password
+export function useForgotPassword() {
+	return useMutation({
+		mutationFn: forgotPassword,
+	});
+}
+
+// reset password
+export function useResetPassword() {
+  return useMutation({
+    mutationFn: resetPassword,
   });
 }
 
@@ -17,18 +68,5 @@ return useMutation({
 export function useLogout() {
   return useMutation({
     mutationFn: logout,
-  });
-}
-// get current user
-export function useGetme() {
-  return useQuery({
-    queryKey: ["user"],
-    queryFn: getme,
-  });
-}
-// update profile
-export function useUpdateProfile() {
-  return useMutation({
-    mutationFn: updateProfile,
   });
 }

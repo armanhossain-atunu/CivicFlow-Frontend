@@ -1,4 +1,3 @@
-
 /** biome-ignore-all lint/a11y/noSvgWithoutTitle: GitHub icon is decorative */
 "use client";
 
@@ -22,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "cn";
 import { useGoogleOAuth, useLogin } from "@/hooks";
 import { toast } from "../ui/toast";
+import GoogleLoginComponent from "../modules/google-login/GoogleLogin";
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -29,11 +29,6 @@ export function LoginForm() {
   const router = useRouter();
 
   const { mutate: login, isPending: loginPending } = useLogin();
-
-  const {
-    mutate: googleLogin,
-    isPending: googleLoginPending,
-  } = useGoogleOAuth();
 
   const form = useForm({
     defaultValues: {
@@ -68,70 +63,13 @@ export function LoginForm() {
           toast.add({
             title: "Login failed",
             description:
-              err instanceof Error
-                ? err.message
-                : "Invalid email or password.",
+              "Invalid credentials. Please check your email and password.",
             type: "error",
           });
         },
       });
     },
   });
-
-  // ------------------------------------------
-  // Google OAuth Success
-  // ------------------------------------------
-
-  const handleGoogleLoginSuccess = (credentialResponse: {
-    credential?: string;
-  }) => {
-    const idToken = credentialResponse.credential;
-
-    if (!idToken) {
-      handleGoogleLoginError();
-      return;
-    }
-
-    googleLogin(
-      { idToken },
-      {
-        onSuccess: (res) => {
-          console.log(res);
-
-          toast.add({
-            title: "Google login successful",
-            description: "Welcome to CivicFlow!",
-            type: "success",
-          });
-
-          router.push("/");
-        },
-
-        onError: (err) => {
-          toast.add({
-            title: "Google login failed",
-            description:
-              err instanceof Error
-                ? err.message
-                : "Google login failed. Please try again.",
-            type: "error",
-          });
-        },
-      },
-    );
-  };
-
-  // ------------------------------------------
-  // Google OAuth Error
-  // ------------------------------------------
-
-  const handleGoogleLoginError = () => {
-    toast.add({
-      title: "Google OAuth failed",
-      description: "Please try again.",
-      type: "error",
-    });
-  };
 
   return (
     <form
@@ -193,9 +131,7 @@ export function LoginForm() {
             return (
               <Field>
                 <div className="flex items-center">
-                  <FieldLabel htmlFor={field.name}>
-                    Password
-                  </FieldLabel>
+                  <FieldLabel htmlFor={field.name}>Password</FieldLabel>
 
                   <Link
                     href="/forgot-password"
@@ -221,27 +157,17 @@ export function LoginForm() {
 
                   <button
                     type="button"
-                    onClick={() =>
-                      setShowPassword((visible) => !visible)
-                    }
+                    onClick={() => setShowPassword((visible) => !visible)}
                     aria-label={
-                      showPassword
-                        ? "Hide password"
-                        : "Show password"
+                      showPassword ? "Hide password" : "Show password"
                     }
                     aria-pressed={showPassword}
                     className="absolute top-1/2 right-1 flex size-6 -translate-y-1/2 items-center justify-center text-muted-foreground hover:text-foreground"
                   >
                     {showPassword ? (
-                      <EyeOff
-                        aria-hidden="true"
-                        className="size-4"
-                      />
+                      <EyeOff aria-hidden="true" className="size-4" />
                     ) : (
-                      <Eye
-                        aria-hidden="true"
-                        className="size-4"
-                      />
+                      <Eye aria-hidden="true" className="size-4" />
                     )}
                   </button>
                 </div>
@@ -258,46 +184,39 @@ export function LoginForm() {
 
         {/* Login */}
         <Field>
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={loginPending || googleLoginPending}
-          >
+          <Button type="submit" className="w-full" disabled={loginPending}>
             {loginPending ? "Logging in..." : "Login"}
           </Button>
         </Field>
 
         <FieldSeparator>Or continue with</FieldSeparator>
-
-        {/* Google OAuth */}
-        <Field>
-          <div className="flex w-full justify-center">
-            <GoogleLogin
-              text="continue_with"
-              onSuccess={handleGoogleLoginSuccess}
-              onError={handleGoogleLoginError}
-              useOneTap={false}
-            />
-          </div>
-
-          {googleLoginPending && (
-            <p className="text-center text-sm text-muted-foreground">
-              Signing in with Google...
-            </p>
-          )}
-
-          <FieldDescription className="text-center">
-            Don&apos;t have an account?{" "}
-            <Link
-              href="/register"
-              className="underline underline-offset-4"
-            >
-              Sign up
-            </Link>
-          </FieldDescription>
-        </Field>
       </FieldGroup>
+      {/* Google OAuth */}
+
+      <Field>
+        <GoogleLoginComponent />
+        <FieldDescription className="text-center">
+          Don&apos;t have an account?{" "}
+          <Link href="/register" className="underline underline-offset-4">
+            Sign up
+          </Link>
+        </FieldDescription>
+      </Field>
+      {/* <Field>
+        <div className="flex w-full items-center justify-center">
+          <GoogleLoginComponent/>
+        </div>
+
+       
+        
+
+        <FieldDescription className="text-center">
+          Don&apos;t have an account?{" "}
+          <Link href="/register" className="underline underline-offset-4">
+            Sign up
+          </Link>
+        </FieldDescription>
+      </Field> */}
     </form>
   );
 }
-
