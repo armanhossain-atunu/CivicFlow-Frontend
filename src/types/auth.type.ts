@@ -36,3 +36,12 @@ export type ForgotPasswordPayload = {
 export type GooglePayload = {
   idToken: string;
 };
+
+// complain form
+export interface ICreateComplaint {
+	title: string;
+	description: string;
+	categoryId: string;
+	department: string;
+	location: string;
+}

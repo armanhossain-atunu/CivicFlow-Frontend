@@ -49,6 +49,10 @@ export const Header = () => {
 			name: "Contact",
 			url: "/contact",
 		},
+		{
+			name: "Complaint",
+			url: "/complaint",
+		}
 	];
 
 	const user = data?.data;

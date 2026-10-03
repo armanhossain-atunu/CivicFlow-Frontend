@@ -1,9 +1,16 @@
 /** biome-ignore-all lint/style/useImportType: <explanation> */
 import apiClient from "@/lib/apiClient";
-import { ForgotPasswordPayload, GooglePayload, LoginPayload, RegisterPayload, ResetPasswordPayload, VerifyEmailPayload } from "@/types/auth.type";
+import {
+  ForgotPasswordPayload,
+  GooglePayload,
+  LoginPayload,
+  RegisterPayload,
+  ResetPasswordPayload,
+  VerifyEmailPayload,
+} from "@/types/auth.type";
 
 // register
-export function registerUser(payload: RegisterPayload ) {
+export function registerUser(payload: RegisterPayload) {
   return apiClient("/auth/register", { method: "POST", body: payload });
 }
 // login
@@ -16,9 +23,13 @@ export function getme() {
 }
 // profile update
 export function updateProfile(profileImage: File) {
+  const formData = new FormData();
+
+  formData.append("profileImage", profileImage);
+
   return apiClient("/user/profile-image", {
     method: "PATCH",
-    body: profileImage,
+    body: formData,
   });
 }
 //user email verification

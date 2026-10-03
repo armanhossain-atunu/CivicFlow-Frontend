@@ -69,10 +69,7 @@ export function RegisterForm() {
         onError: (err) => {
           toast.add({
             title: "Register failed",
-            description:
-              err instanceof Error
-                ? err.message
-                : "Register failed. Please try again.",
+            description: err.message || "Something went wrong.",
             type: "error",
           });
         },

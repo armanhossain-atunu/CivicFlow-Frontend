@@ -42,3 +42,19 @@ export const ResetPasswordZodSchema = z
     message: "Passwords do not match.",
     path: ["confirmPassword"],
   });
+
+// complain form validation
+export const createComplaintSchema = z.object({
+  title: z.string().trim().min(5, "Title must be at least 5 characters"),
+
+  description: z
+    .string()
+    .trim()
+    .min(10, "Description must be at least 10 characters"),
+
+  categoryId: z.string().trim().min(1, "Please select a category"),
+
+  department: z.string().trim().min(2, "Department is required"),
+
+  location: z.string().trim().min(1, "Location is required"),
+});

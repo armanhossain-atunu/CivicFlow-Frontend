@@ -15,6 +15,7 @@ export default function ProfilePage() {
   const { mutate: updateProfile, isPending: isUpdatingProfile } =
     useUpdateProfile();
   const user = data?.data;
+  console.log("data", user);
 
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
     const image = event.target.files?.[0];
@@ -139,7 +140,16 @@ export default function ProfilePage() {
             <dt className="text-sm font-medium text-muted-foreground">
               Contact number
             </dt>
-            <dd className="mt-1">{user.contactNumber || "Not provided"}</dd>
+            <dd className="mt-1">{user?.citizen?.contactNumber || "Not provided"}</dd>
+          </div>
+          <div>
+            <dt className="text-sm font-medium text-muted-foreground">Role</dt>
+            <dd className="mt-1">
+              {user.role
+                ? user.role.charAt(0).toUpperCase() +
+                  user.role.slice(1).toLowerCase()
+                : "Not provided"}
+            </dd>
           </div>
         </dl>
       </section>

@@ -40,9 +40,9 @@ export function useGetme() {
 }
 // update profile
 export function useUpdateProfile() {
-  return useMutation({
-    mutationFn: updateProfile,
-  });
+	return useMutation({
+		mutationFn: updateProfile,
+	});
 }
 // user email verification
 export function useVerifyEmail() {

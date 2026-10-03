@@ -6,7 +6,7 @@ import { RegisterForm } from "@/components/Form/RegisterForm";
 
 export default function SignupPage() {
   return (
-    <GuestOnly>
+ 
       <div className="grid min-h-svh lg:grid-cols-2">
         {/* Register Form */}
         <div className="flex flex-col gap-4 p-6 md:p-10">
@@ -38,6 +38,6 @@ export default function SignupPage() {
           />
         </div>
       </div>
-    </GuestOnly>
+   
   );
 }
