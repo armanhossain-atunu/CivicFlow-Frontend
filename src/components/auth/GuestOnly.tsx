@@ -13,7 +13,7 @@ export function GuestOnly({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      router.replace("/");
+      router.replace("/profile");
     }
   }, [isAuthenticated, isLoading, router]);
 
