@@ -197,11 +197,11 @@ export const Header = () => {
 									{/* Billing */}
 									<DropdownMenuItem
 										onClick={() =>
-											router.push("/billing")
+											router.push("/payment-pending")
 										}
 									>
 										<CreditCardIcon />
-										Billing
+										Payment Pending
 									</DropdownMenuItem>
 
 									{/* Notifications */}

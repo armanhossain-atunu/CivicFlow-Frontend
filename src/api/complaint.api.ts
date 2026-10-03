@@ -11,3 +11,30 @@ export function createComplaint(payload: ICreateComplaint) {
 export function getAllCategories() {
   return apiClient("/categories", { method: "GET" });
 }
+// pay for complaint
+export type CreateComplaintPaymentResponse = {
+  data?: {
+    bkashURL?: string;
+    bkashUrl?: string;
+    paymentURL?: string;
+    paymentUrl?: string;
+  };
+  bkashURL?: string;
+  bkashUrl?: string;
+  paymentURL?: string;
+  paymentUrl?: string;
+};
+
+export function payForComplaint(complaintId: string) {
+  return apiClient<CreateComplaintPaymentResponse>(
+    `/payments/complaint/${encodeURIComponent(complaintId)}/bkash/create`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+// get all complaints
+export function getAllComplaints() {
+  return apiClient("/complaints", { method: "GET" });
+}
