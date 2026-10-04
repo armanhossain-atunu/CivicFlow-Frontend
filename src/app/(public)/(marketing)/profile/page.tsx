@@ -11,7 +11,7 @@ import { useGetme, useUpdateProfile } from "@/hooks";
 export default function ProfilePage() {
   const imageInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
-  const { data, error, isError, isLoading } = useGetme();
+  const { data, error, isError } = useGetme();
   const { mutate: updateProfile, isPending: isUpdatingProfile } =
     useUpdateProfile();
   const user = data?.data;
@@ -56,15 +56,7 @@ export default function ProfilePage() {
     });
   };
 
-  if (isLoading) {
-    return (
-      <main className="mx-auto w-full max-w-3xl px-4 py-12">
-        <output className="text-muted-foreground">
-          Loading your profile...
-        </output>
-      </main>
-    );
-  }
+ 
 
   if (isError) {
     return (

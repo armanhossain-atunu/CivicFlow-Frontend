@@ -93,15 +93,15 @@ const PaymentPending = () => {
   };
 
   // Loading
-  if (isLoading) {
-    return (
-      <div className="flex justify-center py-10">
-        <p className="text-muted-foreground">
-          Loading pending payments...
-        </p>
-      </div>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <div className="flex justify-center py-10">
+  //       <p className="text-muted-foreground">
+  //         Loading pending payments...
+  //       </p>
+  //     </div>
+  //   );
+  // }
 
   // Error
   if (isError) {
@@ -216,7 +216,7 @@ const PaymentPending = () => {
                   >
                     {isPaying
                       ? "Creating Payment..."
-                      : `Pay Now ৳${complaint.paymentAmount}`}
+                      : "Pay Now"}
                   </Button>
                 </CardFooter>
               </Card>
