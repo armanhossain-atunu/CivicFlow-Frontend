@@ -2,6 +2,7 @@
 import {
   createComplaint,
   getAllCategories,
+  getAllComplaints,
   payForComplaint,
 } from "@/api/complaint.api";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -24,5 +25,13 @@ export function useGetAllCategories() {
 export function usePayForComplaint() {
   return useMutation({
     mutationFn: payForComplaint,
+  });
+}
+// get all pending payments for complaint 
+export function useGetAllPendingComplaints() {
+  return useQuery({
+    queryKey: ["complaints"],
+    queryFn: getAllComplaints,
+    retry: false,
   });
 }

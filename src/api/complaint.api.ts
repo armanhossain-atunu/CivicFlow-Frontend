@@ -34,7 +34,7 @@ export function payForComplaint(complaintId: string) {
   );
 }
 
-// get all complaints
+// get my all complaints
 export function getAllComplaints() {
-  return apiClient("/complaints", { method: "GET" });
+  return apiClient("/complaint/my", { method: "GET" });
 }
