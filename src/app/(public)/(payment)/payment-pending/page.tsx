@@ -27,7 +27,6 @@ const PaymentPending = () => {
   // Get pending complaints
   const {
     data,
-    isLoading,
     isError,
   } = useGetAllPendingComplaints();
 

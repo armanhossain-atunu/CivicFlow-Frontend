@@ -1,6 +1,7 @@
 /** biome-ignore-all lint/style/useImportType: <explanation> */
 import apiClient from "@/lib/apiClient";
 import { ICreateComplaint } from "@/types/auth.type";
+import { CreateComplaintPaymentResponse } from "@/types/payment.type";
 
 // create complaint
 export function createComplaint(payload: ICreateComplaint) {
@@ -11,19 +12,6 @@ export function createComplaint(payload: ICreateComplaint) {
 export function getAllCategories() {
   return apiClient("/categories", { method: "GET" });
 }
-// pay for complaint
-export type CreateComplaintPaymentResponse = {
-  data?: {
-    bkashURL?: string;
-    bkashUrl?: string;
-    paymentURL?: string;
-    paymentUrl?: string;
-  };
-  bkashURL?: string;
-  bkashUrl?: string;
-  paymentURL?: string;
-  paymentUrl?: string;
-};
 
 export function payForComplaint(complaintId: string) {
   return apiClient<CreateComplaintPaymentResponse>(
