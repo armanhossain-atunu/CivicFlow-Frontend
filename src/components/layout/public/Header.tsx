@@ -212,13 +212,6 @@ export const Header = () => {
                    <BanknoteArrowDown />
                     Payment Pending
                   </DropdownMenuItem>
-                  {/* My Payments History */}
-                  <DropdownMenuItem
-                    onClick={() => router.push("/my-payments-history")}
-                  >
-                    <CreditCardIcon />
-                    Payments History
-                  </DropdownMenuItem>
                   {/* Notifications */}
                   <DropdownMenuItem
                     onClick={() => router.push("/notifications")}
