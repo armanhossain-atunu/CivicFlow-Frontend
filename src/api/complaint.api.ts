@@ -12,7 +12,7 @@ export function createComplaint(payload: ICreateComplaint) {
 export function getAllCategories() {
   return apiClient("/categories", { method: "GET" });
 }
-
+// payment for complaint
 export function payForComplaint(complaintId: string) {
   return apiClient<CreateComplaintPaymentResponse>(
     `/payments/complaint/${encodeURIComponent(complaintId)}/bkash/create`,
@@ -21,8 +21,27 @@ export function payForComplaint(complaintId: string) {
     },
   );
 }
+// get all complaints
+export function getAllComplaints() {
+  return apiClient(`/complaint`, {
+    method: "GET",
+  });
+}
 
 // get my all complaints
-export function getAllComplaints() {
+export function getMyAllComplaints() {
   return apiClient("/complaint/my", { method: "GET" });
+}
+// get complaint by id
+export function getComplaint(complaintId: string) {
+  return apiClient(`/complaint/${encodeURIComponent(complaintId)}`, {
+    method: "GET",
+  });
+}
+
+// delete a complaint (the API authorizes admins and the complaint owner)
+export function deleteComplaint(complaintId: string) {
+  return apiClient(`/complaint/${encodeURIComponent(complaintId)}`, {
+    method: "DELETE",
+  });
 }

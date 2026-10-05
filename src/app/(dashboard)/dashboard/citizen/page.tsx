@@ -6,10 +6,29 @@ import {
   CreditCard,
   FilePlus2,
   History,
+  LayoutDashboard,
 } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarRail,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 import { useGetAllPendingComplaints } from "@/hooks/complain.hook";
 import { useMyPaymentsHistory } from "@/hooks/payments.hook";
 
@@ -147,9 +166,22 @@ const quickLinks = [
   },
 ];
 
+const activeSidebarItemClassName =
+  "relative before:absolute before:inset-y-1 before:left-0 before:w-0.5 before:rounded-full before:bg-sidebar-primary before:opacity-0 data-[active=true]:before:opacity-100";
+
 export default function CitizenDashboard() {
+  const pathname = usePathname();
+  const [activeHash, setActiveHash] = useState("");
   const complaintsQuery = useGetAllPendingComplaints();
   const paymentsQuery = useMyPaymentsHistory();
+
+  useEffect(() => {
+    const updateActiveHash = () => setActiveHash(window.location.hash);
+
+    updateActiveHash();
+    window.addEventListener("hashchange", updateActiveHash);
+    return () => window.removeEventListener("hashchange", updateActiveHash);
+  }, []);
 
   const complaints = getArrayPayload(complaintsQuery.data)
     .map(getComplaint)
@@ -165,208 +197,310 @@ export default function CitizenDashboard() {
   ).length;
 
   return (
-    <main className="mx-auto max-w-7xl space-y-10 px-4 py-8 sm:px-6 lg:px-8">
-      <header>
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">
-          Citizen portal
-        </p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight">
-          My complaint summary
-        </h1>
-        <p className="mt-2 text-muted-foreground">
-          Track your service requests and payments from one place.
-        </p>
-      </header>
-
-      <section
-        aria-label="Complaint summary"
-        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
-      >
-        {[
-          { label: "Total complaints", value: complaints.length },
-          { label: "Resolved complaints", value: resolvedComplaints },
-          { label: "Pending payments", value: pendingPayments },
-          { label: "Payment records", value: payments.length },
-        ].map((item) => (
-          <Card key={item.label}>
-            <CardContent className="p-5">
-              <p className="text-sm text-muted-foreground">{item.label}</p>
-              <p className="mt-2 text-3xl font-bold">
-                {complaintsQuery.isLoading || paymentsQuery.isLoading
-                  ? "—"
-                  : item.value}
+    <SidebarProvider>
+      <Sidebar className="mt-20 `[&_[data-slot=sidebar-container]]:top-[81px]  `">
+        <SidebarHeader>
+          <div className="flex items-center gap-3 px-2 py-1">
+            <span className="flex size-9 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+              <LayoutDashboard aria-hidden="true" className="size-5" />
+            </span>
+            <div className="min-w-0 group-data-[collapsible=icon]:hidden">
+              <p className="truncate text-sm font-semibold">Citizen portal</p>
+              <p className="truncate text-xs text-sidebar-foreground/70">
+                Your services
               </p>
-            </CardContent>
-          </Card>
-        ))}
-      </section>
+            </div>
+          </div>
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    render={<Link href="/dashboard/citizen" />}
+                    isActive={
+                      pathname === "/dashboard/citizen" && activeHash === ""
+                    }
+                    tooltip="Overview"
+                    className={activeSidebarItemClassName}
+                  >
+                    <LayoutDashboard aria-hidden="true" />
+                    <span>Overview</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    render={<Link href="#my-complaints" />}
+                    isActive={
+                      pathname === "/dashboard/citizen" &&
+                      activeHash === "#my-complaints"
+                    }
+                    tooltip="My complaints"
+                    className={activeSidebarItemClassName}
+                  >
+                    <ClipboardList aria-hidden="true" />
+                    <span>My complaints</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    render={<Link href="/payment-pending" />}
+                    isActive={pathname === "/payment-pending"}
+                    tooltip="Pending payments"
+                    className={activeSidebarItemClassName}
+                  >
+                    <CreditCard aria-hidden="true" />
+                    <span>Pending payments</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    render={<Link href="#payment-history" />}
+                    isActive={
+                      pathname === "/dashboard/citizen" &&
+                      activeHash === "#payment-history"
+                    }
+                    tooltip="Payment history"
+                    className={activeSidebarItemClassName}
+                  >
+                    <History aria-hidden="true" />
+                    <span>Payment history</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                 <SidebarMenuItem>
+              <SidebarMenuButton
+                render={<Link href="/complaint" />}
+                isActive={pathname === "/complaint"}
+                tooltip="Create complaint"
+                className={activeSidebarItemClassName}
+              >
+                <FilePlus2 aria-hidden="true" />
+                <span>Create complaint</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+        <SidebarFooter>
+          <SidebarMenu>
+           
+          </SidebarMenu>
+        </SidebarFooter>
+        <SidebarRail />
+      </Sidebar>
+      <SidebarInset>
+        <div className="mx-auto w-full max-w-7xl space-y-10 px-4 py-8 sm:px-6 lg:px-8">
+          <header className="flex items-start gap-3">
+            <SidebarTrigger className="mt-1 shrink-0" />
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">
+                Citizen portal
+              </p>
+              <h1 className="mt-2 text-3xl font-bold tracking-tight">
+                My complaint summary
+              </h1>
+              <p className="mt-2 text-muted-foreground">
+                Track your service requests and payments from one place.
+              </p>
+            </div>
+          </header>
 
-      {(complaintsQuery.isError || paymentsQuery.isError) && (
-        <p role="alert" className="text-sm text-destructive">
-          {complaintsQuery.isError && paymentsQuery.isError
-            ? "Complaint and payment information could not be loaded."
-            : complaintsQuery.isError
-              ? "Complaint information could not be loaded."
-              : "Payment history could not be loaded."}
-          {" Please refresh and try again."}
-        </p>
-      )}
-
-      <section aria-label="Citizen services">
-        <h2 className="text-xl font-semibold">Your services</h2>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          {quickLinks.map(({ title, description, href, icon: Icon }) => (
-            <Link key={title} href={href} className="group rounded-xl">
-              <Card className="h-full transition-colors group-hover:bg-muted/50">
-                <CardContent className="flex items-start gap-4 p-5">
-                  <span className="rounded-lg bg-primary/10 p-3 text-primary">
-                    <Icon aria-hidden="true" className="size-5" />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-center justify-between gap-3 font-semibold">
-                      {title}
-                      <ArrowRight
-                        aria-hidden="true"
-                        className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1"
-                      />
-                    </span>
-                    <span className="mt-1 block text-sm text-muted-foreground">
-                      {description}
-                    </span>
-                  </span>
+          <section
+            aria-label="Complaint summary"
+            className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+          >
+            {[
+              { label: "Total complaints", value: complaints.length },
+              { label: "Resolved complaints", value: resolvedComplaints },
+              { label: "Pending payments", value: pendingPayments },
+              { label: "Payment records", value: payments.length },
+            ].map((item) => (
+              <Card key={item.label}>
+                <CardContent className="p-5">
+                  <p className="text-sm text-muted-foreground">{item.label}</p>
+                  <p className="mt-2 text-3xl font-bold">
+                    {complaintsQuery.isLoading || paymentsQuery.isLoading
+                      ? "—"
+                      : item.value}
+                  </p>
                 </CardContent>
               </Card>
-            </Link>
-          ))}
-        </div>
-      </section>
+            ))}
+          </section>
 
-      <section id="my-complaints" className="scroll-mt-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h2 className="text-xl font-semibold">My complaints</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Current status of your submitted requests.
+          {(complaintsQuery.isError || paymentsQuery.isError) && (
+            <p role="alert" className="text-sm text-destructive">
+              {complaintsQuery.isError && paymentsQuery.isError
+                ? "Complaint and payment information could not be loaded."
+                : complaintsQuery.isError
+                  ? "Complaint information could not be loaded."
+                  : "Payment history could not be loaded."}
+              {" Please refresh and try again."}
             </p>
-          </div>
-          <Link
-            href="/complaint"
-            className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
-          >
-            <FilePlus2 aria-hidden="true" className="size-4" />
-            Create complaint
-          </Link>
-        </div>
+          )}
 
-        <div className="mt-4 overflow-hidden rounded-xl border bg-card">
-          {complaintsQuery.isLoading ? (
-            <p className="p-5 text-sm text-muted-foreground">
-              Loading complaints...
-            </p>
-          ) : complaintsQuery.isError ? (
-            <p className="p-5 text-sm text-destructive">
-              Unable to load complaints.
-            </p>
-          ) : complaints.length === 0 ? (
-            <p className="p-5 text-sm text-muted-foreground">
-              You have not submitted any complaints yet.
-            </p>
-          ) : (
-            <div className="divide-y">
-              {complaints.map((complaint) => (
-                <article
-                  key={complaint.id}
-                  className="flex flex-wrap items-center justify-between gap-3 p-5"
-                >
-                  <div>
-                    <h3 className="font-medium">
-                      {complaint.title || "Complaint"}
-                    </h3>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Submitted {formatDate(complaint.createdAt)}
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap gap-2 text-xs font-medium">
-                    <span className="rounded-full bg-muted px-3 py-1">
-                      {complaint.status || "Status unavailable"}
-                    </span>
-                    {complaint.paymentStatus && (
-                      <span className="rounded-full bg-muted px-3 py-1">
-                        Payment: {complaint.paymentStatus}
+          <section aria-label="Citizen services">
+            <h2 className="text-xl font-semibold">Your services</h2>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              {quickLinks.map(({ title, description, href, icon: Icon }) => (
+                <Link key={title} href={href} className="group rounded-xl">
+                  <Card className="h-full transition-colors group-hover:bg-muted/50">
+                    <CardContent className="flex items-start gap-4 p-5">
+                      <span className="rounded-lg bg-primary/10 p-3 text-primary">
+                        <Icon aria-hidden="true" className="size-5" />
                       </span>
-                    )}
-                  </div>
-                </article>
+                      <span className="min-w-0 flex-1">
+                        <span className="flex items-center justify-between gap-3 font-semibold">
+                          {title}
+                          <ArrowRight
+                            aria-hidden="true"
+                            className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1"
+                          />
+                        </span>
+                        <span className="mt-1 block text-sm text-muted-foreground">
+                          {description}
+                        </span>
+                      </span>
+                    </CardContent>
+                  </Card>
+                </Link>
               ))}
             </div>
-          )}
-        </div>
-      </section>
+          </section>
 
-      <section id="payment-history" className="scroll-mt-6">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h2 className="text-xl font-semibold">Payment history</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Your latest payment transactions.
-            </p>
-          </div>
-          <Link
-            href="/payment-pending"
-            className="text-sm font-medium text-primary hover:underline"
-          >
-            Pending payments
-          </Link>
-        </div>
-
-        <div className="mt-4 overflow-hidden rounded-xl border bg-card">
-          {paymentsQuery.isLoading ? (
-            <p className="p-5 text-sm text-muted-foreground">
-              Loading payment history...
-            </p>
-          ) : paymentsQuery.isError ? (
-            <p className="p-5 text-sm text-destructive">
-              Unable to load payment history.
-            </p>
-          ) : payments.length === 0 ? (
-            <p className="p-5 text-sm text-muted-foreground">
-              No payment history is available yet.
-            </p>
-          ) : (
-            <div className="divide-y">
-              {payments.map((payment) => (
-                <article
-                  key={payment.id}
-                  className="flex flex-wrap items-center justify-between gap-3 p-5"
-                >
-                  <div>
-                    <h3 className="font-medium">
-                      {payment.complaint?.title ||
-                        payment.paymentID ||
-                        payment.transactionId ||
-                        payment.id}
-                    </h3>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {formatDate(payment.createdAt)}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    {(payment.amount ?? payment.paymentAmount) !==
-                      undefined && (
-                      <span className="font-semibold">
-                        ৳{payment.amount ?? payment.paymentAmount}
-                      </span>
-                    )}
-                    <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium">
-                      {payment.paymentStatus || payment.status || "Recorded"}
-                    </span>
-                  </div>
-                </article>
-              ))}
+          <section id="my-complaints" className="scroll-mt-6">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 className="text-xl font-semibold">My complaints</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Current status of your submitted requests.
+                </p>
+              </div>
+              <Link
+                href="/complaint"
+                className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+              >
+                <FilePlus2 aria-hidden="true" className="size-4" />
+                Create complaint
+              </Link>
             </div>
-          )}
+
+            <div className="mt-4 overflow-hidden rounded-xl border bg-card">
+              {complaintsQuery.isLoading ? (
+                <p className="p-5 text-sm text-muted-foreground">
+                  Loading complaints...
+                </p>
+              ) : complaintsQuery.isError ? (
+                <p className="p-5 text-sm text-destructive">
+                  Unable to load complaints.
+                </p>
+              ) : complaints.length === 0 ? (
+                <p className="p-5 text-sm text-muted-foreground">
+                  You have not submitted any complaints yet.
+                </p>
+              ) : (
+                <div className="divide-y">
+                  {complaints.map((complaint) => (
+                    <article
+                      key={complaint.id}
+                      className="flex flex-wrap items-center justify-between gap-3 p-5"
+                    >
+                      <div>
+                        <h3 className="font-medium">
+                          {complaint.title || "Complaint"}
+                        </h3>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          Submitted {formatDate(complaint.createdAt)}
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap gap-2 text-xs font-medium">
+                        <span className="rounded-full bg-muted px-3 py-1">
+                          {complaint.status || "Status unavailable"}
+                        </span>
+                        {complaint.paymentStatus && (
+                          <span className="rounded-full bg-muted px-3 py-1">
+                            Payment: {complaint.paymentStatus}
+                          </span>
+                        )}
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
+
+          <section id="payment-history" className="scroll-mt-6">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <h2 className="text-xl font-semibold">Payment history</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Your latest payment transactions.
+                </p>
+              </div>
+              <Link
+                href="/payment-pending"
+                className="text-sm font-medium text-primary hover:underline"
+              >
+                Pending payments
+              </Link>
+            </div>
+
+            <div className="mt-4 overflow-hidden rounded-xl border bg-card">
+              {paymentsQuery.isLoading ? (
+                <p className="p-5 text-sm text-muted-foreground">
+                  Loading payment history...
+                </p>
+              ) : paymentsQuery.isError ? (
+                <p className="p-5 text-sm text-destructive">
+                  Unable to load payment history.
+                </p>
+              ) : payments.length === 0 ? (
+                <p className="p-5 text-sm text-muted-foreground">
+                  No payment history is available yet.
+                </p>
+              ) : (
+                <div className="divide-y">
+                  {payments.map((payment) => (
+                    <article
+                      key={payment.id}
+                      className="flex flex-wrap items-center justify-between gap-3 p-5"
+                    >
+                      <div>
+                        <h3 className="font-medium">
+                          {payment.complaint?.title ||
+                            payment.paymentID ||
+                            payment.transactionId ||
+                            payment.id}
+                        </h3>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          {formatDate(payment.createdAt)}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {(payment.amount ?? payment.paymentAmount) !==
+                          undefined && (
+                          <span className="font-semibold">
+                            ৳{payment.amount ?? payment.paymentAmount}
+                          </span>
+                        )}
+                        <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium">
+                          {payment.paymentStatus ||
+                            payment.status ||
+                            "Recorded"}
+                        </span>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
         </div>
-      </section>
-    </main>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
