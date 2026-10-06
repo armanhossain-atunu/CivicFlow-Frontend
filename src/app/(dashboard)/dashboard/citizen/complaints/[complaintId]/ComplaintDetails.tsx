@@ -209,7 +209,9 @@ export default function ComplaintDetails({
             <Detail label="Category">{complaint.category}</Detail>
             <Detail label="Location">{complaint.location}</Detail>
             <Detail label="Payment status">{complaint.paymentStatus}</Detail>
-            <Detail label="Payment amount">{formatCurrency(complaint.paymentAmount)}</Detail>
+            <Detail label="Payment amount">
+              {formatCurrency(complaint.paymentAmount)}
+            </Detail>
           </dl>
         </article>
       )}

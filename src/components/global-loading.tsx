@@ -18,9 +18,7 @@ export function GlobalLoading() {
       <div className="flex flex-col items-center gap-3 rounded-xl bg-background p-6 shadow-lg">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
 
-        <p className="text-sm font-medium">
-          Please wait...
-        </p>
+        <p className="text-sm font-medium">Please wait...</p>
       </div>
     </div>
   );

@@ -12,7 +12,8 @@ export const GoogleAuthProvider = ({ children }: { children: ReactNode }) => {
   }
   return (
     <GoogleOAuthProvider clientId={clientId}>
-      {}{children}
+      {}
+      {children}
     </GoogleOAuthProvider>
   );
 };

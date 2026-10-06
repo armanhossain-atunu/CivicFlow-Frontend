@@ -1,11 +1,11 @@
 /** biome-ignore-all lint/style/useImportType: <explanation> */
 // register
 export type RegisterPayload = {
-    name: string;
-    contactNumber?: string;
-    email: string;
-    password: string;
-    confirmPassword: string;
+  name: string;
+  contactNumber?: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
 };
 
 // login
@@ -39,9 +39,9 @@ export type GooglePayload = {
 
 // complain form
 export interface ICreateComplaint {
-	title: string;
-	description: string;
-	categoryId: string;
-	department: string;
-	location: string;
+  title: string;
+  description: string;
+  categoryId: string;
+  department: string;
+  location: string;
 }

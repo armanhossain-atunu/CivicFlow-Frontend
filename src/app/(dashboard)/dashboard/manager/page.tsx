@@ -8,7 +8,7 @@ export default function ManagerDashboard() {
   const { data, isLoading } = useGetAllComplaints();
 
   const complaints = data?.data?.data ?? [];
-console.log(complaints, "this is a complaint table page");
+  console.log(complaints, "this is a complaint table page");
   if (isLoading) {
     return (
       <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -31,7 +31,7 @@ console.log(complaints, "this is a complaint table page");
           technician.
         </p>
       </header>
-<ManagerStats complaints={complaints}/>
+      <ManagerStats complaints={complaints} />
       <ComplaintTable complaints={complaints} />
     </main>
   );

@@ -4,10 +4,9 @@ import { useGoogleOAuth } from "@/hooks";
 import { useRouter } from "next/dist/client/components/navigation";
 
 export default function GoogleLoginComponent() {
-     const { mutate: googleLogin,  } =
-    useGoogleOAuth();
-      const router = useRouter();
-     // ------------------------------------------
+  const { mutate: googleLogin } = useGoogleOAuth();
+  const router = useRouter();
+  // ------------------------------------------
   // Google OAuth Success
   // ------------------------------------------
 
@@ -62,12 +61,14 @@ export default function GoogleLoginComponent() {
     });
   };
 
-    return (<GoogleLogin
-            theme="outline"
-            shape="pill"
-            text="continue_with"
-            onSuccess={handleGoogleLoginSuccess}
-            onError={handleGoogleLoginError}
-            useOneTap={false}
-          />);
+  return (
+    <GoogleLogin
+      theme="outline"
+      shape="pill"
+      text="continue_with"
+      onSuccess={handleGoogleLoginSuccess}
+      onError={handleGoogleLoginError}
+      useOneTap={false}
+    />
+  );
 }

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +13,9 @@ import {
 import { Complaint } from "@/types/complaints.type";
 import { Eye } from "lucide-react";
 import Link from "next/link";
+import { AssignTechnician } from "./AssignTechnician";
+
+
 
 interface ComplaintTableProps {
   complaints: Complaint[];
@@ -37,8 +39,6 @@ const ComplaintTable = ({ complaints }: ComplaintTableProps) => {
     }
   };
 
- 
-
   return (
     <div className="w-full overflow-hidden rounded-xl border bg-card">
       <div className="border-b px-6 py-4">
@@ -50,9 +50,7 @@ const ComplaintTable = ({ complaints }: ComplaintTableProps) => {
             </p>
           </div>
 
-          <Badge variant="secondary">
-            {complaints.length} Complaints
-          </Badge>
+          <Badge variant="secondary">{complaints.length} Complaints</Badge>
         </div>
       </div>
 
@@ -65,6 +63,7 @@ const ComplaintTable = ({ complaints }: ComplaintTableProps) => {
               <TableHead>Location</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Payment</TableHead>
+              <TableHead className="text-right">Assign</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
@@ -75,9 +74,7 @@ const ComplaintTable = ({ complaints }: ComplaintTableProps) => {
                 <TableRow key={complaint.id}>
                   <TableCell>
                     <div className="`max-w-[250px]">
-                      <p className="truncate font-medium">
-                        {complaint.title}
-                      </p>
+                      <p className="truncate font-medium">{complaint.title}</p>
 
                       {complaint.description && (
                         <p className="truncate text-xs text-muted-foreground">
@@ -87,9 +84,7 @@ const ComplaintTable = ({ complaints }: ComplaintTableProps) => {
                     </div>
                   </TableCell>
 
-                  <TableCell>
-                    {complaint.department || "N/A"}
-                  </TableCell>
+                  <TableCell>{complaint.department || "N/A"}</TableCell>
 
                   <TableCell>
                     <span className=" `max-w-[180px]` truncate">
@@ -119,15 +114,19 @@ const ComplaintTable = ({ complaints }: ComplaintTableProps) => {
                     )}
                   </TableCell>
 
-                <TableCell className="text-right">
-  <Link
-    href={`/dashboard/manager/${complaint.id}`}
-    className="inline-flex h-9 items-center justify-center gap-2 rounded-md px-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
-  >
-    <Eye className="h-4 w-4" />
-    View
-  </Link>
-</TableCell>
+                  <TableCell className="text-right">
+                    <AssignTechnician complaintId={complaint.id} />
+                  </TableCell>
+
+                  <TableCell className="text-right">
+                    <Link
+                      href={`/dashboard/manager/${complaint.id}`}
+                      className="inline-flex h-9 items-center justify-center gap-2 rounded-md px-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+                    >
+                      <Eye className="h-4 w-4" />
+                      View
+                    </Link>
+                  </TableCell>
                 </TableRow>
               ))
             ) : (

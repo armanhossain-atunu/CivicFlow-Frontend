@@ -56,8 +56,6 @@ export default function ProfilePage() {
     });
   };
 
- 
-
   if (isError) {
     return (
       <main className="mx-auto w-full max-w-3xl px-4 py-12">
@@ -132,7 +130,9 @@ export default function ProfilePage() {
             <dt className="text-sm font-medium text-muted-foreground">
               Contact number
             </dt>
-            <dd className="mt-1">{user?.citizen?.contactNumber || "Not provided"}</dd>
+            <dd className="mt-1">
+              {user?.citizen?.contactNumber || "Not provided"}
+            </dd>
           </div>
           <div>
             <dt className="text-sm font-medium text-muted-foreground">Role</dt>

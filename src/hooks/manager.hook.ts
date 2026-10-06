@@ -1,16 +1,17 @@
+/** biome-ignore-all lint/correctness/noUnusedImports: <explanation> */
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  assignComplaint,
+  assignmentCreate,
   getAllComplaints,
   getComplaint,
   getTechnicians,
 } from "@/api/manager.api";
 import {
+  createAssignment,
   normalizeComplaintPayload,
   normalizeComplaints,
-  normalizeTechnicians,
 } from "@/types/manager.types";
 
 const managerQueryKeys = {
@@ -19,7 +20,7 @@ const managerQueryKeys = {
   complaint: (complaintId: string | undefined) =>
     ["manager", "complaint", complaintId] as const,
 };
-
+// get all complaints
 export function useManagerComplaints() {
   return useQuery({
     queryKey: managerQueryKeys.complaints,
@@ -27,7 +28,7 @@ export function useManagerComplaints() {
     retry: false,
   });
 }
-
+// get a single complaint
 export function useManagerComplaint(complaintId: string | undefined) {
   return useQuery({
     queryKey: managerQueryKeys.complaint(complaintId),
@@ -42,36 +43,24 @@ export function useManagerComplaint(complaintId: string | undefined) {
     retry: false,
   });
 }
-
-export function useManagerTechnicians(enabled: boolean) {
+// get all technicians
+export function useGetTechnicians() {
   return useQuery({
-    queryKey: managerQueryKeys.technicians,
-    queryFn: async () => normalizeTechnicians(await getTechnicians()),
-    enabled,
-    retry: false,
+    queryKey: ["technicians"],
+    queryFn: getTechnicians,
   });
 }
-
-export function useAssignComplaint() {
+// assign a technician to a complaint
+export function useCreateAssignment() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      complaintId,
-      userId,
-    }: {
-      complaintId: string;
-      userId: string;
-    }) => assignComplaint(complaintId, userId),
-    onSuccess: async (_result, { complaintId }) => {
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: managerQueryKeys.complaints,
-        }),
-        queryClient.invalidateQueries({
-          queryKey: managerQueryKeys.complaint(complaintId),
-        }),
-      ]);
+    mutationFn: (payload: createAssignment) => assignmentCreate(payload),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: managerQueryKeys.complaints,
+      });
     },
   });
 }

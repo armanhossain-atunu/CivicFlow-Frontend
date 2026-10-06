@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useForm } from "@tanstack/react-form";
@@ -16,10 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/toast";
 
-import {
-  useCreateComplaint,
-  useGetAllCategories,
-} from "@/hooks/complain.hook";
+import { useCreateComplaint, useGetAllCategories } from "@/hooks/complain.hook";
 
 import { createComplaintSchema } from "@/validation";
 
@@ -48,15 +44,11 @@ type CreateComplaintResponse = {
 export function ComplaintForm() {
   const router = useRouter();
 
-  const {
-    mutate: createComplaint,
-    isPending: complaintPending,
-  } = useCreateComplaint();
+  const { mutate: createComplaint, isPending: complaintPending } =
+    useCreateComplaint();
 
-  const {
-    data: categories,
-    isLoading: categoriesLoading,
-  } = useGetAllCategories();
+  const { data: categories, isLoading: categoriesLoading } =
+    useGetAllCategories();
 
   const categoryList: Category[] = categories?.data ?? [];
 
@@ -81,8 +73,7 @@ export function ComplaintForm() {
       if (!selectedCategory) {
         toast.add({
           title: "Category required",
-          description:
-            "Please select a valid complaint category.",
+          description: "Please select a valid complaint category.",
           type: "error",
         });
 
@@ -93,10 +84,7 @@ export function ComplaintForm() {
     },
   });
 
-  const submitComplaint = (
-    value: ComplaintFormValues,
-    category: Category,
-  ) => {
+  const submitComplaint = (value: ComplaintFormValues, category: Category) => {
     createComplaint(value, {
       onSuccess: (response: CreateComplaintResponse) => {
         // Complaint ID from backend
@@ -153,9 +141,7 @@ export function ComplaintForm() {
       onError: (error) => {
         toast.add({
           title: "Submission failed",
-          description:
-            error.message ||
-            "Please try again after a few moments.",
+          description: error.message || "Please try again after a few moments.",
           type: "error",
         });
       },
@@ -175,13 +161,10 @@ export function ComplaintForm() {
       <FieldGroup>
         {/* HEADER */}
         <div className="flex flex-col gap-1 text-center">
-          <h1 className="text-2xl font-bold">
-            Report a civic issue
-          </h1>
+          <h1 className="text-2xl font-bold">Report a civic issue</h1>
 
           <p className="text-sm text-balance text-muted-foreground">
-            Share the details so the relevant team can follow up
-            quickly.
+            Share the details so the relevant team can follow up quickly.
           </p>
         </div>
 
@@ -189,14 +172,11 @@ export function ComplaintForm() {
         <form.Field name="title">
           {(field) => {
             const isInvalid =
-              field.state.meta.isTouched &&
-              !field.state.meta.isValid;
+              field.state.meta.isTouched && !field.state.meta.isValid;
 
             return (
               <Field>
-                <FieldLabel htmlFor={field.name}>
-                  Complaint title
-                </FieldLabel>
+                <FieldLabel htmlFor={field.name}>Complaint title</FieldLabel>
 
                 <Input
                   id={field.name}
@@ -205,19 +185,14 @@ export function ComplaintForm() {
                   placeholder="Broken water main near the market"
                   value={field.state.value}
                   onBlur={field.handleBlur}
-                  onChange={(event) =>
-                    field.handleChange(event.target.value)
-                  }
+                  onChange={(event) => field.handleChange(event.target.value)}
                   aria-invalid={isInvalid}
                   required
                 />
 
-                {isInvalid &&
-                  field.state.meta.errors.length > 0 && (
-                    <FieldError
-                      errors={field.state.meta.errors}
-                    />
-                  )}
+                {isInvalid && field.state.meta.errors.length > 0 && (
+                  <FieldError errors={field.state.meta.errors} />
+                )}
               </Field>
             );
           }}
@@ -227,19 +202,15 @@ export function ComplaintForm() {
         <form.Field name="categoryId">
           {(field) => {
             const isInvalid =
-              field.state.meta.isTouched &&
-              !field.state.meta.isValid;
+              field.state.meta.isTouched && !field.state.meta.isValid;
 
             const selectedCategory = categoryList.find(
-              (category) =>
-                category.id === field.state.value,
+              (category) => category.id === field.state.value,
             );
 
             return (
               <Field>
-                <FieldLabel htmlFor={field.name}>
-                  Category
-                </FieldLabel>
+                <FieldLabel htmlFor={field.name}>Category</FieldLabel>
 
                 <select
                   id={field.name}
@@ -247,8 +218,7 @@ export function ComplaintForm() {
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(event) => {
-                    const categoryId =
-                      event.target.value;
+                    const categoryId = event.target.value;
 
                     field.handleChange(categoryId);
 
@@ -274,10 +244,7 @@ export function ComplaintForm() {
                   </option>
 
                   {categoryList.map((category) => (
-                    <option
-                      key={category.id}
-                      value={category.id}
-                    >
+                    <option key={category.id} value={category.id}>
                       {category.name}
                     </option>
                   ))}
@@ -286,9 +253,7 @@ export function ComplaintForm() {
                 {/* Payment information */}
                 {selectedCategory?.paymentRequired && (
                   <div className="rounded-md border border-yellow-300 bg-yellow-50 p-3 text-sm text-yellow-800">
-                    <p className="font-medium">
-                      Payment required
-                    </p>
+                    <p className="font-medium">Payment required</p>
 
                     <p>
                       This category requires a payment
@@ -299,20 +264,15 @@ export function ComplaintForm() {
                   </div>
                 )}
 
-                {!selectedCategory?.paymentRequired &&
-                  selectedCategory && (
-                    <FieldDescription>
-                      No payment is required for this
-                      category.
-                    </FieldDescription>
-                  )}
+                {!selectedCategory?.paymentRequired && selectedCategory && (
+                  <FieldDescription>
+                    No payment is required for this category.
+                  </FieldDescription>
+                )}
 
-                {isInvalid &&
-                  field.state.meta.errors.length > 0 && (
-                    <FieldError
-                      errors={field.state.meta.errors}
-                    />
-                  )}
+                {isInvalid && field.state.meta.errors.length > 0 && (
+                  <FieldError errors={field.state.meta.errors} />
+                )}
               </Field>
             );
           }}
@@ -322,14 +282,11 @@ export function ComplaintForm() {
         <form.Field name="description">
           {(field) => {
             const isInvalid =
-              field.state.meta.isTouched &&
-              !field.state.meta.isValid;
+              field.state.meta.isTouched && !field.state.meta.isValid;
 
             return (
               <Field>
-                <FieldLabel htmlFor={field.name}>
-                  Description
-                </FieldLabel>
+                <FieldLabel htmlFor={field.name}>Description</FieldLabel>
 
                 <textarea
                   id={field.name}
@@ -338,25 +295,19 @@ export function ComplaintForm() {
                   placeholder="Describe the issue, when it started, and any immediate impact."
                   value={field.state.value}
                   onBlur={field.handleBlur}
-                  onChange={(event) =>
-                    field.handleChange(event.target.value)
-                  }
+                  onChange={(event) => field.handleChange(event.target.value)}
                   aria-invalid={isInvalid}
                   className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   required
                 />
 
                 <FieldDescription>
-                  Include the impact, location details, and
-                  any urgency.
+                  Include the impact, location details, and any urgency.
                 </FieldDescription>
 
-                {isInvalid &&
-                  field.state.meta.errors.length > 0 && (
-                    <FieldError
-                      errors={field.state.meta.errors}
-                    />
-                  )}
+                {isInvalid && field.state.meta.errors.length > 0 && (
+                  <FieldError errors={field.state.meta.errors} />
+                )}
               </Field>
             );
           }}
@@ -366,14 +317,11 @@ export function ComplaintForm() {
         <form.Field name="department">
           {(field) => {
             const isInvalid =
-              field.state.meta.isTouched &&
-              !field.state.meta.isValid;
+              field.state.meta.isTouched && !field.state.meta.isValid;
 
             return (
               <Field>
-                <FieldLabel htmlFor={field.name}>
-                  Department
-                </FieldLabel>
+                <FieldLabel htmlFor={field.name}>Department</FieldLabel>
 
                 <Input
                   id={field.name}
@@ -386,16 +334,12 @@ export function ComplaintForm() {
                 />
 
                 <FieldDescription>
-                  Department is automatically selected based
-                  on the category.
+                  Department is automatically selected based on the category.
                 </FieldDescription>
 
-                {isInvalid &&
-                  field.state.meta.errors.length > 0 && (
-                    <FieldError
-                      errors={field.state.meta.errors}
-                    />
-                  )}
+                {isInvalid && field.state.meta.errors.length > 0 && (
+                  <FieldError errors={field.state.meta.errors} />
+                )}
               </Field>
             );
           }}
@@ -405,14 +349,11 @@ export function ComplaintForm() {
         <form.Field name="location">
           {(field) => {
             const isInvalid =
-              field.state.meta.isTouched &&
-              !field.state.meta.isValid;
+              field.state.meta.isTouched && !field.state.meta.isValid;
 
             return (
               <Field>
-                <FieldLabel htmlFor={field.name}>
-                  Location
-                </FieldLabel>
+                <FieldLabel htmlFor={field.name}>Location</FieldLabel>
 
                 <Input
                   id={field.name}
@@ -421,19 +362,14 @@ export function ComplaintForm() {
                   placeholder="123 Main Street, Downtown"
                   value={field.state.value}
                   onBlur={field.handleBlur}
-                  onChange={(event) =>
-                    field.handleChange(event.target.value)
-                  }
+                  onChange={(event) => field.handleChange(event.target.value)}
                   aria-invalid={isInvalid}
                   required
                 />
 
-                {isInvalid &&
-                  field.state.meta.errors.length > 0 && (
-                    <FieldError
-                      errors={field.state.meta.errors}
-                    />
-                  )}
+                {isInvalid && field.state.meta.errors.length > 0 && (
+                  <FieldError errors={field.state.meta.errors} />
+                )}
               </Field>
             );
           }}
@@ -442,15 +378,11 @@ export function ComplaintForm() {
         {/* SUBMIT */}
         <Field>
           <form.Subscribe
-            selector={(state) => [
-              state.values.categoryId,
-              state.isSubmitting,
-            ]}
+            selector={(state) => [state.values.categoryId, state.isSubmitting]}
           >
             {([categoryId, isSubmitting]) => {
               const selectedCategory = categoryList.find(
-                (category) =>
-                  category.id === categoryId,
+                (category) => category.id === categoryId,
               );
 
               const paymentRequired =
@@ -466,8 +398,7 @@ export function ComplaintForm() {
                     categoriesLoading
                   }
                 >
-                  {complaintPending ||
-                  isSubmitting
+                  {complaintPending || isSubmitting
                     ? "Processing..."
                     : paymentRequired
                       ? `Pay & Submit${
@@ -485,4 +416,3 @@ export function ComplaintForm() {
     </form>
   );
 }
-

@@ -7,10 +7,8 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => {
     <div className="min-h-screen bg-background">
       <Header />
       {children}
-  
-      <Footer/>
-    
-      
+
+      <Footer />
     </div>
   );
 };

@@ -12,8 +12,8 @@ const ComplaintPage = () => {
             Report city issues quickly and clearly
           </h1>
           <p className="max-w-xl text-lg text-slate-600">
-            Submit a public service request so the relevant department can assess,
-            assign, and resolve it without delays.
+            Submit a public service request so the relevant department can
+            assess, assign, and resolve it without delays.
           </p>
           <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-600">
             <p className="font-medium text-slate-900">What to include</p>

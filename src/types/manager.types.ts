@@ -17,8 +17,13 @@ export type Technician = {
   id: string;
   name: string;
   email: string;
+  role: string | undefined;
 };
-
+export type createAssignment = {
+  complaintId: string;
+  assignedToId: string;
+  note?: string;
+};
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -161,7 +166,12 @@ export function normalizeTechnician(value: unknown): Technician | null {
     return null;
   }
 
-  return { id, name, email: email ?? "" };
+  return {
+    id,
+    name,
+    role: getText(value.role) ,
+    email: email ?? "",
+  };
 }
 
 export function normalizeComplaints(value: unknown): ManagerComplaint[] {

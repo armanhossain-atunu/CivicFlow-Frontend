@@ -5,11 +5,10 @@ const apiClient = ofetch.create({
   baseURL: BASE_URL,
   credentials: "include",
   onResponseError({ response }) {
-		const message =
-			response._data?.message || "Something went wrong.";
+    const message = response._data?.message || "Something went wrong.";
 
-		throw new Error(message);
-	},
+    throw new Error(message);
+  },
 });
 
 export default apiClient;

@@ -209,7 +209,7 @@ export const Header = () => {
                   <DropdownMenuItem
                     onClick={() => router.push("/payment-pending")}
                   >
-                   <BanknoteArrowDown />
+                    <BanknoteArrowDown />
                     Payment Pending
                   </DropdownMenuItem>
                   {/* Notifications */}

@@ -25,14 +25,10 @@ const PaymentPending = () => {
   );
 
   // Get pending complaints
-  const {
-    data,
-    isError,
-  } = useGetAllPendingComplaints();
+  const { data, isError } = useGetAllPendingComplaints();
 
   // Payment mutation
-  const { mutateAsync: payForComplaint } =
-    usePayForComplaint();
+  const { mutateAsync: payForComplaint } = usePayForComplaint();
 
   // Handle Pay Now
   const handlePayNow = async (complaintId: string) => {
@@ -58,18 +54,14 @@ const PaymentPending = () => {
 
       // Check payment URL
       if (!bkashURL) {
-        throw new Error(
-          "bKash payment URL was not returned by the server.",
-        );
+        throw new Error("bKash payment URL was not returned by the server.");
       }
 
       // Validate URL
       const paymentUrl = new URL(bkashURL);
 
       if (paymentUrl.protocol !== "https:") {
-        throw new Error(
-          "The payment server returned an invalid checkout URL.",
-        );
+        throw new Error("The payment server returned an invalid checkout URL.");
       }
 
       // Redirect to bKash
@@ -106,26 +98,21 @@ const PaymentPending = () => {
   if (isError) {
     return (
       <div className="py-10 text-center">
-        <p className="text-destructive">
-          Failed to load pending payments.
-        </p>
+        <p className="text-destructive">Failed to load pending payments.</p>
       </div>
     );
   }
 
   // Get only PENDING payments
   const pendingComplaints =
-    data?.data?.data?.filter(
-      (item: any) => item.paymentStatus === "PENDING",
-    ) ?? [];
+    data?.data?.data?.filter((item: any) => item.paymentStatus === "PENDING") ??
+    [];
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-4">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">
-          Payment Pending
-        </h1>
+        <h1 className="text-2xl font-bold tracking-tight">Payment Pending</h1>
 
         <p className="text-muted-foreground">
           Complete your pending complaint payments.
@@ -136,9 +123,7 @@ const PaymentPending = () => {
       {pendingComplaints.length === 0 ? (
         <Card>
           <CardContent className="py-10 text-center">
-            <p className="text-muted-foreground">
-              No pending payment found.
-            </p>
+            <p className="text-muted-foreground">No pending payment found.</p>
           </CardContent>
         </Card>
       ) : (
@@ -146,8 +131,7 @@ const PaymentPending = () => {
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {pendingComplaints.map((complaint: any) => {
             // Check current complaint is paying
-            const isPaying =
-              payingComplaintId === complaint.id;
+            const isPaying = payingComplaintId === complaint.id;
 
             return (
               <Card
@@ -180,9 +164,7 @@ const PaymentPending = () => {
                       Location
                     </p>
 
-                    <p className="line-clamp-2 text-sm">
-                      {complaint.location}
-                    </p>
+                    <p className="line-clamp-2 text-sm">{complaint.location}</p>
                   </div>
 
                   {/* Payment */}
@@ -209,13 +191,9 @@ const PaymentPending = () => {
                   <Button
                     className="w-full"
                     disabled={payingComplaintId !== null}
-                    onClick={() =>
-                      handlePayNow(complaint.id)
-                    }
+                    onClick={() => handlePayNow(complaint.id)}
                   >
-                    {isPaying
-                      ? "Creating Payment..."
-                      : "Pay Now"}
+                    {isPaying ? "Creating Payment..." : "Pay Now"}
                   </Button>
                 </CardFooter>
               </Card>
