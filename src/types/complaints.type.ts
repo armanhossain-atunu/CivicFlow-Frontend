@@ -2,6 +2,9 @@ export type Complaint = {
   id: string;
   title?: string;
   status?: string;
+  department?: string;
+  location?: string;
+  description?: string;
   paymentStatus?: string;
   paymentAmount?: number;
   createdAt?: string;

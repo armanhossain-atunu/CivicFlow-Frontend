@@ -3,8 +3,6 @@
 import { FilePlus2, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-
-import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,6 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 
 type Complaint = {
   id: string;
@@ -70,16 +69,14 @@ export default function MyComplaints({
     onDelete(deleteId);
     setDeleteId(null);
   };
-
+  console.log(complaints, " this is a complaine page");
   return (
     <>
       <section id="my-complaints" className="scroll-mt-6">
         {/* Header */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-xl font-semibold">
-              My complaints
-            </h2>
+            <h2 className="text-xl font-semibold">My complaints</h2>
 
             <p className="mt-1 text-sm text-muted-foreground">
               Current status of your submitted requests.
@@ -90,11 +87,7 @@ export default function MyComplaints({
             href="/complaint"
             className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
           >
-            <FilePlus2
-              aria-hidden="true"
-              className="size-4"
-            />
-
+            <FilePlus2 aria-hidden="true" className="size-4" />
             Create complaint
           </Link>
         </div>
@@ -116,8 +109,7 @@ export default function MyComplaints({
           ) : (
             <div className="divide-y">
               {complaints.map((complaint) => {
-                const isCurrentDeleting =
-                  deletingComplaintId === complaint.id;
+                const isCurrentDeleting = deletingComplaintId === complaint.id;
 
                 return (
                   <article
@@ -131,22 +123,25 @@ export default function MyComplaints({
                       </h3>
 
                       <p className="mt-1 text-sm text-muted-foreground">
-                        Submitted{" "}
-                        {formatDate(complaint.createdAt)}
+                        Submitted {formatDate(complaint.createdAt)}
                       </p>
+                      <Link
+                        href={`/dashboard/citizen/complaints/${encodeURIComponent(complaint.id)}`}
+                        className="mt-2 inline-flex text-sm font-medium text-primary hover:underline"
+                      >
+                        View details
+                      </Link>
                     </div>
 
                     {/* Status + Delete */}
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium">
-                        {complaint.status ||
-                          "Status unavailable"}
+                        {complaint.status || "Status unavailable"}
                       </span>
 
                       {complaint.paymentStatus && (
                         <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium">
-                          Payment:{" "}
-                          {complaint.paymentStatus}
+                          Payment: {complaint.paymentStatus}
                         </span>
                       )}
 
@@ -156,18 +151,11 @@ export default function MyComplaints({
                         variant="destructive"
                         size="sm"
                         disabled={isDeleting}
-                        onClick={() =>
-                          setDeleteId(complaint.id)
-                        }
+                        onClick={() => setDeleteId(complaint.id)}
                       >
-                        <Trash2
-                          aria-hidden="true"
-                          className="size-4"
-                        />
+                        <Trash2 aria-hidden="true" className="size-4" />
 
-                        {isCurrentDeleting
-                          ? "Deleting..."
-                          : "Delete"}
+                        {isCurrentDeleting ? "Deleting..." : "Delete"}
                       </Button>
                     </div>
                   </article>
@@ -189,9 +177,7 @@ export default function MyComplaints({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              Delete complaint?
-            </AlertDialogTitle>
+            <AlertDialogTitle>Delete complaint?</AlertDialogTitle>
 
             <AlertDialogDescription>
               Are you sure you want to delete{" "}
@@ -205,9 +191,7 @@ export default function MyComplaints({
           </AlertDialogHeader>
 
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>
-              Cancel
-            </AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
 
             <AlertDialogAction
               disabled={isDeleting}
