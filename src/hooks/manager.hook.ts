@@ -55,11 +55,20 @@ export function useCreateAssignment() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: createAssignment) => assignmentCreate(payload),
+    mutationFn: (payload: createAssignment) =>
+      assignmentCreate(payload),
 
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
+      // Manager complaint list refresh
       queryClient.invalidateQueries({
         queryKey: managerQueryKeys.complaints,
+      });
+
+      // Current complaint details refresh
+      queryClient.invalidateQueries({
+        queryKey: managerQueryKeys.complaint(
+          variables.complaintId,
+        ),
       });
     },
   });

@@ -1,9 +1,12 @@
 import React from "react";
+import MyAssignments from "./MyAssignments";
 
 const TechnicianDashboard = () => {
+  
   return (
     <div>
-      <h1>Technician Dashboard</h1>
+      
+      <MyAssignments/>
     </div>
   );
 };
