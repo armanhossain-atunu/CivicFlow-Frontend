@@ -21,3 +21,15 @@ export type Payment = {
   createdAt?: string;
   complaint?: { title?: string };
 };
+export type ComplaintDetailsData = {
+  id: string;
+  title?: string;
+  description?: string;
+  status?: string;
+  paymentStatus?: string;
+  paymentAmount?: number;
+  department?: string;
+  category?: string;
+  location?: string;
+  createdAt?: string;
+};

@@ -1,11 +1,10 @@
-/** biome-ignore-all lint/a11y/noSvgWithoutTitle: GitHub icon is decorative */
+ /** biome-ignore-all lint/a11y/noSvgWithoutTitle: GitHub icon is decorative */
 /** biome-ignore-all lint/correctness/noUnusedImports: <explanation> */
 "use client";
 
 import Link from "next/link";
 import { useForm } from "@tanstack/react-form";
 import { Eye, EyeOff } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { LoginZodSchema } from "@/validation";
@@ -19,14 +18,12 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { cn } from "cn";
-import { useGoogleOAuth, useLogin } from "@/hooks";
+import { useLogin } from "@/hooks";
 import { toast } from "../ui/toast";
 import GoogleLoginComponent from "../modules/google-login/GoogleLogin";
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
-
-  const router = useRouter();
 
   const { mutate: login, isPending: loginPending } = useLogin();
 
@@ -48,7 +45,7 @@ export function LoginForm() {
 
       login(loginData, {
         onSuccess: (res) => {
-          console.log(res);
+          console.log("Login response:", res);
 
           toast.add({
             title: "Login successful",
@@ -56,10 +53,13 @@ export function LoginForm() {
             type: "success",
           });
 
-          router.push("/");
+          // Full page reload after successful login
+          window.location.href = "/";
         },
 
         onError: (err) => {
+          console.error("Login error:", err);
+
           toast.add({
             title: "Login failed",
             description:
@@ -184,17 +184,22 @@ export function LoginForm() {
 
         {/* Login */}
         <Field>
-          <Button type="submit" className="w-full" disabled={loginPending}>
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={loginPending}
+          >
             {loginPending ? "Logging in..." : "Login"}
           </Button>
         </Field>
 
         <FieldSeparator>Or continue with</FieldSeparator>
       </FieldGroup>
-      {/* Google OAuth */}
 
+      {/* Google OAuth */}
       <Field>
         <GoogleLoginComponent />
+
         <FieldDescription className="text-center">
           Don&apos;t have an account?{" "}
           <Link href="/register" className="underline underline-offset-4">
@@ -202,21 +207,6 @@ export function LoginForm() {
           </Link>
         </FieldDescription>
       </Field>
-      {/* <Field>
-        <div className="flex w-full items-center justify-center">
-          <GoogleLoginComponent/>
-        </div>
-
-       
-        
-
-        <FieldDescription className="text-center">
-          Don&apos;t have an account?{" "}
-          <Link href="/register" className="underline underline-offset-4">
-            Sign up
-          </Link>
-        </FieldDescription>
-      </Field> */}
     </form>
   );
 }

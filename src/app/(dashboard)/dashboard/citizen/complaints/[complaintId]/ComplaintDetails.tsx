@@ -1,22 +1,11 @@
+/** biome-ignore-all lint/style/useImportType: <explanation> */
 "use client";
 
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useGetSingleComplaint } from "@/hooks/complain.hook";
-
-type ComplaintDetailsData = {
-  id: string;
-  title?: string;
-  description?: string;
-  status?: string;
-  paymentStatus?: string;
-  paymentAmount?: number;
-  department?: string;
-  category?: string;
-  location?: string;
-  createdAt?: string;
-};
+import { ComplaintDetailsData } from "@/types/complaints.type";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -193,13 +182,24 @@ export default function ComplaintDetails({
         </p>
       ) : (
         <article className="space-y-6 rounded-xl border bg-card p-6">
-          <div>
-            <h2 className="text-xl font-semibold">
-              {complaint.title || "Complaint"}
-            </h2>
-            <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
-              {complaint.description || "No description provided."}
-            </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-semibold">
+                {complaint.title || "Complaint"}
+              </h2>
+              <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
+                {complaint.description || "No description provided."}
+              </p>
+            </div>
+            {complaint.status === "PAYMENT_PENDING" && (
+              <Button className="shrink-0">
+                <Link
+                  href={`/billing?complaintId=${encodeURIComponent(complaint.id)}`}
+                >
+                  Pay Now
+                </Link>
+              </Button>
+            )}
           </div>
 
           <dl className="grid gap-5 border-t pt-5 sm:grid-cols-2">

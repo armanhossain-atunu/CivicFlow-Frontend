@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/table";
 
 import { Badge } from "@/components/ui/badge";
+import StatusUpdate from "./StatusUpdate";
 
 type Complaint = {
   id?: string;
@@ -55,7 +56,7 @@ type Assignment = {
 };
 
 const MyAssignments = () => {
-  const { data, isLoading, isError } = useGetMyAssignments();
+  const { data,  isError } = useGetMyAssignments();
 
   console.log(data, "My Assignments");
 
@@ -196,7 +197,10 @@ const status = complaint?.status ?? assignment.status
                         {/* Status */}
                         <TableCell>
                          
-                            { status }
+                          <StatusUpdate
+  assignmentId={assignment.id}
+  currentStatus={status}
+/>
                         </TableCell>
 
                         {/* Action */}
