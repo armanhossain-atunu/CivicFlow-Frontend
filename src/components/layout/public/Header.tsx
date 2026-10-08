@@ -1,15 +1,14 @@
 /** biome-ignore-all assist/source/organizeImports: <explanation> */
 "use client";
 
-import Link from "next/link";
 import {
   BadgeCheckIcon,
   BanknoteArrowDown,
   BellIcon,
-  CreditCardIcon,
   LayoutDashboard,
   LogOutIcon,
 } from "lucide-react";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -64,15 +63,41 @@ export const Header = () => {
     user?.name?.charAt(0)?.toUpperCase() ??
     user?.email?.charAt(0)?.toUpperCase() ??
     "U";
+
+  /**
+   * Role based dashboard routes
+   */
   const dashboardPathByRole: Record<string, string> = {
     admin: "/dashboard/admin",
     citizen: "/dashboard/citizen",
     manager: "/dashboard/manager",
     technician: "/dashboard/technician",
   };
-  const role = user?.role?.trim().toLowerCase();
-  const dashboardPath = role ? dashboardPathByRole[role] : undefined;
 
+  /**
+   * Normalize role
+   *
+   * Backend:
+   * ADMIN
+   * CITIZEN
+   * MANAGER
+   * TECHNICIAN
+   *
+   * Frontend:
+   * admin
+   * citizen
+   * manager
+   * technician
+   */
+  const role = user?.role?.trim().toLowerCase();
+
+  const dashboardPath = role
+    ? dashboardPathByRole[role]
+    : undefined;
+
+  /**
+   * Logout
+   */
   const handleLogout = () => {
     logout(undefined, {
       onSuccess: () => {
@@ -81,7 +106,7 @@ export const Header = () => {
           queryKey: ["user"],
         });
 
-        // Remove stored tokens if they are stored in localStorage
+        // Remove stored tokens
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
 
@@ -111,8 +136,13 @@ export const Header = () => {
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/80 backdrop-blur-sm">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-3">
+        {/* =====================================================
+            LOGO
+        ====================================================== */}
+        <Link
+          href="/"
+          className="flex items-center gap-3"
+        >
           <Logo />
 
           <span className="text-xl font-bold tracking-tight text-slate-900">
@@ -120,7 +150,9 @@ export const Header = () => {
           </span>
         </Link>
 
-        {/* Navigation */}
+        {/* =====================================================
+            NAVIGATION
+        ====================================================== */}
         <nav className="hidden items-center gap-8 md:flex">
           {routes.map((route) => {
             const isActive =
@@ -145,13 +177,17 @@ export const Header = () => {
           })}
         </nav>
 
-        {/* Authentication */}
+        {/* =====================================================
+            AUTHENTICATION
+        ====================================================== */}
         <div className="flex items-center gap-3">
+          {/* Loading */}
           {isLoading ? (
-            // Loading skeleton
             <div className="size-9 animate-pulse rounded-full bg-slate-200" />
           ) : user ? (
-            // Logged in user
+            /* =================================================
+               LOGGED IN USER
+            ================================================== */
             <DropdownMenu>
               <DropdownMenuTrigger
                 render={
@@ -167,14 +203,21 @@ export const Header = () => {
                         alt={user.name ?? "User"}
                       />
 
-                      <AvatarFallback>{userInitial}</AvatarFallback>
+                      <AvatarFallback>
+                        {userInitial}
+                      </AvatarFallback>
                     </Avatar>
                   </Button>
                 }
               />
 
-              <DropdownMenuContent align="end" className="w-56">
-                {/* User Information */}
+              <DropdownMenuContent
+                align="end"
+                className="w-56"
+              >
+                {/* =================================================
+                    USER INFORMATION
+                ================================================== */}
                 <div className="px-2 py-2">
                   <p className="truncate text-sm font-semibold text-slate-900">
                     {user.name ?? "User"}
@@ -183,38 +226,69 @@ export const Header = () => {
                   <p className="truncate text-xs text-slate-500">
                     {user.email}
                   </p>
+
+                  {/* Role */}
+                  {role && (
+                    <p className="mt-1 text-xs font-medium capitalize text-primary">
+                      {role}
+                    </p>
+                  )}
                 </div>
 
                 <DropdownMenuSeparator />
 
                 <DropdownMenuGroup>
+                  {/* =================================================
+                      DASHBOARD
+                  ================================================== */}
                   {dashboardPath && (
                     <DropdownMenuItem
-                      onClick={() => router.push(dashboardPath)}
+                      onClick={() =>
+                        router.push(dashboardPath)
+                      }
                     >
                       <LayoutDashboard />
+
                       {role
                         ? `${role.charAt(0).toUpperCase()}${role.slice(1)} Dashboard`
                         : "Dashboard"}
                     </DropdownMenuItem>
                   )}
 
-                  {/* Profile */}
-                  <DropdownMenuItem onClick={() => router.push("/profile")}>
+                  {/* =================================================
+                      PROFILE
+                  ================================================== */}
+                  <DropdownMenuItem
+                    onClick={() =>
+                      router.push("/profile")
+                    }
+                  >
                     <BadgeCheckIcon />
                     Profile
                   </DropdownMenuItem>
 
-                  {/* Billing */}
+                  {/* =================================================
+                      PAYMENT PENDING
+                      ONLY CITIZEN CAN SEE
+                  ================================================== */}
+                  {role === "citizen" && (
+                    <DropdownMenuItem
+                      onClick={() =>
+                        router.push("/payment-pending")
+                      }
+                    >
+                      <BanknoteArrowDown />
+                      Payment Pending
+                    </DropdownMenuItem>
+                  )}
+
+                  {/* =================================================
+                      NOTIFICATIONS
+                  ================================================== */}
                   <DropdownMenuItem
-                    onClick={() => router.push("/payment-pending")}
-                  >
-                    <BanknoteArrowDown />
-                    Payment Pending
-                  </DropdownMenuItem>
-                  {/* Notifications */}
-                  <DropdownMenuItem
-                    onClick={() => router.push("/notifications")}
+                    onClick={() =>
+                      router.push("/notifications")
+                    }
                   >
                     <BellIcon />
                     Notifications
@@ -223,7 +297,9 @@ export const Header = () => {
 
                 <DropdownMenuSeparator />
 
-                {/* Logout */}
+                {/* =================================================
+                    LOGOUT
+                ================================================== */}
                 <DropdownMenuItem
                   disabled={logoutPending}
                   onClick={handleLogout}
@@ -231,12 +307,16 @@ export const Header = () => {
                 >
                   <LogOutIcon />
 
-                  {logoutPending ? "Signing out..." : "Sign Out"}
+                  {logoutPending
+                    ? "Signing out..."
+                    : "Sign Out"}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            // Logged out user
+            /* =================================================
+               LOGGED OUT USER
+            ================================================== */
             <>
               {/* Sign In */}
               <Link

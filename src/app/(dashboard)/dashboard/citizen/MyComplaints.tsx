@@ -2,41 +2,22 @@
 
 import { FilePlus2, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { CommonPagination } from "@/components/common/CommonPagination";
+import { CommonSearch } from "@/components/common/CommonSearch";
+import { CommonStatusFilter } from "@/components/common/CommonStatusFilter";
+import { Delete } from "@/components/common/delete";
 import {
   AlertDialog,
   AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { getStatusLabel } from "@/lib/status-label";
-import { CommonSearch } from "@/components/common/CommonSearch";
-import { CommonStatusFilter } from "@/components/common/CommonStatusFilter";
+import { Button as UIButton } from "@/components/ui/button";
 import { COMPLAINT_STATUS_OPTIONS } from "@/lib/complaint-status";
+import { getStatusLabel } from "@/lib/status-label";
+import { MyComplaintsProps } from "@/types/complaints.type";
 
-type Complaint = {
-  id: string;
-  title?: string;
-  status?: string;
-  paymentStatus?: string;
-  createdAt?: string;
-};
 
-type MyComplaintsProps = {
-  complaints: Complaint[];
-  isLoading: boolean;
-  isError: boolean;
-
-  onDelete: (complaintId: string) => void;
-  deletingComplaintId?: string | null;
-};
 
 function formatDate(value?: string) {
   if (!value) {
@@ -52,39 +33,6 @@ function formatDate(value?: string) {
       }).format(date);
 }
 
-// function getStatusLabel(status?: string) {
-//   if (!status) {
-//     return "Unknown";
-//   }
-
-//   const labels: Record<string, string> = {
-//     PAYMENT_PENDING: "Payment",
-//     SUBMITTED: "Submitted",
-//     ASSIGNED: "Assigned",
-//     IN_PROGRESS: "In Progress",
-//     RESOLVED: "Resolved",
-//     CLOSED: "Closed",
-//     REJECTED: "Rejected",
-//   };
-
-//   return labels[status] ?? status.replaceAll("_", " ");
-// }
-
-// function getPaymentStatusLabel(status?: string) {
-//   if (!status) {
-//     return "";
-//   }
-
-//   const labels: Record<string, string> = {
-//     PENDING: "Pending",
-//     PAID: "Paid",
-//     FAILED: "Failed",
-//     CANCELLED: "Cancelled",
-//   };
-
-//   return labels[status] ?? status.replaceAll("_", " ");
-// }
-
 export default function MyComplaints({
   complaints,
   isLoading,
@@ -93,11 +41,10 @@ export default function MyComplaints({
   deletingComplaintId,
 }: MyComplaintsProps) {
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  // const [complaints, setComplaints] = useState<Complaint[]>([]);
+
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("ALL");
 
-  // Pagination
   const [page, setPage] = useState(1);
 
   const itemsPerPage = 5;
@@ -108,31 +55,106 @@ export default function MyComplaints({
 
   const isDeleting = Boolean(deletingComplaintId);
 
-  // Total pages
-  const totalPages = Math.ceil(complaints.length / itemsPerPage);
+  /*
+   * ============================================
+   * SEARCH + STATUS FILTER
+   * ============================================
+   */
+  const filteredComplaints = useMemo(() => {
+    const searchText = search.toLowerCase().trim();
 
-  // Current page complaints
+    return complaints.filter((complaint) => {
+      // Status filter
+      const matchesStatus =
+        status === "ALL" || complaint.status === status;
+
+      // Search filter
+      const matchesSearch =
+        !searchText ||
+        complaint.title?.toLowerCase().includes(searchText);
+
+      return matchesStatus && matchesSearch;
+    });
+  }, [complaints, search, status]);
+
+  /*
+   * ============================================
+   * TOTAL PAGES
+   * ============================================
+   */
+  const totalPages = Math.ceil(
+    filteredComplaints.length / itemsPerPage,
+  );
+
+  /*
+   * ============================================
+   * PAGINATION
+   * ============================================
+   */
   const paginatedComplaints = useMemo(() => {
     const startIndex = (page - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
 
-    return complaints.slice(startIndex, endIndex);
-  }, [complaints, page]);
+    return filteredComplaints.slice(startIndex, endIndex);
+  }, [filteredComplaints, page]);
 
-  // Keep page valid after delete/filter
-  if (page > totalPages && totalPages > 0) {
-    setPage(totalPages);
-  }
+  /*
+   * ============================================
+   * KEEP PAGE VALID
+   * ============================================
+   */
+  useEffect(() => {
+    if (totalPages === 0) {
+      setPage(1);
+      return;
+    }
 
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
+
+  /*
+   * ============================================
+   * PAGE CHANGE
+   * ============================================
+   */
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
 
-    // Optional: scroll back to complaints section
     document
       .getElementById("my-complaints")
-      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      ?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
   };
 
+  /*
+   * ============================================
+   * SEARCH CHANGE
+   * ============================================
+   */
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
+
+  /*
+   * ============================================
+   * STATUS CHANGE
+   * ============================================
+   */
+  const handleStatusChange = (value: string) => {
+    setStatus(value);
+    setPage(1);
+  };
+
+  /*
+   * ============================================
+   * DELETE
+   * ============================================
+   */
   const handleConfirmDelete = () => {
     if (!deleteId) {
       return;
@@ -141,62 +163,59 @@ export default function MyComplaints({
     onDelete(deleteId);
     setDeleteId(null);
   };
-  // Search and filter
-  const filteredComplaints = useMemo(() => {
-    return complaints.filter((complaint) => {
-      const matchesStatus = status === "ALL" || complaint.status === status;
-
-      const searchText = search.toLowerCase().trim();
-
-      const matchesSearch =
-        !searchText || complaint.title?.toLowerCase().includes(searchText);
-
-      return matchesStatus && matchesSearch;
-    });
-  }, [complaints, search, status]);
 
   return (
     <>
       <section id="my-complaints" className="scroll-mt-6">
-        {/* Header */}
+        {/* ========================================
+            HEADER
+        ======================================== */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-xl font-semibold">My complaints</h2>
+            <h2 className="text-xl font-semibold">
+              My complaints
+            </h2>
 
             <p className="mt-1 text-sm text-muted-foreground">
               Current status of your submitted requests.
             </p>
           </div>
-          {/* Search and filter */}
-          <div className="mt-4 flex flex-col gap-4">
-            <CommonSearch
-              value={search}
-              onChange={(value) => {
-                setSearch(value);
-                setPage(1);
-              }}
-              placeholder="Search complaints..."
-            />
 
-            <CommonStatusFilter
-              value={status}
-              options={COMPLAINT_STATUS_OPTIONS}
-              onChange={(value) => {
-                setStatus(value);
-                setPage(1);
-              }}
-            />
-          </div>
           <Link
             href="/complaint"
             className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
           >
-            <FilePlus2 aria-hidden="true" className="size-4" />
+            <FilePlus2
+              aria-hidden="true"
+              className="size-4"
+            />
+
             Create complaint
           </Link>
         </div>
 
-        {/* Complaints */}
+        {/* ========================================
+            SEARCH + STATUS FILTER
+        ======================================== */}
+        <div className="mt-5 space-y-4">
+          {/* Search */}
+          <CommonSearch
+            value={search}
+            onChange={handleSearchChange}
+            placeholder="Search complaints..."
+          />
+
+          {/* Status */}
+          <CommonStatusFilter
+            value={status}
+            options={COMPLAINT_STATUS_OPTIONS}
+            onChange={handleStatusChange}
+          />
+        </div>
+
+        {/* ========================================
+            COMPLAINT LIST
+        ======================================== */}
         <div className="mt-4 overflow-hidden rounded-xl border bg-card">
           {isLoading ? (
             <p className="p-5 text-sm text-muted-foreground">
@@ -209,6 +228,10 @@ export default function MyComplaints({
           ) : complaints.length === 0 ? (
             <p className="p-5 text-sm text-muted-foreground">
               You have not submitted any complaints yet.
+            </p>
+          ) : filteredComplaints.length === 0 ? (
+            <p className="p-5 text-sm text-muted-foreground">
+              No complaints found.
             </p>
           ) : (
             <>
@@ -229,7 +252,8 @@ export default function MyComplaints({
                         </h3>
 
                         <p className="mt-1 text-sm text-muted-foreground">
-                          Submitted {formatDate(complaint.createdAt)}
+                          Submitted{" "}
+                          {formatDate(complaint.createdAt)}
                         </p>
 
                         <Link
@@ -244,38 +268,39 @@ export default function MyComplaints({
 
                       {/* Status + Delete */}
                       <div className="flex flex-wrap items-center gap-2">
-                        {/* Complaint Status */}
+                        {/* Status */}
                         <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium">
                           {getStatusLabel(complaint.status)}
                         </span>
 
-                        {/* Payment Status */}
-                        {/* {complaint.paymentStatus && (
-                          <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium">
-                            Payment:{" "}
-                            {getPaymentStatusLabel(complaint.paymentStatus)}
-                          </span>
-                        )} */}
-
                         {/* Delete */}
-                        <Button
+                        <UIButton
                           type="button"
                           variant="destructive"
                           size="sm"
                           disabled={isDeleting}
-                          onClick={() => setDeleteId(complaint.id)}
+                          onClick={() =>
+                            setDeleteId(complaint.id)
+                          }
                         >
-                          <Trash2 aria-hidden="true" className="size-4" />
+                          <Trash2
+                            aria-hidden="true"
+                            className="size-4"
+                          />
 
-                          {isCurrentDeleting ? "Deleting..." : "Delete"}
-                        </Button>
+                          {isCurrentDeleting
+                            ? "Deleting..."
+                            : "Delete"}
+                        </UIButton>
                       </div>
                     </article>
                   );
                 })}
               </div>
 
-              {/* Pagination */}
+              {/* ========================================
+                  PAGINATION
+              ======================================== */}
               {totalPages > 1 && (
                 <div className="border-t p-4">
                   <CommonPagination
@@ -290,7 +315,9 @@ export default function MyComplaints({
         </div>
       </section>
 
-      {/* Delete Confirmation */}
+      {/* ========================================
+          DELETE DIALOG
+      ======================================== */}
       <AlertDialog
         open={Boolean(deleteId)}
         onOpenChange={(open) => {
@@ -299,33 +326,11 @@ export default function MyComplaints({
           }
         }}
       >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete complaint?</AlertDialogTitle>
-
-            <AlertDialogDescription>
-              Are you sure you want to delete{" "}
-              <span className="font-medium text-foreground">
-                {selectedComplaint?.title || "this complaint"}
-              </span>
-              ?
-              <br />
-              This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-
-            <AlertDialogAction
-              disabled={isDeleting}
-              onClick={handleConfirmDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {isDeleting ? "Deleting..." : "Delete"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
+        <Delete
+          title={selectedComplaint?.title}
+          isDeleting={isDeleting}
+          onConfirm={handleConfirmDelete}
+        />
       </AlertDialog>
     </>
   );

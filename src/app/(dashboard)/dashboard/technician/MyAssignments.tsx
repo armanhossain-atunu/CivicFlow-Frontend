@@ -1,16 +1,8 @@
-
-
 "use client";
 
 import React from "react";
 import Link from "next/link";
-import {
-  Eye,
-  Loader2,
-  ClipboardList,
-  Play,
-  CheckCircle2,
-} from "lucide-react";
+import { Eye, Loader2, ClipboardList, Play, CheckCircle2 } from "lucide-react";
 
 import { useGetMyAssignments } from "@/hooks/technician.hook";
 
@@ -56,7 +48,7 @@ type Assignment = {
 };
 
 const MyAssignments = () => {
-  const { data,  isError } = useGetMyAssignments();
+  const { data, isError } = useGetMyAssignments();
 
   console.log(data, "My Assignments");
 
@@ -65,7 +57,6 @@ const MyAssignments = () => {
     : Array.isArray(data?.data)
       ? data.data
       : [];
-
 
   if (isError) {
     return (
@@ -84,21 +75,15 @@ const MyAssignments = () => {
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            My Assignments
-          </h1>
+          <h1 className="text-2xl font-bold tracking-tight">My Assignments</h1>
 
           <p className="text-muted-foreground">
             View and manage complaints assigned to you.
           </p>
         </div>
 
-        <Badge
-          variant="secondary"
-          className="w-fit px-3 py-1"
-        >
+        <Badge variant="secondary" className="w-fit px-3 py-1">
           <ClipboardList className="mr-1.5 h-4 w-4" />
-
           {assignments.length} Assignment
           {assignments.length !== 1 ? "s" : ""}
         </Badge>
@@ -119,13 +104,10 @@ const MyAssignments = () => {
             <div className="flex min-h-[250px] flex-col items-center justify-center text-center">
               <ClipboardList className="mb-3 h-10 w-10 text-muted-foreground" />
 
-              <h3 className="font-semibold">
-                No assignments found
-              </h3>
+              <h3 className="font-semibold">No assignments found</h3>
 
               <p className="mt-1 text-sm text-muted-foreground">
-                You currently have no complaints assigned to
-                you.
+                You currently have no complaints assigned to you.
               </p>
             </div>
           ) : (
@@ -140,39 +122,34 @@ const MyAssignments = () => {
                     <TableHead>Location</TableHead>
 
                     <TableHead>Status</TableHead>
+                    <TableHead>Update Need</TableHead>
 
-                    <TableHead className="text-right">
-                      Action
-                    </TableHead>
+                    <TableHead className="text-right">Action</TableHead>
                   </TableRow>
                 </TableHeader>
 
                 <TableBody>
                   {assignments.map((assignment) => {
-                    const complaint =
-                      assignment.complaint;
+                    const complaint = assignment.complaint;
 
                     const department =
                       complaint?.department ??
                       complaint?.category?.department ??
                       "—";
 
-                    const location =
-                      complaint?.location ?? "—";
+                    const location = complaint?.location ?? "—";
 
                     const title =
                       complaint?.title ??
                       assignment.title ??
                       "Untitled complaint";
-const status = complaint?.status ?? assignment.status
+                    const status = complaint?.status ?? assignment.status;
                     return (
                       <TableRow key={assignment.id}>
                         {/* Complaint */}
                         <TableCell>
                           <div className="max-w-[280px]">
-                            <p className="font-medium">
-                              {title}
-                            </p>
+                            <p className="font-medium">{title}</p>
 
                             {assignment.trackingId && (
                               <p className="truncate text-xs text-muted-foreground">
@@ -183,9 +160,7 @@ const status = complaint?.status ?? assignment.status
                         </TableCell>
 
                         {/* Department */}
-                        <TableCell>
-                          {department}
-                        </TableCell>
+                        <TableCell>{department}</TableCell>
 
                         {/* Location */}
                         <TableCell>
@@ -194,27 +169,29 @@ const status = complaint?.status ?? assignment.status
                           </span>
                         </TableCell>
 
-                        {/* Status */}
+                        {/* Status  */}
                         <TableCell>
                          
+                          
+                            {status}
+                          
+                        </TableCell>
+                        {/* Status update */}
+                        <TableCell>
                           <StatusUpdate
-  assignmentId={assignment.id}
-  currentStatus={status}
-/>
+                            assignmentId={assignment.id}
+                            currentStatus={status}
+                          />
                         </TableCell>
 
                         {/* Action */}
                         <TableCell>
                           <div className="flex justify-end gap-2">
                             {/* View */}
-                            <Button
-                             
-                              size="sm"
-                              variant="outline"
-
-                            >
+                            <Button size="sm" variant="outline">
                               <Link
-                                href={`/dashboard/technician/${assignment.id}`} className="flex items-center"
+                                href={`/dashboard/technician/${assignment.id}`}
+                                className="flex items-center"
                               >
                                 <Eye className="mr-2 h-4 w-4" />
                                 View
@@ -235,6 +212,4 @@ const status = complaint?.status ?? assignment.status
   );
 };
 
-
 export default MyAssignments;
-

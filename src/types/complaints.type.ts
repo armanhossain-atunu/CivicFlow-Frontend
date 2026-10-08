@@ -33,3 +33,13 @@ export type ComplaintDetailsData = {
   location?: string;
   createdAt?: string;
 };
+
+
+
+export type MyComplaintsProps = {
+  complaints: Complaint[];
+  isLoading: boolean;
+  isError: boolean;
+  onDelete: (complaintId: string) => void;
+  deletingComplaintId?: string | null;
+};
