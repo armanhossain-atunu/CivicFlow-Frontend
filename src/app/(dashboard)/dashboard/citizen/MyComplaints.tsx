@@ -2,336 +2,241 @@
 
 import { FilePlus2, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { CommonPagination } from "@/components/common/CommonPagination";
 import { CommonSearch } from "@/components/common/CommonSearch";
 import { CommonStatusFilter } from "@/components/common/CommonStatusFilter";
 import { Delete } from "@/components/common/delete";
-import {
-  AlertDialog,
-  AlertDialogAction,
-} from "@/components/ui/alert-dialog";
+import { AlertDialog } from "@/components/ui/alert-dialog";
 import { Button as UIButton } from "@/components/ui/button";
 import { COMPLAINT_STATUS_OPTIONS } from "@/lib/complaint-status";
 import { getStatusLabel } from "@/lib/status-label";
 import { MyComplaintsProps } from "@/types/complaints.type";
 
 
+/* =========================================================
+Date Formatter
+========================================================= */
 
 function formatDate(value?: string) {
-  if (!value) {
-    return "—";
-  }
-
-  const date = new Date(value);
-
-  return Number.isNaN(date.getTime())
-    ? value
-    : new Intl.DateTimeFormat("en-BD", {
-        dateStyle: "medium",
-      }).format(date);
+if (!value) {
+return "—";
 }
 
+const date = new Date(value);
+
+return Number.isNaN(date.getTime())
+? value
+: new Intl.DateTimeFormat("en-BD", {
+dateStyle: "medium",
+}).format(date);
+}
+
+/* =========================================================
+My Complaints
+========================================================= */
+
 export default function MyComplaints({
-  complaints,
-  isLoading,
-  isError,
-  onDelete,
-  deletingComplaintId,
+complaints,
+meta,
+isLoading,
+isError,
+onDelete,
+deletingComplaintId,
+onPageChange,
+onSearchChange,
+onStatusChange,
+search,
+status,
 }: MyComplaintsProps) {
-  const [deleteId, setDeleteId] = useState<string | null>(null);
+const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const [search, setSearch] = useState("");
-  const [status, setStatus] = useState("ALL");
+const selectedComplaint = complaints.find(
+(complaint) => complaint.id === deleteId,
+);
 
-  const [page, setPage] = useState(1);
+const isDeleting = Boolean(deletingComplaintId);
 
-  const itemsPerPage = 5;
+/* =========================================================
+KEEP PAGE VALID
+========================================================= */
 
-  const selectedComplaint = complaints.find(
-    (complaint) => complaint.id === deleteId,
-  );
+useEffect(() => {
+if (meta.totalPage > 0 && meta.page > meta.totalPage) {
+onPageChange(meta.totalPage);
+}
+}, [meta.page, meta.totalPage, onPageChange]);
 
-  const isDeleting = Boolean(deletingComplaintId);
+/* =========================================================
+DELETE
+========================================================= */
 
-  /*
-   * ============================================
-   * SEARCH + STATUS FILTER
-   * ============================================
-   */
-  const filteredComplaints = useMemo(() => {
-    const searchText = search.toLowerCase().trim();
+const handleConfirmDelete = () => {
+if (!deleteId) {
+return;
+}
 
-    return complaints.filter((complaint) => {
-      // Status filter
-      const matchesStatus =
-        status === "ALL" || complaint.status === status;
 
-      // Search filter
-      const matchesSearch =
-        !searchText ||
-        complaint.title?.toLowerCase().includes(searchText);
+onDelete(deleteId);
+setDeleteId(null);
 
-      return matchesStatus && matchesSearch;
-    });
-  }, [complaints, search, status]);
 
-  /*
-   * ============================================
-   * TOTAL PAGES
-   * ============================================
-   */
-  const totalPages = Math.ceil(
-    filteredComplaints.length / itemsPerPage,
-  );
+};
 
-  /*
-   * ============================================
-   * PAGINATION
-   * ============================================
-   */
-  const paginatedComplaints = useMemo(() => {
-    const startIndex = (page - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
+/* =========================================================
+PAGE CHANGE
+========================================================= */
 
-    return filteredComplaints.slice(startIndex, endIndex);
-  }, [filteredComplaints, page]);
+const handlePageChange = (newPage: number) => {
+if (newPage < 1 || newPage > meta.totalPage) {
+return;
+}
 
-  /*
-   * ============================================
-   * KEEP PAGE VALID
-   * ============================================
-   */
-  useEffect(() => {
-    if (totalPages === 0) {
-      setPage(1);
-      return;
-    }
 
-    if (page > totalPages) {
-      setPage(totalPages);
-    }
-  }, [page, totalPages]);
+onPageChange(newPage);
 
-  /*
-   * ============================================
-   * PAGE CHANGE
-   * ============================================
-   */
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage);
+document.getElementById("my-complaints")?.scrollIntoView({
+  behavior: "smooth",
+  block: "start",
+});
 
-    document
-      .getElementById("my-complaints")
-      ?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-  };
 
-  /*
-   * ============================================
-   * SEARCH CHANGE
-   * ============================================
-   */
-  const handleSearchChange = (value: string) => {
-    setSearch(value);
-    setPage(1);
-  };
+};
 
-  /*
-   * ============================================
-   * STATUS CHANGE
-   * ============================================
-   */
-  const handleStatusChange = (value: string) => {
-    setStatus(value);
-    setPage(1);
-  };
+/* =========================================================
+RENDER
+========================================================= */
 
-  /*
-   * ============================================
-   * DELETE
-   * ============================================
-   */
-  const handleConfirmDelete = () => {
-    if (!deleteId) {
-      return;
-    }
+const startItem =
+meta.total === 0 ? 0 : (meta.page - 1) * meta.limit + 1;
 
-    onDelete(deleteId);
-    setDeleteId(null);
-  };
+const endItem = Math.min(meta.page * meta.limit, meta.total);
 
-  return (
-    <>
-      <section id="my-complaints" className="scroll-mt-6">
-        {/* ========================================
-            HEADER
-        ======================================== */}
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h2 className="text-xl font-semibold">
-              My complaints
-            </h2>
+return (
+<> <section id="my-complaints" className="scroll-mt-6">
+{/* HEADER */}
 
-            <p className="mt-1 text-sm text-muted-foreground">
-              Current status of your submitted requests.
+
+
+    {/* COMPLAINT LIST */}
+
+    <div className="mt-4 overflow-hidden rounded-xl border bg-card">
+      {isLoading ? (
+        <p className="p-5 text-sm text-muted-foreground">
+          Loading complaints...
+        </p>
+      ) : isError ? (
+        <p className="p-5 text-sm text-destructive">
+          Unable to load complaints. Please try again.
+        </p>
+      ) : complaints.length === 0 ? (
+        <p className="p-5 text-sm text-muted-foreground">
+          {search.trim() || status !== "ALL"
+            ? "No complaints found."
+            : "You have not submitted any complaints yet."}
+        </p>
+      ) : (
+        <>
+          {/* TOTAL */}
+
+          <div className="border-b px-5 py-3">
+            <p className="text-sm text-muted-foreground">
+              Showing {startItem}–{endItem} of {meta.total} complaints
             </p>
           </div>
 
-          <Link
-            href="/complaint"
-            className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
-          >
-            <FilePlus2
-              aria-hidden="true"
-              className="size-4"
-            />
+          {/* LIST */}
 
-            Create complaint
-          </Link>
-        </div>
+          <div className="divide-y">
+            {complaints.map((complaint) => {
+              const isCurrentDeleting =
+                deletingComplaintId === complaint.id;
 
-        {/* ========================================
-            SEARCH + STATUS FILTER
-        ======================================== */}
-        <div className="mt-5 space-y-4">
-          {/* Search */}
-          <CommonSearch
-            value={search}
-            onChange={handleSearchChange}
-            placeholder="Search complaints..."
-          />
+              return (
+                <article
+                  key={complaint.id}
+                  className="flex flex-wrap items-center justify-between gap-4 p-5"
+                >
+                  {/* COMPLAINT INFORMATION */}
 
-          {/* Status */}
-          <CommonStatusFilter
-            value={status}
-            options={COMPLAINT_STATUS_OPTIONS}
-            onChange={handleStatusChange}
-          />
-        </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-medium">
+                      {complaint.title || "Complaint"}
+                    </h3>
 
-        {/* ========================================
-            COMPLAINT LIST
-        ======================================== */}
-        <div className="mt-4 overflow-hidden rounded-xl border bg-card">
-          {isLoading ? (
-            <p className="p-5 text-sm text-muted-foreground">
-              Loading complaints...
-            </p>
-          ) : isError ? (
-            <p className="p-5 text-sm text-destructive">
-              Unable to load complaints.
-            </p>
-          ) : complaints.length === 0 ? (
-            <p className="p-5 text-sm text-muted-foreground">
-              You have not submitted any complaints yet.
-            </p>
-          ) : filteredComplaints.length === 0 ? (
-            <p className="p-5 text-sm text-muted-foreground">
-              No complaints found.
-            </p>
-          ) : (
-            <>
-              <div className="divide-y">
-                {paginatedComplaints.map((complaint) => {
-                  const isCurrentDeleting =
-                    deletingComplaintId === complaint.id;
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Submitted {formatDate(complaint.createdAt)}
+                    </p>
 
-                  return (
-                    <article
-                      key={complaint.id}
-                      className="flex flex-wrap items-center justify-between gap-4 p-5"
+                    <Link
+                      href={`/dashboard/citizen/complaints/${encodeURIComponent(
+                        complaint.id,
+                      )}`}
+                      className="mt-2 inline-flex text-sm font-medium text-primary hover:underline"
                     >
-                      {/* Complaint information */}
-                      <div className="min-w-0 flex-1">
-                        <h3 className="font-medium">
-                          {complaint.title || "Complaint"}
-                        </h3>
+                      View details
+                    </Link>
+                  </div>
 
-                        <p className="mt-1 text-sm text-muted-foreground">
-                          Submitted{" "}
-                          {formatDate(complaint.createdAt)}
-                        </p>
+                  {/* STATUS + DELETE */}
 
-                        <Link
-                          href={`/dashboard/citizen/complaints/${encodeURIComponent(
-                            complaint.id,
-                          )}`}
-                          className="mt-2 inline-flex text-sm font-medium text-primary hover:underline"
-                        >
-                          View details
-                        </Link>
-                      </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium">
+                      {getStatusLabel(complaint.status)}
+                    </span>
 
-                      {/* Status + Delete */}
-                      <div className="flex flex-wrap items-center gap-2">
-                        {/* Status */}
-                        <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium">
-                          {getStatusLabel(complaint.status)}
-                        </span>
+                    <UIButton
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      disabled={isDeleting}
+                      onClick={() => setDeleteId(complaint.id)}
+                    >
+                      <Trash2 aria-hidden="true" className="size-4" />
 
-                        {/* Delete */}
-                        <UIButton
-                          type="button"
-                          variant="destructive"
-                          size="sm"
-                          disabled={isDeleting}
-                          onClick={() =>
-                            setDeleteId(complaint.id)
-                          }
-                        >
-                          <Trash2
-                            aria-hidden="true"
-                            className="size-4"
-                          />
+                      {isCurrentDeleting ? "Deleting..." : "Delete"}
+                    </UIButton>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
 
-                          {isCurrentDeleting
-                            ? "Deleting..."
-                            : "Delete"}
-                        </UIButton>
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
+          {/* PAGINATION */}
 
-              {/* ========================================
-                  PAGINATION
-              ======================================== */}
-              {totalPages > 1 && (
-                <div className="border-t p-4">
-                  <CommonPagination
-                    page={page}
-                    totalPages={totalPages}
-                    onPageChange={handlePageChange}
-                  />
-                </div>
-              )}
-            </>
+          {meta.totalPage > 1 && (
+            <div className="border-t p-4">
+              <CommonPagination
+                page={meta.page}
+                totalPages={meta.totalPage}
+                onPageChange={handlePageChange}
+              />
+            </div>
           )}
-        </div>
-      </section>
+        </>
+      )}
+    </div>
+  </section>
 
-      {/* ========================================
-          DELETE DIALOG
-      ======================================== */}
-      <AlertDialog
-        open={Boolean(deleteId)}
-        onOpenChange={(open) => {
-          if (!open && !isDeleting) {
-            setDeleteId(null);
-          }
-        }}
-      >
-        <Delete
-          title={selectedComplaint?.title}
-          isDeleting={isDeleting}
-          onConfirm={handleConfirmDelete}
-        />
-      </AlertDialog>
-    </>
-  );
+  {/* DELETE CONFIRMATION */}
+
+  <AlertDialog
+    open={Boolean(deleteId)}
+    onOpenChange={(open) => {
+      if (!open && !isDeleting) {
+        setDeleteId(null);
+      }
+    }}
+  >
+    <Delete
+      title={selectedComplaint?.title}
+      isDeleting={isDeleting}
+      onConfirm={handleConfirmDelete}
+    />
+  </AlertDialog>
+</>
+
+
+);
 }

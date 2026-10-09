@@ -22,7 +22,7 @@ export type Technician = {
 export type createAssignment = {
   complaintId: string;
   assignedToId: string;
-  note?: string;
+  note?: string | undefined;
 };
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -205,7 +205,7 @@ export function normalizeTechnicians(value: unknown): Technician[] {
     (technician): technician is Technician => technician !== null,
   );
 }
-
+//  
 export function normalizeComplaintPayload(value: unknown): ManagerComplaint {
   const complaint = normalizeComplaint(getObjectPayload(value));
   if (!complaint) {

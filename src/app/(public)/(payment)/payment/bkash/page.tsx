@@ -111,10 +111,10 @@ function BkashPaymentResult() {
             </p>
           )}
           <Link
-            href="/payment-pending"
+            href="/dashboard/citizen"
             className="mt-7 inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80"
           >
-            Return to pending payments
+            Return to Dashboard
           </Link>
         </section>
       </div>

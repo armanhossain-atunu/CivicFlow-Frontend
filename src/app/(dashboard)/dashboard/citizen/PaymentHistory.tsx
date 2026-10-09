@@ -7,6 +7,9 @@ import { Check, Copy, Share2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { CommonPagination } from "@/components/common/CommonPagination";
+import { CommonSearch } from "@/components/common/CommonSearch";
+
 import {
   Table,
   TableBody,
@@ -29,9 +32,7 @@ const ITEMS_PER_PAGE = 5;
 ========================================================= */
 
 function formatDateTime(value?: string | null) {
-  if (!value) {
-    return "—";
-  }
+  if (!value) return "—";
 
   const date = new Date(value);
 
@@ -59,6 +60,7 @@ function getStatusVariant(
       return "default";
 
     case "PENDING":
+    case "PAYMENT_PENDING":
       return "secondary";
 
     case "FAILED":
@@ -75,50 +77,39 @@ function getStatusVariant(
 ========================================================= */
 
 function getPaymentMethod(transactionId?: string | null) {
-  return transactionId ? "Bkash" : "—";
+  return transactionId ? "bKash" : "—";
 }
 
 /* =========================================================
-   Transaction ID Component
+   Transaction ID: Copy and Share
 ========================================================= */
 
-function TransactionId({ transactionId }: { transactionId?: string | null }) {
+function TransactionId({
+  transactionId,
+}: {
+  transactionId?: string | null;
+}) {
   const [copied, setCopied] = React.useState(false);
 
-  if (!transactionId) {
-    return <span className="text-muted-foreground">—</span>;
-  }
+  const copyTimeout = React.useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
-  const handleShare = async () => {
-    try {
-      /* ==========================================
-         Native Share API
-      ========================================== */
-
-      if (navigator.share) {
-        await navigator.share({
-          title: "Payment Transaction",
-          text: `Transaction ID: ${transactionId}`,
-        });
-
-        return;
+  React.useEffect(() => {
+    return () => {
+      if (copyTimeout.current) {
+        clearTimeout(copyTimeout.current);
       }
+    };
+  }, []);
 
-      /* ==========================================
-         Fallback: Copy to Clipboard
-      ========================================== */
-
-      await navigator.clipboard.writeText(transactionId);
-
-      setCopied(true);
-
-      setTimeout(() => {
-        setCopied(false);
-      }, 2000);
-    } catch (error) {
-      console.error("Transaction share failed:", error);
-    }
-  };
+  if (!transactionId) {
+    return (
+      <span className="text-sm text-muted-foreground">
+        Transaction ID unavailable
+      </span>
+    );
+  }
 
   const handleCopy = async () => {
     try {
@@ -126,26 +117,49 @@ function TransactionId({ transactionId }: { transactionId?: string | null }) {
 
       setCopied(true);
 
-      setTimeout(() => {
+      if (copyTimeout.current) {
+        clearTimeout(copyTimeout.current);
+      }
+
+      copyTimeout.current = setTimeout(() => {
         setCopied(false);
       }, 2000);
     } catch (error) {
-      console.error("Transaction copy failed:", error);
+      console.error("Failed to copy transaction ID:", error);
+    }
+  };
+
+  const handleShare = async () => {
+    const shareData = {
+      title: "CivicFlow Payment Transaction",
+      text: `CivicFlow Payment Transaction\nTransaction ID: ${transactionId}`,
+    };
+
+    try {
+      if (typeof navigator.share === "function") {
+        await navigator.share(shareData);
+        return;
+      }
+
+      await handleCopy();
+    } catch (error) {
+      // Closing the native share dialog is not an application error.
+      if (error instanceof Error && error.name === "AbortError") {
+        return;
+      }
+
+      console.error("Failed to share transaction ID:", error);
     }
   };
 
   return (
-    <div className="flex min-w-[220px] items-center gap-2">
-      {/* Transaction ID */}
-
+    <div className="flex min-w-[220px] items-center gap-1">
       <span
         title={transactionId}
-        className="max-w-[150px] truncate font-mono text-sm"
+        className="max-w-[150px] truncate font-mono text-xs"
       >
         {transactionId}
       </span>
-
-      {/* Copy */}
 
       <Button
         type="button"
@@ -153,20 +167,15 @@ function TransactionId({ transactionId }: { transactionId?: string | null }) {
         size="icon"
         className="h-8 w-8 shrink-0"
         onClick={handleCopy}
-        title="Copy transaction ID"
+        title={copied ? "Copied" : "Copy transaction ID"}
+        aria-label="Copy transaction ID"
       >
         {copied ? (
-          <Check className="h-4 w-4" />
+          <Check className="h-4 w-4 text-green-600" />
         ) : (
           <Copy className="h-4 w-4" />
         )}
-
-        <span className="sr-only">
-          {copied ? "Copied" : "Copy transaction ID"}
-        </span>
       </Button>
-
-      {/* Share */}
 
       <Button
         type="button"
@@ -175,85 +184,10 @@ function TransactionId({ transactionId }: { transactionId?: string | null }) {
         className="h-8 w-8 shrink-0"
         onClick={handleShare}
         title="Share transaction ID"
+        aria-label="Share transaction ID"
       >
         <Share2 className="h-4 w-4" />
-
-        <span className="sr-only">Share transaction ID</span>
       </Button>
-    </div>
-  );
-}
-
-/* =========================================================
-   Pagination
-========================================================= */
-
-function Pagination({
-  currentPage,
-  totalPages,
-  onPageChange,
-}: {
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
-}) {
-  if (totalPages <= 1) {
-    return null;
-  }
-
-  return (
-    <div className="flex flex-col gap-3 border-t p-4 sm:flex-row sm:items-center sm:justify-between">
-      {/* Page Information */}
-
-      <p className="text-sm text-muted-foreground">
-        Page <span className="font-medium text-foreground">{currentPage}</span>{" "}
-        of <span className="font-medium text-foreground">{totalPages}</span>
-      </p>
-
-      {/* Buttons */}
-
-      <div className="flex items-center gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={currentPage === 1}
-          onClick={() => onPageChange(currentPage - 1)}
-        >
-          Previous
-        </Button>
-
-        {/* Page Numbers */}
-
-        <div className="hidden items-center gap-1 sm:flex">
-          {Array.from({ length: totalPages }, (_, index) => {
-            const page = index + 1;
-
-            return (
-              <Button
-                key={page}
-                type="button"
-                variant={currentPage === page ? "default" : "outline"}
-                size="sm"
-                className="h-9 w-9 p-0"
-                onClick={() => onPageChange(page)}
-              >
-                {page}
-              </Button>
-            );
-          })}
-        </div>
-
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={currentPage === totalPages}
-          onClick={() => onPageChange(currentPage + 1)}
-        >
-          Next
-        </Button>
-      </div>
     </div>
   );
 }
@@ -268,56 +202,78 @@ export default function PaymentHistory({
   isError,
 }: PaymentHistoryProps) {
   const [currentPage, setCurrentPage] = React.useState(1);
+  const [paymentsSearch, setPaymentsSearch] = React.useState("");
 
   /* =========================================================
-     Total Pages
+     Search
   ========================================================== */
 
-  const totalPages = Math.ceil(payments.length / ITEMS_PER_PAGE);
+  const filteredPayments = React.useMemo(() => {
+    const query = paymentsSearch.trim().toLowerCase();
+
+    if (!query) return payments;
+
+    return payments.filter((payment) => {
+      const title = payment.complaint?.title ?? "";
+      const transactionId = payment.transactionId ?? "";
+      const status = payment.status ?? "";
+      const amount = String(payment.amount ?? "");
+      const method = getPaymentMethod(payment.transactionId);
+
+      return [
+        title,
+        transactionId,
+        status,
+        amount,
+        method,
+      ].some((value) => value.toLowerCase().includes(query));
+    });
+  }, [payments, paymentsSearch]);
+
+  const handlePaymentsSearchChange = (value: string) => {
+    setPaymentsSearch(value);
+    setCurrentPage(1);
+  };
 
   /* =========================================================
-     Reset Page
+     Pagination
   ========================================================== */
+
+  const totalPages = Math.ceil(
+    filteredPayments.length / ITEMS_PER_PAGE,
+  );
 
   React.useEffect(() => {
-    if (currentPage > Math.max(totalPages, 1)) {
-      setCurrentPage(Math.max(totalPages, 1));
-    }
-  }, [currentPage, totalPages]);
-
-  /* =========================================================
-     Paginated Payments
-  ========================================================== */
+    setCurrentPage((page) => Math.min(page, Math.max(totalPages, 1)));
+  }, [totalPages]);
 
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
 
-  const paginatedPayments = payments.slice(
+  const paginatedPayments = filteredPayments.slice(
     startIndex,
     startIndex + ITEMS_PER_PAGE,
   );
 
-  /* =========================================================
-     Page Change
-  ========================================================== */
-
   const handlePageChange = (page: number) => {
+    if (page < 1 || page > totalPages) return;
+
     setCurrentPage(page);
 
-    document
-      .getElementById("payment-history")
-      ?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
+    document.getElementById("payment-history")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
   };
 
-  return (
-    <section id="payment-history" className="scroll-mt-6">
-      {/* =====================================================
-          Header
-      ====================================================== */}
+  /* =========================================================
+     Render
+  ========================================================== */
 
-      <div className="flex items-center justify-between gap-3">
+  return (
+    <section id="payment-history" className="scroll-mt-6 space-y-4">
+      {/* Header */}
+
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-xl font-semibold">Payment History</h2>
 
@@ -326,22 +282,26 @@ export default function PaymentHistory({
           </p>
         </div>
 
-        <Link
-          href="/payment-pending"
-          className="text-sm font-medium text-primary hover:underline"
-        >
-          Pending payments
-        </Link>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <CommonSearch
+            value={paymentsSearch}
+            onChange={handlePaymentsSearchChange}
+            placeholder="Search payments..."
+          />
+
+          <Link
+            href="/payment-pending"
+            className="whitespace-nowrap text-sm font-medium text-primary hover:underline"
+          >
+            Pending payments
+          </Link>
+        </div>
       </div>
 
-      {/* =====================================================
-          Table Container
-      ====================================================== */}
+      {/* Table Container */}
 
-      <div className="mt-4 overflow-hidden rounded-xl border bg-card">
-        {/* =====================================================
-            Loading
-        ====================================================== */}
+      <div className="overflow-hidden rounded-xl border bg-card">
+        {/* Loading */}
 
         {isLoading && (
           <div className="p-5 text-sm text-muted-foreground">
@@ -349,19 +309,15 @@ export default function PaymentHistory({
           </div>
         )}
 
-        {/* =====================================================
-            Error
-        ====================================================== */}
+        {/* Error */}
 
         {!isLoading && isError && (
           <div className="p-5 text-sm text-destructive">
-            Unable to load payment history.
+            Unable to load payment history. Please try again.
           </div>
         )}
 
-        {/* =====================================================
-            Empty
-        ====================================================== */}
+        {/* Empty */}
 
         {!isLoading && !isError && payments.length === 0 && (
           <div className="p-5 text-sm text-muted-foreground">
@@ -369,123 +325,112 @@ export default function PaymentHistory({
           </div>
         )}
 
-        {/* =====================================================
-            Table
-        ====================================================== */}
+        {/* No Search Results */}
 
-        {!isLoading && !isError && payments.length > 0 && (
-          <>
-            <div className="w-full overflow-x-auto">
-              <Table>
-                {/* =================================================
-                    Header
-                ================================================== */}
-
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Complaint</TableHead>
-
-                    <TableHead>Method</TableHead>
-
-                    <TableHead>Transaction ID</TableHead>
-
-                    <TableHead>Amount</TableHead>
-
-                    <TableHead>Paid At</TableHead>
-
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-
-                {/* =================================================
-                    Body
-                ================================================== */}
-
-                <TableBody>
-                  {paginatedPayments.map((payment) => {
-                    const status = payment.status ?? "RECORDED";
-
-                    return (
-                      <TableRow key={payment.id}>
-                        {/* =========================================
-                            Complaint
-                        ========================================== */}
-
-                        <TableCell>
-                          <div className="min-w-[200px]">
-                            <p className="font-medium">
-                              {payment.complaint?.title ?? "Complaint"}
-                            </p>
-                          </div>
-                        </TableCell>
-
-                        {/* =========================================
-                            Method
-                        ========================================== */}
-
-                        <TableCell>
-                          <Badge variant="outline">
-                            {getPaymentMethod(payment.transactionId)}
-                          </Badge>
-                        </TableCell>
-
-                        {/* =========================================
-                            Transaction ID
-                        ========================================== */}
-
-                        <TableCell>
-                          <TransactionId
-                            transactionId={payment.transactionId}
-                          />
-                        </TableCell>
-
-                        {/* =========================================
-                            Amount
-                        ========================================== */}
-
-                        <TableCell className="whitespace-nowrap font-semibold">
-                          {payment.amount !== undefined &&
-                          payment.amount !== null
-                            ? `৳${payment.amount}`
-                            : "—"}
-                        </TableCell>
-
-                        {/* =========================================
-                            Paid At
-                        ========================================== */}
-
-                        <TableCell className="whitespace-nowrap">
-                          {formatDateTime(payment.paidAt)}
-                        </TableCell>
-
-                        {/* =========================================
-                            Status
-                        ========================================== */}
-
-                        <TableCell>
-                          <Badge variant={getStatusVariant(status)}>
-                            {status}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+        {!isLoading &&
+          !isError &&
+          payments.length > 0 &&
+          filteredPayments.length === 0 && (
+            <div className="p-5 text-sm text-muted-foreground">
+              No payments match your search.
             </div>
+          )}
 
-            {/* =====================================================
-                Pagination
-            ====================================================== */}
+        {/* Payment Table */}
 
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-            />
-          </>
-        )}
+        {!isLoading &&
+          !isError &&
+          filteredPayments.length > 0 && (
+            <>
+              <div className="w-full overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Complaint</TableHead>
+                      <TableHead>Method</TableHead>
+                      <TableHead>Transaction ID</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Paid At</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+
+                  <TableBody>
+                    {paginatedPayments.map((payment) => {
+                      const status = payment.status ?? "RECORDED";
+
+                      return (
+                        <TableRow key={payment.id}>
+                          {/* Complaint */}
+
+                          <TableCell>
+                            <div className="min-w-[160px]">
+                              <p className="font-medium">
+                                {payment.complaint?.title ?? "Complaint"}
+                              </p>
+                            </div>
+                          </TableCell>
+
+                          {/* Method */}
+
+                          <TableCell>
+                            <Badge variant="outline">
+                              {getPaymentMethod(payment.transactionId)}
+                            </Badge>
+                          </TableCell>
+
+                          {/* Transaction ID */}
+
+                          <TableCell>
+                            <TransactionId
+                              transactionId={payment.transactionId}
+                            />
+                          </TableCell>
+
+                          {/* Amount */}
+
+                          <TableCell className="whitespace-nowrap font-semibold">
+                            {payment.amount !== undefined &&
+                            payment.amount !== null
+                              ? `৳${payment.amount}`
+                              : "—"}
+                          </TableCell>
+
+                          {/* Paid At */}
+
+                          <TableCell className="whitespace-nowrap">
+                            {formatDateTime(payment.paidAt)}
+                          </TableCell>
+
+                          {/* Status */}
+
+                          <TableCell>
+                            <Badge variant={getStatusVariant(status)}>
+                              {status}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Pagination */}
+
+              {totalPages > 1 && (
+                <div className="border-t p-4">
+                  <CommonPagination
+                    page={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                  />
+                </div>
+              )}
+            </>
+          )}
       </div>
     </section>
   );
 }
+

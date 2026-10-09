@@ -4,7 +4,11 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { useGetSingleComplaint } from "@/hooks/complain.hook";
+import { toast } from "@/components/ui/toast";
+import {
+  useGetSingleComplaint,
+  usePayForComplaint,
+} from "@/hooks/complain.hook";
 import { ComplaintDetailsData } from "@/types/complaints.type";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -130,9 +134,50 @@ export default function ComplaintDetails({
   complaintId: string;
 }) {
   const complaintQuery = useGetSingleComplaint(complaintId);
+  const { mutateAsync: payForComplaint, isPending: isPaying } =
+    usePayForComplaint();
   const complaint = complaintQuery.data
     ? normalizeComplaint(complaintQuery.data)
     : null;
+
+  const handlePayNow = async (id: string) => {
+    try {
+      const result = await payForComplaint(id);
+      const paymentUrl =
+        result?.data?.bkashURL ??
+        result?.data?.bkashUrl ??
+        result?.data?.paymentURL ??
+        result?.data?.paymentUrl ??
+        result?.bkashURL ??
+        result?.bkashUrl ??
+        result?.paymentURL ??
+        result?.paymentUrl;
+
+      if (!paymentUrl) {
+        throw new Error("The server did not return a bKash checkout URL.");
+      }
+
+      const checkoutUrl = new URL(paymentUrl);
+      if (
+        checkoutUrl.protocol !== "https:" ||
+        checkoutUrl.username ||
+        checkoutUrl.password
+      ) {
+        throw new Error("The payment server returned an invalid checkout URL.");
+      }
+
+      window.location.assign(checkoutUrl.toString());
+    } catch (error) {
+      toast.add({
+        title: "Payment failed",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Unable to create payment. Please try again.",
+        type: "error",
+      });
+    }
+  };
 
   return (
     <main className="mx-auto w-full max-w-4xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
@@ -192,12 +237,13 @@ export default function ComplaintDetails({
               </p>
             </div>
             {complaint.status === "PAYMENT_PENDING" && (
-              <Button className="shrink-0">
-                <Link
-                  href={`/billing?complaintId=${encodeURIComponent(complaint.id)}`}
-                >
-                  Pay Now
-                </Link>
+              <Button
+                type="button"
+                className="shrink-0"
+                disabled={isPaying}
+                onClick={() => void handlePayNow(complaint.id)}
+              >
+                {isPaying ? "Creating payment..." : "Pay Now"}
               </Button>
             )}
           </div>

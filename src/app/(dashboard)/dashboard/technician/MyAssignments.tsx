@@ -44,6 +44,7 @@ type Assignment = {
   trackingId?: string;
   status?: string;
   title?: string;
+  note?: string;
   complaint?: Complaint;
 };
 
@@ -120,6 +121,7 @@ const MyAssignments = () => {
                     <TableHead>Department</TableHead>
 
                     <TableHead>Location</TableHead>
+                    <TableHead>Assing Node</TableHead>
 
                     <TableHead>Status</TableHead>
                     <TableHead>Update Need</TableHead>
@@ -168,14 +170,24 @@ const MyAssignments = () => {
                             {location}
                           </span>
                         </TableCell>
+                        {/* Assing node */}
+                      <TableCell>
+  {assignment.note?.trim() ? (
+    <Badge
+      variant="outline"
+      className="max-w-[220px] whitespace-normal break-words"
+    >
+      {assignment.note}
+    </Badge>
+  ) : (
+    <span className="text-sm text-muted-foreground">
+      No note
+    </span>
+  )}
+</TableCell>
 
                         {/* Status  */}
-                        <TableCell>
-                         
-                          
-                            {status}
-                          
-                        </TableCell>
+                        <TableCell>{status}</TableCell>
                         {/* Status update */}
                         <TableCell>
                           <StatusUpdate

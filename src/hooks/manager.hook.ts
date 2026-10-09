@@ -13,7 +13,7 @@ import {
   normalizeComplaintPayload,
   normalizeComplaints,
 } from "@/types/manager.types";
-
+// query keys
 const managerQueryKeys = {
   complaints: ["manager", "complaints"] as const,
   technicians: ["manager", "technicians"] as const,
@@ -21,13 +21,18 @@ const managerQueryKeys = {
     ["manager", "complaint", complaintId] as const,
 };
 // get all complaints
+// useManagerComplaints
 export function useManagerComplaints() {
   return useQuery({
     queryKey: managerQueryKeys.complaints,
     queryFn: async () => normalizeComplaints(await getAllComplaints()),
     retry: false,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+    
   });
 }
+
 // get a single complaint
 export function useManagerComplaint(complaintId: string | undefined) {
   return useQuery({
@@ -41,6 +46,9 @@ export function useManagerComplaint(complaintId: string | undefined) {
     },
     enabled: Boolean(complaintId),
     retry: false,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+  
   });
 }
 // get all technicians
@@ -55,21 +63,23 @@ export function useCreateAssignment() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: createAssignment) =>
-      assignmentCreate(payload),
-
-    onSuccess: (_data, variables) => {
-      // Manager complaint list refresh
-      queryClient.invalidateQueries({
-        queryKey: managerQueryKeys.complaints,
-      });
-
-      // Current complaint details refresh
-      queryClient.invalidateQueries({
-        queryKey: managerQueryKeys.complaint(
-          variables.complaintId,
-        ),
-      });
+    mutationFn: (payload: createAssignment) => assignmentCreate(payload),
+    onSuccess: async () => {
+      // Refresh complaint lists and dashboard data.
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["complaints"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["my-complaints"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["assignments"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["technicians"],
+        }),
+      ]);
     },
   });
 }

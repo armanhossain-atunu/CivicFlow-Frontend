@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import * as React from "react";
@@ -43,60 +42,56 @@ import {
 } from "@/hooks/manager.hook";
 
 import { normalizeTechnicians } from "@/types/manager.types";
-
 import { toast } from "@/components/ui/toast";
 
 type AssignTechnicianProps = {
   complaintId: string;
+    complaintStatus:string
 };
 
 export function AssignTechnician({
-  complaintId,
+  complaintId,complaintStatus
 }: AssignTechnicianProps) {
   const [open, setOpen] = React.useState(false);
-
   const [selectedTechnicianId, setSelectedTechnicianId] =
     React.useState("");
+  const [note, setNote] = React.useState("");
+const disabledStatuses = [
+  "ASSIGNED",
+  "IN_PROGRESS",
+  "RESOLVED",
+  "CLOSED",
+];
 
-  // Get all technicians
+const isAssignDisabled = disabledStatuses.includes(
+  complaintStatus?.toUpperCase() ?? "",
+);
   const {
     data,
     isLoading,
     isError,
   } = useGetTechnicians();
 
-  // Create assignment mutation
   const {
     mutate,
     isPending,
   } = useCreateAssignment();
 
-  // Normalize technician response
-  // const technicians = React.useMemo(() => {
-  //   if (!data) {
-  //     return [];
-  //   }
-
-  //    return normalizeTechnicians(data);
-  // }, [data]);
   const technicians = React.useMemo(() => {
-  if (!data) return [];
+    if (!data) return [];
 
-  return normalizeTechnicians(data).filter(
-    (user) => user.role === "TECHNICIAN",
-  );
-}, [data]);
-console.log(technicians, "technicians");
-  // Assign technician
+    return normalizeTechnicians(data).filter(
+      (user) => user.role === "TECHNICIAN",
+    );
+  }, [data]);
+
   const handleAssign = () => {
     if (!selectedTechnicianId) {
       toast.add({
         title: "Technician required",
-        description:
-          "Please select a technician before assigning the complaint.",
+        description: "Please select a technician.",
         type: "error",
       });
-
       return;
     }
 
@@ -104,20 +99,19 @@ console.log(technicians, "technicians");
       {
         complaintId,
         assignedToId: selectedTechnicianId,
+        note: note.trim(),
       },
       {
         onSuccess: () => {
           toast.add({
             title: "Complaint assigned",
             description:
-              "The technician has been assigned successfully.",
+              "Technician assigned successfully.",
             type: "success",
           });
 
-          // Reset selected technician
           setSelectedTechnicianId("");
-
-          // Close dialog
+          setNote("");
           setOpen(false);
         },
 
@@ -127,7 +121,7 @@ console.log(technicians, "technicians");
             description:
               error instanceof Error
                 ? error.message
-                : "Unable to assign the complaint right now.",
+                : "Unable to assign the complaint.",
             type: "error",
           });
         },
@@ -141,22 +135,27 @@ console.log(technicians, "technicians");
       onOpenChange={(value) => {
         setOpen(value);
 
-        // Clear selection when closing
-        if (!value) {
+        if (!value && !isPending) {
           setSelectedTechnicianId("");
+          setNote("");
         }
       }}
     >
       <DialogTrigger
         render={
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            title="Assign technician"
-          >
-            <UserRoundPlus className="h-4 w-4" />
-          </Button>
+         <Button
+  type="button"
+  variant="outline"
+  size="icon"
+  title={
+    isAssignDisabled
+      ? "This complaint cannot be reassigned"
+      : "Assign technician"
+  }
+  disabled={isAssignDisabled}
+>
+  <UserRoundPlus className="h-4 w-4" />
+</Button>
         }
       />
 
@@ -168,12 +167,9 @@ console.log(technicians, "technicians");
           }}
         >
           <DialogHeader>
-            <DialogTitle>
-              Assign Technician
-            </DialogTitle>
-
+            <DialogTitle>Assign Technician</DialogTitle>
             <DialogDescription>
-              Select a technician to assign this complaint.
+              Select a technician and provide assignment instructions.
             </DialogDescription>
           </DialogHeader>
 
@@ -210,29 +206,41 @@ console.log(technicians, "technicians");
                 </SelectTrigger>
 
                 <SelectContent>
-                  {technicians.length > 0 ? (
-                    technicians.map((technician) => (
-                      <SelectItem
-                        key={technician.id}
-                        value={technician.id}
-                      >
-                        {technician.name}
-                      </SelectItem>
-                    ))
-                  ) : (
+                  {technicians.map((technician) => (
                     <SelectItem
-                      value="no-technician"
-                      disabled
+                      key={technician.id}
+                      value={technician.id}
                     >
-                      No technicians available
+                      {technician.name}
                     </SelectItem>
-                  )}
+                  ))}
                 </SelectContent>
               </Select>
 
               <FieldDescription>
-                Choose the technician responsible for this
-                complaint.
+                Choose the technician responsible for this complaint.
+              </FieldDescription>
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="assignment-note">
+                Assignment Note
+              </FieldLabel>
+
+              <textarea
+                id="assignment-note"
+                value={note}
+                onChange={(event) =>
+                  setNote(event.target.value)
+                }
+                placeholder="Enter instructions for the technician..."
+                rows={3}
+                disabled={isPending}
+                className="w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              />
+
+              <FieldDescription>
+                Add optional instructions for the assigned technician.
               </FieldDescription>
             </Field>
 
@@ -283,3 +291,4 @@ console.log(technicians, "technicians");
     </Dialog>
   );
 }
+

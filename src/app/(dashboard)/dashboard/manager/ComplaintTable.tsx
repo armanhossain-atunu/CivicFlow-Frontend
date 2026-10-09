@@ -1,7 +1,11 @@
+
 "use client";
 
+import { useEffect, useState } from "react";
+import { Eye } from "lucide-react";
+import Link from "next/link";
+
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -10,17 +14,45 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
 import { Complaint } from "@/types/complaints.type";
-import { Eye } from "lucide-react";
-import Link from "next/link";
 import { AssignTechnician } from "./AssignTechnician";
-
-
+import { CommonPagination } from "@/components/common/CommonPagination";
 
 interface ComplaintTableProps {
   complaints: Complaint[];
+
+  // Pagination data
+  page: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
 }
-const ComplaintTable = ({ complaints }: ComplaintTableProps) => {
+
+const ComplaintTable = ({
+  complaints,
+  page,
+  totalPages,
+  onPageChange,
+}: ComplaintTableProps) => {
+  /* =========================================================
+     Local Complaints State
+  ========================================================== */
+
+  const [localComplaints, setLocalComplaints] =
+    useState<Complaint[]>(complaints);
+
+  /* =========================================================
+     Sync Parent Data
+  ========================================================== */
+
+  useEffect(() => {
+    setLocalComplaints(complaints);
+  }, [complaints]);
+
+  /* =========================================================
+     Status Variant
+  ========================================================== */
+
   const getStatusVariant = (status?: string) => {
     switch (status) {
       case "RESOLVED":
@@ -41,40 +73,69 @@ const ComplaintTable = ({ complaints }: ComplaintTableProps) => {
 
   return (
     <div className="w-full overflow-hidden rounded-xl border bg-card">
+      {/* =====================================================
+          Header
+      ====================================================== */}
+
       <div className="border-b px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold">All Complaints</h2>
+            <h2 className="text-lg font-semibold">
+              All Complaints
+            </h2>
+
             <p className="text-sm text-muted-foreground">
               Manage and monitor citizen complaints.
             </p>
           </div>
 
-          <Badge variant="secondary">{complaints.length} Complaints</Badge>
+          <Badge variant="secondary">
+            {localComplaints.length} Complaints
+          </Badge>
         </div>
       </div>
+
+      {/* =====================================================
+          Table
+      ====================================================== */}
 
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Title</TableHead>
+
               <TableHead>Department</TableHead>
+
               <TableHead>Location</TableHead>
+
               <TableHead>Status</TableHead>
+
               <TableHead>Payment</TableHead>
-              <TableHead className="text-right">Assign</TableHead>
-              <TableHead className="text-right">Action</TableHead>
+
+              <TableHead className="text-right">
+                Assign
+              </TableHead>
+
+              <TableHead className="text-right">
+                Action
+              </TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody>
-            {complaints.length > 0 ? (
-              complaints.map((complaint) => (
+            {localComplaints.length > 0 ? (
+              localComplaints.map((complaint) => (
                 <TableRow key={complaint.id}>
+                  {/* =========================================
+                      Title
+                  ========================================== */}
+
                   <TableCell>
-                    <div className="`max-w-[250px]">
-                      <p className="truncate font-medium">{complaint.title}</p>
+                    <div className="max-w-[250px]">
+                      <p className="truncate font-medium">
+                        {complaint.title}
+                      </p>
 
                       {complaint.description && (
                         <p className="truncate text-xs text-muted-foreground">
@@ -84,19 +145,44 @@ const ComplaintTable = ({ complaints }: ComplaintTableProps) => {
                     </div>
                   </TableCell>
 
-                  <TableCell>{complaint.department || "N/A"}</TableCell>
+                  {/* =========================================
+                      Department
+                  ========================================== */}
 
                   <TableCell>
-                    <span className=" `max-w-[180px]` truncate">
+                    {complaint.department || "N/A"}
+                  </TableCell>
+
+                  {/* =========================================
+                      Location
+                  ========================================== */}
+
+                  <TableCell>
+                    <span className="block max-w-[180px] truncate">
                       {complaint.location || "N/A"}
                     </span>
                   </TableCell>
 
+                  {/* =========================================
+                      Status
+                  ========================================== */}
+
                   <TableCell>
-                    <Badge variant={getStatusVariant(complaint.status)}>
-                      {complaint.status?.replaceAll("_", " ") || "UNKNOWN"}
+                    <Badge
+                      variant={getStatusVariant(
+                        complaint.status,
+                      )}
+                    >
+                      {complaint.status?.replaceAll(
+                        "_",
+                        " ",
+                      ) || "UNKNOWN"}
                     </Badge>
                   </TableCell>
+
+                  {/* =========================================
+                      Payment
+                  ========================================== */}
 
                   <TableCell>
                     {complaint.paymentStatus ? (
@@ -114,9 +200,20 @@ const ComplaintTable = ({ complaints }: ComplaintTableProps) => {
                     )}
                   </TableCell>
 
+                  {/* =========================================
+                      Assign Technician
+                  ========================================== */}
+
                   <TableCell className="text-right">
-                    <AssignTechnician complaintId={complaint.id} />
+                    <AssignTechnician
+                      complaintId={complaint.id}
+                      complaintStatus={complaint.status ?? "UNKNOWN"}
+                    />
                   </TableCell>
+
+                  {/* =========================================
+                      View
+                  ========================================== */}
 
                   <TableCell className="text-right">
                     <Link
@@ -132,7 +229,7 @@ const ComplaintTable = ({ complaints }: ComplaintTableProps) => {
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={6}
+                  colSpan={7}
                   className="h-32 text-center text-muted-foreground"
                 >
                   No complaints found.
@@ -142,8 +239,23 @@ const ComplaintTable = ({ complaints }: ComplaintTableProps) => {
           </TableBody>
         </Table>
       </div>
+
+      {/* =====================================================
+          Pagination
+      ====================================================== */}
+
+      {totalPages > 1 && (
+        <div className="border-t px-6 py-4">
+          <CommonPagination
+            page={page}
+            totalPages={totalPages}
+            onPageChange={onPageChange}
+          />
+        </div>
+      )}
     </div>
   );
 };
 
 export default ComplaintTable;
+

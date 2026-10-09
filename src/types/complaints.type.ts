@@ -1,15 +1,35 @@
+export interface GetAllComplaintsParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: string;
+  sortBy?: "createdAt" | "title" | "status";
+  sortOrder?: "asc" | "desc";
+}
+
+export interface GetAllComplaintsResponse {
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPage: number;
+  };
+  data: Complaint[];
+}
+
 export type Complaint = {
   id: string;
   title?: string;
-  status?: string;
-  department?: string;
-  location?: string;
   description?: string;
-  paymentStatus?: string;
+  department?: string;
+  category?: string;
+  location?: string;
+  status?: string;
   paymentAmount?: number;
+  paymentStatus?: string;
   createdAt?: string;
+  updatedAt?: string;
 };
-
 export type Payment = {
   id: string;
   paymentID?: string;
@@ -36,10 +56,33 @@ export type ComplaintDetailsData = {
 
 
 
+
+
+// ............
+export type ComplaintPaginationMeta = {
+  page: number;
+  limit: number;
+  total: number;
+  totalPage: number;
+};
+
+// Add these fields to your existing MyComplaintsProps:
 export type MyComplaintsProps = {
   complaints: Complaint[];
+  meta: ComplaintPaginationMeta;
+
   isLoading: boolean;
   isError: boolean;
-  onDelete: (complaintId: string) => void;
+
+  onDelete: (id: string) => void;
   deletingComplaintId?: string | null;
+
+  // Search and filter
+  search: string;
+  status: string;
+  onSearchChange: (value: string) => void;
+  onStatusChange: (value: string) => void;
+
+  // Pagination
+  onPageChange: (page: number) => void;
 };

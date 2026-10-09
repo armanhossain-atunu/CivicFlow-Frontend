@@ -135,12 +135,14 @@ export default function ComplaintDetailsPage() {
               </p>
 
               <p className="mt-1 font-medium">
-                {assignment.status?.replaceAll("_", " ") || "UNKNOWN"}
+               {complaint.status?.replaceAll("_", " ") ||
+                    "UNKNOWN"}
               </p>
             </div>
 
             <Badge>
-              {assignment.status?.replaceAll("_", " ") || "UNKNOWN"}
+              {complaint.status?.replaceAll("_", " ") ||
+                    "UNKNOWN"}
             </Badge>
           </div>
         </CardContent>

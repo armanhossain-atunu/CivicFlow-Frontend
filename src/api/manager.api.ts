@@ -26,6 +26,6 @@ export function getTechnicians() {
 export function assignmentCreate(payload: createAssignment) {
   return apiClient("/complaint-assignments", {
     method: "POST",
-   body: JSON.stringify(payload),
+   body: payload,
   });
 }

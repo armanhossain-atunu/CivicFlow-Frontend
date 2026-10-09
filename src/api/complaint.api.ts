@@ -1,6 +1,8 @@
 /** biome-ignore-all lint/style/useImportType: <explanation> */
+import { MyComplaintsQuery } from "@/hooks/complain.hook";
 import apiClient from "@/lib/apiClient";
 import { ICreateComplaint } from "@/types/auth.type";
+import { GetAllComplaintsParams, GetAllComplaintsResponse } from "@/types/complaints.type";
 import { CreateComplaintPaymentResponse } from "@/types/payment.type";
 
 // create complaint
@@ -22,15 +24,67 @@ export function payForComplaint(complaintId: string) {
   );
 }
 // get all complaints
-export function getAllComplaints() {
-  return apiClient(`/complaint`, {
-    method: "GET",
-  });
-}
+// services/complaint.service.ts
 
+export function getAllComplaints(
+  params: GetAllComplaintsParams = {},
+) {
+  const searchParams = new URLSearchParams();
+
+  searchParams.set("page", String(params.page ?? 1));
+  searchParams.set("limit", String(params.limit ?? 10));
+
+  if (params.search) {
+    searchParams.set("search", params.search);
+  }
+
+  if (params.status) {
+    searchParams.set("status", params.status);
+  }
+
+  if (params.sortBy) {
+    searchParams.set("sortBy", params.sortBy);
+  }
+
+  if (params.sortOrder) {
+    searchParams.set("sortOrder", params.sortOrder);
+  }
+
+  return apiClient<GetAllComplaintsResponse>(
+    `/complaint?${searchParams.toString()}`,
+    {
+      method: "GET",
+    },
+  );
+}
 // get my all complaints
-export function getMyAllComplaints() {
-  return apiClient("/complaint/my", { method: "GET" });
+// export function getMyAllComplaints(params?: MyComplaintsQuery) {
+//   return apiClient("/complaint/my", { method: "GET" });
+// }
+
+
+
+
+export function getMyAllComplaints(params: MyComplaintsQuery) {
+  const searchParams = new URLSearchParams();
+
+  searchParams.set("page", String(params.page));
+  searchParams.set("limit", String(params.limit));
+
+  if (params.search?.trim()) {
+    searchParams.set("search", params.search.trim());
+  }
+
+  if (params.status) {
+    searchParams.set("status", params.status);
+  }
+
+  return apiClient<unknown>(
+    `/complaint/my?${searchParams.toString()}`,
+    {
+      method: "GET",
+    },
+  );
 }
 // get complaint by id
 export function getComplaint(complaintId: string) {

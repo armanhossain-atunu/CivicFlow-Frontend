@@ -1,4 +1,5 @@
 const HomePage = () => {
+  // const {data:complaine}=useGetAllComplaint()
   return (
     <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
       <section className="rounded-2xl border `bg-gradient-to-br` from-slate-50 to-slate-100 p-8 shadow-sm sm:p-12">
