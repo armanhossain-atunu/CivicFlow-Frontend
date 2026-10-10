@@ -7,10 +7,18 @@ export type ManagerComplaint = {
   department?: string;
   category?: string;
   location?: string;
+  paymentStatus?:string;
   citizenName?: string;
   citizenEmail?: string;
   technicianId?: string;
   technicianName?: string;
+};
+
+export type ManagerComplaintPage = {
+  complaints: ManagerComplaint[];
+  page: number;
+  totalPages: number;
+  total: number;
 };
 
 export type Technician = {
@@ -126,6 +134,13 @@ export function normalizeComplaint(value: unknown): ManagerComplaint | null {
     "assignedTo",
     "assignedTechnician",
   ]);
+  const payment = getNestedRecord(value, ["payment"]);
+  const paymentStatus =
+    getText(value.paymentStatus) ??
+    getText(value.payment_status) ??
+    getText(payment?.status) ??
+    getText(payment?.paymentStatus) ??
+    getText(payment?.payment_status);
   const technicianValue =
     value.assigneeId ??
     value.assignedToId ??
@@ -146,6 +161,7 @@ export function normalizeComplaint(value: unknown): ManagerComplaint | null {
     department: getText(value.department),
     category: getText(value.category),
     location: getText(value.location),
+    paymentStatus,
     citizenName: citizen ? getText(citizen.name) : getText(value.citizenName),
     citizenEmail: citizen ? getText(citizen.email) : undefined,
     technicianId,
@@ -188,6 +204,53 @@ export function normalizeComplaints(value: unknown): ManagerComplaint[] {
   return complaints.filter(
     (complaint): complaint is ManagerComplaint => complaint !== null,
   );
+}
+
+function getPositiveInteger(value: unknown): number | undefined {
+  if (typeof value === "number" && Number.isInteger(value) && value > 0) {
+    return value;
+  }
+
+  if (typeof value === "string" && value.trim() !== "") {
+    const parsed = Number(value);
+    if (Number.isInteger(parsed) && parsed > 0) {
+      return parsed;
+    }
+  }
+
+  return undefined;
+}
+
+export function normalizeComplaintPage(
+  value: unknown,
+  requestedPage: number,
+  requestedLimit: number,
+): ManagerComplaintPage {
+  let current = value;
+  let pagination: Record<string, unknown> | undefined;
+
+  for (let depth = 0; depth < 4 && isRecord(current); depth += 1) {
+    if (isRecord(current.meta)) {
+      pagination = current.meta;
+    } else if (isRecord(current.pagination)) {
+      pagination = current.pagination;
+    }
+
+    if (!("data" in current)) {
+      break;
+    }
+    current = current.data;
+  }
+
+  const complaints = normalizeComplaints(value);
+  const total = getPositiveInteger(pagination?.total) ?? complaints.length;
+  const totalPages =
+    getPositiveInteger(pagination?.totalPage) ??
+    getPositiveInteger(pagination?.totalPages) ??
+    Math.max(1, Math.ceil(total / requestedLimit));
+  const page = getPositiveInteger(pagination?.page) ?? requestedPage;
+
+  return { complaints, page, totalPages, total };
 }
 
 export function normalizeTechnicians(value: unknown): Technician[] {

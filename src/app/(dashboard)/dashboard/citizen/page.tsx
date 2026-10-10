@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/complexity/noUselessFragments: <explanation> */
 
 "use client";
 
@@ -607,8 +608,6 @@ export default function CitizenDashboard() {
                       : null
                   }
                 />
-
-               
               </>
             )}
           </section>

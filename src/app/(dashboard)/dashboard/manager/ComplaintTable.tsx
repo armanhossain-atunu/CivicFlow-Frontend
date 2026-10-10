@@ -15,14 +15,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { Complaint } from "@/types/complaints.type";
 import { AssignTechnician } from "./AssignTechnician";
 import { CommonPagination } from "@/components/common/CommonPagination";
+import type { ManagerComplaint } from "@/types/manager.types";
 
 interface ComplaintTableProps {
-  complaints: Complaint[];
-
-  // Pagination data
+  complaints: ManagerComplaint[];
   page: number;
   totalPages: number;
   onPageChange: (page: number) => void;
@@ -34,26 +32,16 @@ const ComplaintTable = ({
   totalPages,
   onPageChange,
 }: ComplaintTableProps) => {
-  /* =========================================================
-     Local Complaints State
-  ========================================================== */
-
   const [localComplaints, setLocalComplaints] =
-    useState<Complaint[]>(complaints);
-
-  /* =========================================================
-     Sync Parent Data
-  ========================================================== */
+    useState<ManagerComplaint[]>(complaints);
 
   useEffect(() => {
     setLocalComplaints(complaints);
   }, [complaints]);
 
-  /* =========================================================
-     Status Variant
-  ========================================================== */
-
-  const getStatusVariant = (status?: string) => {
+  const getStatusVariant = (
+    status?: string,
+  ): "default" | "destructive" | "secondary" | "outline" => {
     switch (status) {
       case "RESOLVED":
       case "CLOSED":
@@ -73,10 +61,7 @@ const ComplaintTable = ({
 
   return (
     <div className="w-full overflow-hidden rounded-xl border bg-card">
-      {/* =====================================================
-          Header
-      ====================================================== */}
-
+      {/* Header */}
       <div className="border-b px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
@@ -95,28 +80,19 @@ const ComplaintTable = ({
         </div>
       </div>
 
-      {/* =====================================================
-          Table
-      ====================================================== */}
-
+      {/* Table */}
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Title</TableHead>
-
               <TableHead>Department</TableHead>
-
               <TableHead>Location</TableHead>
-
               <TableHead>Status</TableHead>
-
               <TableHead>Payment</TableHead>
-
               <TableHead className="text-right">
                 Assign
               </TableHead>
-
               <TableHead className="text-right">
                 Action
               </TableHead>
@@ -127,10 +103,7 @@ const ComplaintTable = ({
             {localComplaints.length > 0 ? (
               localComplaints.map((complaint) => (
                 <TableRow key={complaint.id}>
-                  {/* =========================================
-                      Title
-                  ========================================== */}
-
+                  {/* Title */}
                   <TableCell>
                     <div className="max-w-[250px]">
                       <p className="truncate font-medium">
@@ -145,76 +118,44 @@ const ComplaintTable = ({
                     </div>
                   </TableCell>
 
-                  {/* =========================================
-                      Department
-                  ========================================== */}
-
+                  {/* Department */}
                   <TableCell>
                     {complaint.department || "N/A"}
                   </TableCell>
 
-                  {/* =========================================
-                      Location
-                  ========================================== */}
-
+                  {/* Location */}
                   <TableCell>
                     <span className="block max-w-[180px] truncate">
                       {complaint.location || "N/A"}
                     </span>
                   </TableCell>
 
-                  {/* =========================================
-                      Status
-                  ========================================== */}
-
+                  {/* Complaint Status */}
                   <TableCell>
                     <Badge
-                      variant={getStatusVariant(
-                        complaint.status,
-                      )}
+                      variant={getStatusVariant(complaint.status)}
                     >
-                      {complaint.status?.replaceAll(
-                        "_",
-                        " ",
-                      ) || "UNKNOWN"}
+                      {complaint.status?.replaceAll("_", " ") ||
+                        "UNKNOWN"}
                     </Badge>
                   </TableCell>
 
-                  {/* =========================================
-                      Payment
-                  ========================================== */}
-
+                  {/* Payment Status */}
                   <TableCell>
-                    {complaint.paymentStatus ? (
-                      <Badge
-                        variant={
-                          complaint.paymentStatus === "PAID"
-                            ? "default"
-                            : "outline"
-                        }
-                      >
-                        {complaint.paymentStatus}
-                      </Badge>
-                    ) : (
-                      "N/A"
-                    )}
+                      <Badge>
+                   {complaint?.paymentStatus}
+                   </Badge>
                   </TableCell>
 
-                  {/* =========================================
-                      Assign Technician
-                  ========================================== */}
-
+                  {/* Assign Technician */}
                   <TableCell className="text-right">
                     <AssignTechnician
                       complaintId={complaint.id}
-                      complaintStatus={complaint.status ?? "UNKNOWN"}
+                      complaintStatus={complaint.status || "UNKNOWN"}
                     />
                   </TableCell>
 
-                  {/* =========================================
-                      View
-                  ========================================== */}
-
+                  {/* View Complaint */}
                   <TableCell className="text-right">
                     <Link
                       href={`/dashboard/manager/${complaint.id}`}
@@ -240,10 +181,7 @@ const ComplaintTable = ({
         </Table>
       </div>
 
-      {/* =====================================================
-          Pagination
-      ====================================================== */}
-
+      {/* Pagination */}
       {totalPages > 1 && (
         <div className="border-t px-6 py-4">
           <CommonPagination
@@ -258,4 +196,3 @@ const ComplaintTable = ({
 };
 
 export default ComplaintTable;
-

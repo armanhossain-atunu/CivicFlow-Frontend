@@ -8,6 +8,7 @@ import {
   getMyAllComplaints,
   payForComplaint,
 } from "@/api/complaint.api";
+import { closeComplaint } from "@/api/manager.api";
 import { GetAllComplaintsParams } from "@/types/complaints.type";
 import {
   keepPreviousData,
@@ -16,12 +17,34 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 
-// create complaint
+// create complainth
+// Create complaint
 export function useCreateComplaint() {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: createComplaint,
+
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["my-complaints"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["complaints"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["pending-complaints"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["pending-payments"],
+        }),
+      ]);
+    },
   });
 }
+
+
 // get all categories
 export function useGetAllCategories() {
   return useQuery({
@@ -138,5 +161,31 @@ export function useGetAllPendingComplaints(
     retry: false,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
+  });
+}
+
+export function useCloseComplaint() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (complaintId: string) =>
+      closeComplaint(complaintId),
+
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["complaints"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["my-complaints"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["assignments"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["my-assignments"],
+        }),
+      ]);
+    },
   });
 }

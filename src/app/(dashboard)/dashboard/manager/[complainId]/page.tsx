@@ -1,10 +1,43 @@
 "use client";
 
+import { CloseAssignmentButton } from "@/components/common/CloseComplaintButton";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useGetAllComplaints } from "@/hooks/complain.hook";
-import { Complaint } from "@/types/complaints.type";
+import type { Complaint } from "@/types/complaints.type";
 import { useParams } from "next/navigation";
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function isComplaint(value: unknown): value is Complaint {
+  return isRecord(value) && typeof value.id === "string";
+}
+
+function getComplaints(value: unknown): Complaint[] {
+  let current = value;
+
+  for (let depth = 0; depth < 4; depth += 1) {
+    if (Array.isArray(current)) {
+      return current.filter(isComplaint);
+    }
+
+    if (!isRecord(current)) {
+      return [];
+    }
+
+    if (Array.isArray(current.complaints)) {
+      current = current.complaints;
+    } else if ("data" in current) {
+      current = current.data;
+    } else {
+      return [];
+    }
+  }
+
+  return Array.isArray(current) ? current.filter(isComplaint) : [];
+}
 
 export default function ComplaintDetailsPage() {
   const { data, isLoading } = useGetAllComplaints();
@@ -13,7 +46,7 @@ export default function ComplaintDetailsPage() {
     complainId: string;
   }>();
 
-  const complaints: Complaint[] = data?.data?.data ?? [];
+  const complaints = getComplaints(data);
 
   console.log("Complaint ID:", complainId);
   console.log("Complaints:", complaints);
@@ -63,6 +96,10 @@ export default function ComplaintDetailsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Complaint Information</CardTitle>
+          <CloseAssignmentButton
+            complaintId={complaint.id}
+            status={complaint.status}
+          />
         </CardHeader>
 
         <CardContent className="space-y-6">

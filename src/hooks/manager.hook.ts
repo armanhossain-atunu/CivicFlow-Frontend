@@ -9,10 +9,10 @@ import {
   getTechnicians,
 } from "@/api/manager.api";
 import {
-  createAssignment,
+  normalizeComplaintPage,
   normalizeComplaintPayload,
-  normalizeComplaints,
 } from "@/types/manager.types";
+import type { createAssignment } from "@/types/manager.types";
 // query keys
 const managerQueryKeys = {
   complaints: ["manager", "complaints"] as const,
@@ -22,14 +22,19 @@ const managerQueryKeys = {
 };
 // get all complaints
 // useManagerComplaints
-export function useManagerComplaints() {
+export function useManagerComplaints(page = 1, limit = 10) {
   return useQuery({
-    queryKey: managerQueryKeys.complaints,
-    queryFn: async () => normalizeComplaints(await getAllComplaints()),
+    queryKey: [...managerQueryKeys.complaints, page, limit],
+    queryFn: async () =>
+      normalizeComplaintPage(
+        await getAllComplaints({ page, limit }),
+        page,
+        limit,
+      ),
     retry: false,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
-    
+    placeholderData: (previousData) => previousData,
   });
 }
 
