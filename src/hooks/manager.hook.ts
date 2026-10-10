@@ -73,6 +73,9 @@ export function useCreateAssignment() {
       // Refresh complaint lists and dashboard data.
       await Promise.all([
         queryClient.invalidateQueries({
+          queryKey: managerQueryKeys.complaints,
+        }),
+        queryClient.invalidateQueries({
           queryKey: ["complaints"],
         }),
         queryClient.invalidateQueries({

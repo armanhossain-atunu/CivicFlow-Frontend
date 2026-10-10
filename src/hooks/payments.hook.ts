@@ -1,6 +1,6 @@
 
 import { useQuery } from "@tanstack/react-query";
-import { getMyPaymentsHistory } from "@/api/payment.api";
+import { getAllPayments, getMyPaymentsHistory } from "@/api/payment.api";
 
 export function useMyPaymentsHistory() {
   return useQuery({
@@ -13,3 +13,10 @@ export function useMyPaymentsHistory() {
   });
 }
 
+export function useGetPayments() {
+  return useQuery({
+    queryKey: ["payments"],
+    queryFn: getAllPayments,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+}

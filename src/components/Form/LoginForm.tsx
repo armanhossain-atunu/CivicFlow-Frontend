@@ -18,9 +18,32 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { cn } from "cn";
+import { getme } from "@/api";
 import { useLogin } from "@/hooks";
 import { toast } from "../ui/toast";
 import GoogleLoginComponent from "../modules/google-login/GoogleLogin";
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function getRole(value: unknown): string | undefined {
+  let current = value;
+
+  for (let depth = 0; depth < 4; depth += 1) {
+    if (!isRecord(current)) {
+      return undefined;
+    }
+
+    if (typeof current.role === "string") {
+      return current.role.trim().toLowerCase();
+    }
+
+    current = current.user ?? current.data;
+  }
+
+  return undefined;
+}
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -44,17 +67,41 @@ export function LoginForm() {
       };
 
       login(loginData, {
-        onSuccess: (res) => {
-          console.log("Login response:", res);
+        onSuccess: async () => {
+          try {
+            const userResponse = await getme();
+            const role = getRole(userResponse);
+            const dashboardPathByRole: Record<string, string> = {
+              admin: "/dashboard/admin",
+              citizen: "/dashboard/citizen",
+              manager: "/dashboard/manager",
+              technician: "/dashboard/technician",
+            };
+            const dashboardPath = role
+              ? dashboardPathByRole[role]
+              : undefined;
 
-          toast.add({
-            title: "Login successful",
-            description: "Welcome back CivicFlow!",
-            type: "success",
-          });
+            if (!dashboardPath) {
+              throw new Error("Your account role has no dashboard.");
+            }
 
-          // Full page reload after successful login
-          window.location.href = "/";
+            toast.add({
+              title: "Login successful",
+              description: "Welcome back CivicFlow!",
+              type: "success",
+            });
+
+            window.location.href = dashboardPath;
+          } catch (error) {
+            toast.add({
+              title: "Could not open your dashboard",
+              description:
+                error instanceof Error
+                  ? error.message
+                  : "Your account role could not be determined.",
+              type: "error",
+            });
+          }
         },
 
         onError: (err) => {

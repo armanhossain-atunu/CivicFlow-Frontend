@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useManagerComplaints } from "@/hooks/manager.hook";
 import ComplaintTable from "./ComplaintTable";
 import ManagerStats from "./ManagerStats";
+import GetAllPayments from "@/components/common/getAllPayments";
 
 const PAGE_SIZE = 10;
 
@@ -45,6 +46,7 @@ export default function ManagerDashboard() {
         totalPages={totalPages}
         onPageChange={setPage}
       />
+      <GetAllPayments/>
     </main>
   );
 }

@@ -18,6 +18,9 @@ import {
 import { AssignTechnician } from "./AssignTechnician";
 import { CommonPagination } from "@/components/common/CommonPagination";
 import type { ManagerComplaint } from "@/types/manager.types";
+import { CommonSearch } from "@/components/common/CommonSearch";
+import { CommonStatusFilter } from "@/components/common/CommonStatusFilter";
+import { COMPLAINT_STATUS_OPTIONS } from "@/lib/complaint-status";
 
 interface ComplaintTableProps {
   complaints: ManagerComplaint[];
@@ -34,10 +37,32 @@ const ComplaintTable = ({
 }: ComplaintTableProps) => {
   const [localComplaints, setLocalComplaints] =
     useState<ManagerComplaint[]>(complaints);
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("ALL");
 
   useEffect(() => {
     setLocalComplaints(complaints);
   }, [complaints]);
+
+  const filteredComplaints = localComplaints.filter((complaint) => {
+    const query = search.trim().toLowerCase();
+    const matchesSearch =
+      query === "" ||
+      [
+        complaint.id,
+        complaint.title,
+        complaint.description,
+        complaint.department,
+        complaint.location,
+      ].some((value) => value?.toLowerCase().includes(query));
+    const normalizedStatus = complaint.status
+      .trim()
+      .toUpperCase()
+      .replaceAll(/[\s-]+/g, "_");
+    const matchesStatus = status === "ALL" || normalizedStatus === status;
+
+    return matchesSearch && matchesStatus;
+  });
 
   const getStatusVariant = (
     status?: string,
@@ -75,9 +100,21 @@ const ComplaintTable = ({
           </div>
 
           <Badge variant="secondary">
-            {localComplaints.length} Complaints
+            {filteredComplaints.length} Complaints
           </Badge>
         </div>
+      </div>
+      <div className="flex flex-col gap-3 border-b p-4 sm:flex-row sm:items-center sm:justify-between">
+        <CommonSearch
+          value={search}
+          onChange={setSearch}
+          placeholder="Search complaints..."
+        />
+        <CommonStatusFilter
+          value={status}
+          options={COMPLAINT_STATUS_OPTIONS}
+          onChange={setStatus}
+        />
       </div>
 
       {/* Table */}
@@ -100,8 +137,8 @@ const ComplaintTable = ({
           </TableHeader>
 
           <TableBody>
-            {localComplaints.length > 0 ? (
-              localComplaints.map((complaint) => (
+            {filteredComplaints.length > 0 ? (
+              filteredComplaints.map((complaint) => (
                 <TableRow key={complaint.id}>
                   {/* Title */}
                   <TableCell>
@@ -173,7 +210,7 @@ const ComplaintTable = ({
                   colSpan={7}
                   className="h-32 text-center text-muted-foreground"
                 >
-                  No complaints found.
+                  No complaints match your search or selected status.
                 </TableCell>
               </TableRow>
             )}
