@@ -221,6 +221,21 @@ function getPositiveInteger(value: unknown): number | undefined {
   return undefined;
 }
 
+function getNonNegativeInteger(value: unknown): number | undefined {
+  if (typeof value === "number" && Number.isInteger(value) && value >= 0) {
+    return value;
+  }
+
+  if (typeof value === "string" && value.trim() !== "") {
+    const parsed = Number(value);
+    if (Number.isInteger(parsed) && parsed >= 0) {
+      return parsed;
+    }
+  }
+
+  return undefined;
+}
+
 export function normalizeComplaintPage(
   value: unknown,
   requestedPage: number,
@@ -234,6 +249,8 @@ export function normalizeComplaintPage(
       pagination = current.meta;
     } else if (isRecord(current.pagination)) {
       pagination = current.pagination;
+    } else if ("total" in current || "totalCount" in current) {
+      pagination = current;
     }
 
     if (!("data" in current)) {
@@ -243,7 +260,10 @@ export function normalizeComplaintPage(
   }
 
   const complaints = normalizeComplaints(value);
-  const total = getPositiveInteger(pagination?.total) ?? complaints.length;
+  const total =
+    getNonNegativeInteger(pagination?.total) ??
+    getNonNegativeInteger(pagination?.totalCount) ??
+    complaints.length;
   const totalPages =
     getPositiveInteger(pagination?.totalPage) ??
     getPositiveInteger(pagination?.totalPages) ??

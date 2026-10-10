@@ -11,9 +11,9 @@ import {
 } from "lucide-react";
 
 import { useGetAllCategories } from "@/hooks/complain.hook";
-import { useManagerComplaints } from "@/hooks/manager.hook";
+import { useManagerComplaints, useGetTechnicians } from "@/hooks/manager.hook";
 import { useGetPayments } from "@/hooks/payments.hook";
-import { useGetTechnicians } from "@/hooks/manager.hook";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AdminPage } from "./AdminPage";
@@ -64,16 +64,27 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function countArrayPayload(value: unknown): number | undefined {
   let current = value;
 
-  for (let depth = 0; depth < 4; depth += 1) {
-    if (Array.isArray(current)) return current.length;
-    if (!isRecord(current)) return undefined;
+  for (let depth = 0; depth < 5; depth += 1) {
+    if (Array.isArray(current)) {
+      return current.length;
+    }
 
-    const record = current;
-    const namedArray = ["payments", "users", "categories"]
-      .map((key) => record[key])
-      .find(Array.isArray);
-    if (namedArray) return namedArray.length;
-    if (!("data" in current)) return undefined;
+    if (!isRecord(current)) {
+      return undefined;
+    }
+
+    for (const key of ["payments", "users", "technicians", "categories"]) {
+      const nested = current[key];
+
+      if (Array.isArray(nested)) {
+        return nested.length;
+      }
+    }
+
+    if (!("data" in current)) {
+      return undefined;
+    }
+
     current = current.data;
   }
 
@@ -81,10 +92,10 @@ function countArrayPayload(value: unknown): number | undefined {
 }
 
 export default function AdminDashboard() {
-  const complaintsQuery = useManagerComplaints(1, 1);
   const paymentsQuery = useGetPayments();
   const usersQuery = useGetTechnicians();
   const categoriesQuery = useGetAllCategories();
+  const complaintsQuery = useManagerComplaints();
 
   const metrics = [
     {
@@ -125,9 +136,10 @@ export default function AdminDashboard() {
       title="Admin overview"
       description="Monitor CivicFlow operations and open an administration section."
     >
+      {/* Dashboard Metrics */}
       <section
         aria-label="Platform totals"
-        className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+        className=" grid grid-cols-2  gap-4 sm:grid-cols-4 xl:grid-cols-4"
       >
         {metrics.map(({ label, value, isLoading }) => (
           <Card key={label}>
@@ -136,6 +148,7 @@ export default function AdminDashboard() {
                 {label}
               </CardTitle>
             </CardHeader>
+
             <CardContent>
               {isLoading ? (
                 <Skeleton className="h-8 w-24" />
@@ -147,6 +160,7 @@ export default function AdminDashboard() {
         ))}
       </section>
 
+      {/* Administration Sections */}
       <section
         aria-label="Administration sections"
         className="grid gap-4 md:grid-cols-2 xl:grid-cols-3"
@@ -160,8 +174,10 @@ export default function AdminDashboard() {
                     <Icon aria-hidden="true" className="size-5 text-primary" />
                     {label}
                   </div>
+
                   <p className="text-sm text-muted-foreground">{description}</p>
                 </div>
+
                 <ArrowRight
                   aria-hidden="true"
                   className="mt-1 size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1"

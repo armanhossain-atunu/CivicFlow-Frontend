@@ -39,6 +39,7 @@ function formatDate(value?: string) {
     ? value
     : new Intl.DateTimeFormat("en-BD", {
         dateStyle: "medium",
+        timeZone: "Asia/Dhaka",
       }).format(date);
 }
 
@@ -226,104 +227,98 @@ RENDER
             <p className="p-5 text-sm text-destructive">
               Unable to load complaints. Please try again.
             </p>
-          ) : complaints.length === 0 ? (
-            <p className="p-5 text-sm text-muted-foreground">
-              {search.trim() || status !== "ALL"
-                ? "No complaints found."
-                : "You have not submitted any complaints yet."}
-            </p>
           ) : (
             <>
-              {/* TOTAL */}
-
               <div className="border-b px-5 py-3">
                 <p className="text-sm text-muted-foreground">
                   Showing {startItem}–{endItem} of {meta.total} complaints
                 </p>
               </div>
 
-              {/* LIST */}
+              {complaints.length === 0 ? (
+                <p className="p-5 text-sm text-muted-foreground">
+                  {search.trim() || status !== "ALL"
+                    ? "No complaints found."
+                    : "You have not submitted any complaints yet."}
+                </p>
+              ) : (
+                <>
+                  <div className="divide-y">
+                    {complaints.map((complaint) => {
+                      const isCurrentDeleting =
+                        deletingComplaintId === complaint.id;
 
-              <div className="divide-y">
-                {complaints.map((complaint) => {
-                  const isCurrentDeleting =
-                    deletingComplaintId === complaint.id;
-
-                  return (
-                    <article
-                      key={complaint.id}
-                      className="flex flex-wrap items-center justify-between gap-4 p-5"
-                    >
-                      {/* COMPLAINT INFORMATION */}
-
-                      <div className="min-w-0 flex-1">
-                        <h3 className="font-medium">
-                          {complaint.title || "Complaint"}
-                        </h3>
-
-                        <p className="mt-1 text-sm text-muted-foreground">
-                          Submitted {formatDate(complaint.createdAt)}
-                        </p>
-
-                        <Link
-                          href={`/dashboard/citizen/complaints/${encodeURIComponent(
-                            complaint.id,
-                          )}`}
-                          className="mt-2 inline-flex text-sm font-medium text-primary hover:underline"
+                      return (
+                        <article
+                          key={complaint.id}
+                          className="flex flex-wrap items-center justify-between gap-4 p-5"
                         >
-                          View details
-                        </Link>
-                      </div>
+                          <div className="min-w-0 flex-1">
+                            <h3 className="font-medium">
+                              {complaint.title || "Complaint"}
+                            </h3>
 
-                      {/* STATUS + ACTIONS */}
+                            <p className="mt-1 text-sm text-muted-foreground">
+                              Submitted {formatDate(complaint.createdAt)}
+                            </p>
 
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium">
-                          {getStatusLabel(complaint.status)}
-                        </span>
+                            <Link
+                              href={`/dashboard/citizen/complaints/${encodeURIComponent(
+                                complaint.id,
+                              )}`}
+                              className="mt-2 inline-flex text-sm font-medium text-primary hover:underline"
+                            >
+                              View details
+                            </Link>
+                          </div>
 
-                        {complaint.status === "CLOSED" && (
-                          <UIButton
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => openFeedback(complaint)}
-                          >
-                            <MessageSquareText
-                              aria-hidden="true"
-                              className="size-4"
-                            />
-                            Give Feedback
-                          </UIButton>
-                        )}
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium">
+                              {getStatusLabel(complaint.status)}
+                            </span>
 
-                        <UIButton
-                          type="button"
-                          variant="destructive"
-                          size="sm"
-                          disabled={isDeleting}
-                          onClick={() => setDeleteId(complaint.id)}
-                        >
-                          <Trash2 aria-hidden="true" className="size-4" />
+                            {complaint.status === "CLOSED" && (
+                              <UIButton
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => openFeedback(complaint)}
+                              >
+                                <MessageSquareText
+                                  aria-hidden="true"
+                                  className="size-4"
+                                />
+                                Give Feedback
+                              </UIButton>
+                            )}
 
-                          {isCurrentDeleting ? "Deleting..." : "Delete"}
-                        </UIButton>
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
+                            <UIButton
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              disabled={isDeleting}
+                              onClick={() => setDeleteId(complaint.id)}
+                            >
+                              <Trash2 aria-hidden="true" className="size-4" />
 
-              {/* PAGINATION */}
+                              {isCurrentDeleting ? "Deleting..." : "Delete"}
+                            </UIButton>
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
 
-              {meta.totalPage > 1 && (
-                <div className="border-t p-4">
-                  <CommonPagination
-                    page={meta.page}
-                    totalPages={meta.totalPage}
-                    onPageChange={handlePageChange}
-                  />
-                </div>
+                  {meta.totalPage > 1 && (
+                    <div className="border-t p-4">
+                      <CommonPagination
+                        page={meta.page}
+                        totalPages={meta.totalPage}
+                        onPageChange={handlePageChange}
+                      />
+                    </div>
+                  )}
+                </>
               )}
             </>
           )}

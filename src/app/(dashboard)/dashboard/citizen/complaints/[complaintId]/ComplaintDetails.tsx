@@ -103,6 +103,7 @@ function formatDate(value?: string) {
     : new Intl.DateTimeFormat("en-BD", {
         dateStyle: "medium",
         timeStyle: "short",
+        timeZone: "Asia/Dhaka",
       }).format(date);
 }
 

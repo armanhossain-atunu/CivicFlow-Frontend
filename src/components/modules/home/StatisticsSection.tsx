@@ -128,7 +128,7 @@ export default function StatisticsSection() {
                     />
                   ) : (
                     <p className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white tabular-nums">
-                      {(data?.[statistic.key] ?? 0).toLocaleString()}
+                      {(data?.[statistic.key] ?? 0).toLocaleString("en-BD")}
                     </p>
                   )}
                 </CardContent>

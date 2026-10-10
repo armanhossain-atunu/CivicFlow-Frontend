@@ -171,6 +171,7 @@ export default function ComplaintDetailsPage() {
                   {new Date(complaint.createdAt).toLocaleString("en-BD", {
                     dateStyle: "medium",
                     timeStyle: "short",
+                    timeZone: "Asia/Dhaka",
                   })}
                 </p>
               </div>

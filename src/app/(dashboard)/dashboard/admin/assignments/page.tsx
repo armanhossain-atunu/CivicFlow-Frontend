@@ -54,6 +54,7 @@ function formatDate(value?: string) {
 
   return date.toLocaleDateString("en-BD", {
     dateStyle: "medium",
+    timeZone: "Asia/Dhaka",
   });
 }
 
@@ -250,7 +251,6 @@ export default function AdminAssignmentsPage() {
                     <TableHead>Department</TableHead>
                     <TableHead>Payment</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Assign</TableHead>
                     <TableHead>Created Date</TableHead>
                     <TableHead>Complaint ID</TableHead>
                     <TableHead>Admin action</TableHead>
@@ -296,12 +296,12 @@ export default function AdminAssignmentsPage() {
                             {complaint.status || "UNKNOWN"}
                           </Badge>
                         </TableCell>
-                        <TableCell>
+                        {/* <TableCell>
                           <AssignTechnician
                             complaintId={complaint.id}
                             complaintStatus={complaint.status}
                           />
-                        </TableCell>
+                        </TableCell> */}
 
                         <TableCell className="whitespace-nowrap">
                           {formatDate(complaint.createdAt)}

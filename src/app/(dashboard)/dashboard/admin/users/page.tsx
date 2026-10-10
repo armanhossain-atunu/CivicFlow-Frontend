@@ -79,6 +79,7 @@ function formatDate(value?: string) {
 
   return date.toLocaleDateString("en-BD", {
     dateStyle: "medium",
+    timeZone: "Asia/Dhaka",
   });
 }
 

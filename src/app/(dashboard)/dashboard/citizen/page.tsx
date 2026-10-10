@@ -24,6 +24,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
+
 import {
   Sidebar,
   SidebarContent,
@@ -46,20 +47,16 @@ import {
   useDeleteComplaint,
   useGetMyAllComplaints,
 } from "@/hooks/complain.hook";
+
 import { useMyPaymentsHistory } from "@/hooks/payments.hook";
 import { toast } from "@/components/ui/toast";
 
-import type {
-  Complaint,
-  GetAllComplaintsParams,
-} from "@/types/complaints.type";
+import type { Complaint } from "@/types/complaints.type";
 import type { Payment } from "@/types/payment.type";
 
-import { CommonPagination } from "@/components/common/CommonPagination";
 import { CommonSearch } from "@/components/common/CommonSearch";
 import { CommonStatusFilter } from "@/components/common/CommonStatusFilter";
 import { COMPLAINT_STATUS_OPTIONS } from "@/lib/complaint-status";
-import { getStatusLabel } from "@/lib/status-label";
 
 import MyComplaints from "./MyComplaints";
 import PaymentHistory from "./PaymentHistory";
@@ -100,6 +97,34 @@ const quickLinks = [
   },
 ];
 
+const sidebarLinks = [
+  {
+    title: "Overview",
+    href: "/dashboard/citizen",
+    icon: LayoutDashboard,
+  },
+  {
+    title: "My complaints",
+    href: "#my-complaints",
+    icon: ClipboardList,
+  },
+  {
+    title: "Pending payments",
+    href: "/payment-pending",
+    icon: CreditCard,
+  },
+  {
+    title: "Payment history",
+    href: "#payment-history",
+    icon: History,
+  },
+  {
+    title: "Create complaint",
+    href: "/complaint",
+    icon: FilePlus2,
+  },
+];
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -113,21 +138,42 @@ function getNumber(value: unknown): number | undefined {
     return value;
   }
 
-  if (typeof value === "string" && value.trim()) {
+  if (typeof value === "string" && value.trim() !== "") {
     const number = Number(value);
-    return Number.isFinite(number) ? number : undefined;
+
+    if (Number.isFinite(number)) {
+      return number;
+    }
   }
 
   return undefined;
 }
 
+/**
+ * Supports:
+ * 1. { data: [...] }
+ * 2. { data: { data: [...] } }
+ * 3. { data: { data: { data: [...] } } }
+ * 4. Direct arrays
+ */
 function getArrayPayload(value: unknown): unknown[] {
   let current = value;
 
-  for (let depth = 0; depth < 5; depth++) {
-    if (Array.isArray(current)) return current;
+  for (let depth = 0; depth < 6; depth += 1) {
+    if (Array.isArray(current)) {
+      return current;
+    }
 
-    if (!isRecord(current) || !("data" in current)) {
+    if (!isRecord(current)) {
+      return [];
+    }
+
+    // Prefer the actual array when it exists.
+    if (Array.isArray(current.data)) {
+      return current.data;
+    }
+
+    if (!("data" in current)) {
       return [];
     }
 
@@ -153,14 +199,18 @@ function getComplaint(value: unknown): Complaint | null {
 }
 
 function getPayment(value: unknown): Payment | null {
-  if (!isRecord(value)) return null;
+  if (!isRecord(value)) {
+    return null;
+  }
 
   const id =
     getString(value.id) ??
     getString(value.paymentID) ??
     getString(value.transactionId);
 
-  if (!id) return null;
+  if (!id) {
+    return null;
+  }
 
   const complaint = isRecord(value.complaint)
     ? {
@@ -195,17 +245,16 @@ function getPaginationMeta(value: unknown) {
   const fallback = {
     page: 1,
     limit: PAGE_SIZE,
-    total: 0,
-    totalPage: 0,
+    total: getArrayPayload(value).length,
+    totalPage: getArrayPayload(value).length > 0 ? 1 : 0,
   };
 
-  if (!isRecord(value)) return fallback;
-
-  // Handles { meta, data }, including common nested API wrappers.
   let current: unknown = value;
 
-  for (let depth = 0; depth < 4; depth++) {
-    if (!isRecord(current)) break;
+  for (let depth = 0; depth < 6; depth += 1) {
+    if (!isRecord(current)) {
+      break;
+    }
 
     if (isRecord(current.meta)) {
       const raw = current.meta;
@@ -214,11 +263,17 @@ function getPaginationMeta(value: unknown) {
         page: getNumber(raw.page) ?? fallback.page,
         limit: getNumber(raw.limit) ?? fallback.limit,
         total: getNumber(raw.total) ?? fallback.total,
-        totalPage: getNumber(raw.totalPage) ?? fallback.totalPage,
+        totalPage:
+          getNumber(raw.totalPage) ??
+          getNumber(raw.totalPages) ??
+          fallback.totalPage,
       };
     }
 
-    if (!("data" in current)) break;
+    if (!("data" in current)) {
+      break;
+    }
+
     current = current.data;
   }
 
@@ -269,6 +324,7 @@ export default function CitizenDashboard() {
 
   const handlePageChange = useCallback((nextPage: number) => {
     setPage(nextPage);
+
     document.getElementById("my-complaints")?.scrollIntoView({
       behavior: "smooth",
       block: "start",
@@ -295,7 +351,6 @@ export default function CitizenDashboard() {
         type: "success",
       });
 
-      // If the last item on a page was deleted, move back one page.
       if (complaints.length === 1 && page > 1) {
         setPage((current) => current - 1);
       }
@@ -342,6 +397,7 @@ export default function CitizenDashboard() {
             <span className="flex size-9 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
               <LayoutDashboard className="size-5" />
             </span>
+
             <div className="group-data-[collapsible=icon]:hidden">
               <p className="text-sm font-semibold">Citizen portal</p>
               <p className="text-xs text-sidebar-foreground/70">
@@ -354,46 +410,16 @@ export default function CitizenDashboard() {
         <SidebarContent>
           <SidebarGroup>
             <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+
             <SidebarGroupContent>
               <SidebarMenu>
-                {[
-                  {
-                    title: "Overview",
-                    href: "/dashboard/citizen",
-                    icon: LayoutDashboard,
-                  },
-                  {
-                    title: "My complaints",
-                    href: "#my-complaints",
-                    icon: ClipboardList,
-                  },
-                  {
-                    title: "Pending payments",
-                    href: "/payment-pending",
-                    icon: CreditCard,
-                  },
-                  {
-                    title: "Payment history",
-                    href: "#payment-history",
-                    icon: History,
-                  },
-                  {
-                    title: "Create complaint",
-                    href: "/complaint",
-                    icon: FilePlus2,
-                  },
-                ].map(({ title, href, icon: Icon }) => (
+                {sidebarLinks.map(({ title, href, icon: Icon }) => (
                   <SidebarMenuItem key={title}>
                     <SidebarMenuButton
                       render={<Link href={href} />}
                       tooltip={title}
                       isActive={
-                        href.startsWith("#")
-                          ? pathname === "/dashboard/citizen" &&
-                            (typeof window !== "undefined"
-                              ? window.location.hash === href
-                              : false)
-                          : pathname === href
+                        href.startsWith("#") ? false : pathname === href
                       }
                     >
                       <Icon className="size-4" />
@@ -412,25 +438,30 @@ export default function CitizenDashboard() {
 
       <SidebarInset>
         <div className="mx-auto w-full max-w-7xl space-y-10 px-4 py-8 sm:px-6 lg:px-8">
+          {/* Header */}
           <header className="flex items-start gap-3">
             <SidebarTrigger className="mt-1 shrink-0" />
+
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">
                 Citizen portal
               </p>
+
               <h1 className="mt-2 text-3xl font-bold tracking-tight">
                 My complaint summary
               </h1>
+
               <p className="mt-2 text-muted-foreground">
                 Track your service requests and payments from one place.
               </p>
             </div>
           </header>
 
+          {/* Metrics */}
           <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {[
               {
-                label: "Total complaints",
+                label: "Total My Complaints",
                 value: meta.total,
                 loading: complaintsQuery.isLoading,
               },
@@ -453,11 +484,12 @@ export default function CitizenDashboard() {
               <Card key={item.label}>
                 <CardContent className="p-5">
                   <p className="text-sm text-muted-foreground">{item.label}</p>
-                  <div className="mt-2 text-3xl font-bold">
+
+                  <div className="mt-2 text-3xl font-bold tabular-nums">
                     {item.loading ? (
                       <Skeleton className="h-9 w-24" />
                     ) : (
-                      item.value
+                      item.value.toLocaleString()
                     )}
                   </div>
                 </CardContent>
@@ -465,6 +497,7 @@ export default function CitizenDashboard() {
             ))}
           </section>
 
+          {/* Resolution Chart */}
           <section>
             <Card>
               <CardContent className="flex flex-col gap-6 p-6 md:flex-row md:items-center md:justify-between">
@@ -475,6 +508,7 @@ export default function CitizenDashboard() {
                       Complaint resolution
                     </h2>
                   </div>
+
                   <p className="mt-2 text-sm text-muted-foreground">
                     Resolution percentage for the currently loaded page.
                   </p>
@@ -499,12 +533,13 @@ export default function CitizenDashboard() {
                         cursor={false}
                         content={<ChartTooltipContent hideLabel />}
                       />
+
                       <RadialBar dataKey="value" background cornerRadius={10} />
                     </RadialBarChart>
                   </ChartContainer>
                 )}
 
-                <div className="text-3xl font-bold">
+                <div className="text-3xl font-bold tabular-nums">
                   {complaintsQuery.isLoading ? (
                     <Skeleton className="h-9 w-20" />
                   ) : (
@@ -515,14 +550,17 @@ export default function CitizenDashboard() {
             </Card>
           </section>
 
+          {/* Error Messages */}
           {(complaintsQuery.isError || paymentsQuery.isError) && (
             <p role="alert" className="text-sm text-destructive">
               Unable to load some dashboard information. Please try again.
             </p>
           )}
 
+          {/* Quick Links */}
           <section>
             <h2 className="text-xl font-semibold">Your services</h2>
+
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               {quickLinks.map(({ title, description, href, icon: Icon }) => (
                 <Link key={title} href={href} className="group rounded-xl">
@@ -531,11 +569,14 @@ export default function CitizenDashboard() {
                       <span className="rounded-lg bg-primary/10 p-3 text-primary">
                         <Icon className="size-5" />
                       </span>
+
                       <span className="min-w-0 flex-1">
                         <span className="flex items-center justify-between gap-3 font-semibold">
                           {title}
+
                           <ArrowRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1" />
                         </span>
+
                         <span className="mt-1 block text-sm text-muted-foreground">
                           {description}
                         </span>
@@ -547,10 +588,12 @@ export default function CitizenDashboard() {
             </div>
           </section>
 
+          {/* My Complaints */}
           <section id="my-complaints" className="scroll-mt-6">
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h2 className="text-xl font-semibold">My complaints</h2>
+
                 <p className="mt-1 text-sm text-muted-foreground">
                   Showing {meta.total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}
                   {"–"}
@@ -558,6 +601,7 @@ export default function CitizenDashboard() {
                   complaints
                 </p>
               </div>
+
               <Link
                 href="/complaint"
                 className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
@@ -573,6 +617,7 @@ export default function CitizenDashboard() {
                 onChange={handleSearchChange}
                 placeholder="Search complaints..."
               />
+
               <CommonStatusFilter
                 value={status}
                 options={COMPLAINT_STATUS_OPTIONS}
@@ -593,26 +638,25 @@ export default function CitizenDashboard() {
                 Unable to load complaints.
               </p>
             ) : (
-              <>
-                <MyComplaints
-                  complaints={complaints}
-                  meta={meta}
-                  search={search}
-                  status={status}
-                  isLoading={false}
-                  isError={false}
-                  onSearchChange={handleSearchChange}
-                  onStatusChange={handleStatusChange}
-                  onPageChange={handlePageChange}
-                  onDelete={handleDeleteComplaint}
-                  deletingComplaintId={
-                    deleteMutation.isPending ? deleteMutation.variables : null
-                  }
-                />
-              </>
+              <MyComplaints
+                complaints={complaints}
+                meta={meta}
+                search={search}
+                status={status}
+                isLoading={false}
+                isError={false}
+                onSearchChange={handleSearchChange}
+                onStatusChange={handleStatusChange}
+                onPageChange={handlePageChange}
+                onDelete={handleDeleteComplaint}
+                deletingComplaintId={
+                  deleteMutation.isPending ? deleteMutation.variables : null
+                }
+              />
             )}
           </section>
-          {/* payment history */}
+
+          {/* Payment History */}
           <section id="payment-history" className="scroll-mt-6">
             <PaymentHistory
               payments={payments}
