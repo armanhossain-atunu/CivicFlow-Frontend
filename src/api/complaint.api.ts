@@ -5,6 +5,13 @@ import { ICreateComplaint } from "@/types/auth.type";
 import { GetAllComplaintsParams, GetAllComplaintsResponse } from "@/types/complaints.type";
 import { CreateComplaintPaymentResponse } from "@/types/payment.type";
 
+export type CategoryPayload = {
+  name: string;
+  department: string;
+  paymentRequired: boolean;
+  paymentAmount?: number | null;
+};
+
 // create complaint
 export function createComplaint(payload: ICreateComplaint) {
   return apiClient("/complaint", { method: "POST", body: payload });
@@ -14,6 +21,23 @@ export function createComplaint(payload: ICreateComplaint) {
 export function getAllCategories() {
   return apiClient("/categories", { method: "GET" });
 }
+
+// create category
+export function createCategory(payload: CategoryPayload) {
+  return apiClient("/categories", { method: "POST", body: payload });
+}
+
+// update category
+export function updateCategory(
+  categoryId: string,
+  payload: Partial<CategoryPayload>,
+) {
+  return apiClient(`/categories/${encodeURIComponent(categoryId)}`, {
+    method: "PATCH",
+    body: payload,
+  });
+}
+
 // payment for complaint
 export function payForComplaint(complaintId: string) {
   return apiClient<CreateComplaintPaymentResponse>(
