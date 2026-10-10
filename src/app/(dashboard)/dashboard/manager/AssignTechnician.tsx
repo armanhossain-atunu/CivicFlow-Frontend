@@ -1,12 +1,7 @@
-
 "use client";
 
 import * as React from "react";
-import {
-  CheckCircle2,
-  Loader2,
-  UserRoundPlus,
-} from "lucide-react";
+import { CheckCircle2, Loader2, UserRoundPlus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -37,46 +32,31 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import {
-  useCreateAssignment,
-  useGetTechnicians,
-} from "@/hooks/manager.hook";
+import { useCreateAssignment, useGetTechnicians } from "@/hooks/manager.hook";
 
 import { normalizeTechnicians } from "@/types/manager.types";
 import { toast } from "@/components/ui/toast";
 
 type AssignTechnicianProps = {
   complaintId: string;
-    complaintStatus:string
+  complaintStatus: string;
 };
 
 export function AssignTechnician({
-  complaintId,complaintStatus
+  complaintId,
+  complaintStatus,
 }: AssignTechnicianProps) {
   const [open, setOpen] = React.useState(false);
-  const [selectedTechnicianId, setSelectedTechnicianId] =
-    React.useState("");
+  const [selectedTechnicianId, setSelectedTechnicianId] = React.useState("");
   const [note, setNote] = React.useState("");
-const disabledStatuses = [
-  "ASSIGNED",
-  "IN_PROGRESS",
-  "RESOLVED",
-  "CLOSED",
-];
+  const disabledStatuses = ["ASSIGNED", "IN_PROGRESS", "RESOLVED", "CLOSED"];
 
-const isAssignDisabled = disabledStatuses.includes(
-  complaintStatus?.toUpperCase() ?? "",
-);
-  const {
-    data,
-    isLoading,
-    isError,
-  } = useGetTechnicians();
+  const isAssignDisabled = disabledStatuses.includes(
+    complaintStatus?.toUpperCase() ?? "",
+  );
+  const { data, isLoading, isError } = useGetTechnicians();
 
-  const {
-    mutate,
-    isPending,
-  } = useCreateAssignment();
+  const { mutate, isPending } = useCreateAssignment();
 
   const technicians = React.useMemo(() => {
     if (!data) return [];
@@ -106,8 +86,7 @@ const isAssignDisabled = disabledStatuses.includes(
         onSuccess: () => {
           toast.add({
             title: "Complaint assigned",
-            description:
-              "Technician assigned successfully.",
+            description: "Technician assigned successfully.",
             type: "success",
           });
 
@@ -144,19 +123,19 @@ const isAssignDisabled = disabledStatuses.includes(
     >
       <DialogTrigger
         render={
-         <Button
-  type="button"
-  variant="outline"
-  size="icon"
-  title={
-    isAssignDisabled
-      ? "This complaint cannot be reassigned"
-      : "Assign technician"
-  }
-  disabled={isAssignDisabled}
->
-  <UserRoundPlus className="h-4 w-4" />
-</Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            title={
+              isAssignDisabled
+                ? "This complaint cannot be reassigned"
+                : "Assign technician"
+            }
+            disabled={isAssignDisabled}
+          >
+            <UserRoundPlus className="h-4 w-4" />
+          </Button>
         }
       />
 
@@ -176,14 +155,10 @@ const isAssignDisabled = disabledStatuses.includes(
 
           <FieldGroup className="py-4">
             <Field>
-              <FieldLabel htmlFor="technician">
-                Technician
-              </FieldLabel>
+              <FieldLabel htmlFor="technician">Technician</FieldLabel>
 
               {isLoading ? (
-                <Skeleton
-                  className="h-10 w-full"
-                />
+                <Skeleton className="h-10 w-full" />
               ) : (
                 <Select
                   value={selectedTechnicianId || null}
@@ -204,10 +179,7 @@ const isAssignDisabled = disabledStatuses.includes(
 
                   <SelectContent>
                     {technicians.map((technician) => (
-                      <SelectItem
-                        key={technician.id}
-                        value={technician.id}
-                      >
+                      <SelectItem key={technician.id} value={technician.id}>
                         {technician.name}
                       </SelectItem>
                     ))}
@@ -221,16 +193,12 @@ const isAssignDisabled = disabledStatuses.includes(
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="assignment-note">
-                Assignment Note
-              </FieldLabel>
+              <FieldLabel htmlFor="assignment-note">Assignment Note</FieldLabel>
 
               <textarea
                 id="assignment-note"
                 value={note}
-                onChange={(event) =>
-                  setNote(event.target.value)
-                }
+                onChange={(event) => setNote(event.target.value)}
                 placeholder="Enter instructions for the technician..."
                 rows={3}
                 disabled={isPending}
@@ -252,11 +220,7 @@ const isAssignDisabled = disabledStatuses.includes(
           <DialogFooter>
             <DialogClose
               render={
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={isPending}
-                >
+                <Button type="button" variant="outline" disabled={isPending}>
                   Cancel
                 </Button>
               }

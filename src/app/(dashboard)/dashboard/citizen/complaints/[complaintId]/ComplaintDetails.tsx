@@ -300,7 +300,9 @@ export default function ComplaintDetails({
 
             <dl className="grid gap-5 border-t pt-5 sm:grid-cols-2">
               <Detail label="Status">{complaint.status}</Detail>
-              <Detail label="Submitted">{formatDate(complaint.createdAt)}</Detail>
+              <Detail label="Submitted">
+                {formatDate(complaint.createdAt)}
+              </Detail>
               <Detail label="Department">{complaint.department}</Detail>
               <Detail label="Category">{complaint.category}</Detail>
               <Detail label="Location">{complaint.location}</Detail>

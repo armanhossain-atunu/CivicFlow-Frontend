@@ -27,7 +27,11 @@ const adminRoutes = [
     label: "Assignments",
     icon: Wrench,
   },
-  { href: "/dashboard/admin/categories", label: "Categories", icon: FolderTree },
+  {
+    href: "/dashboard/admin/categories",
+    label: "Categories",
+    icon: FolderTree,
+  },
   {
     href: "/dashboard/admin/reports",
     label: "Reports",

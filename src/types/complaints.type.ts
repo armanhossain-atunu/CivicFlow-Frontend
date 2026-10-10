@@ -90,9 +90,6 @@ export type FeedbackListResponse = {
   meta?: ComplaintPaginationMeta;
 };
 
-
-
-
 // ............
 export type ComplaintPaginationMeta = {
   page: number;

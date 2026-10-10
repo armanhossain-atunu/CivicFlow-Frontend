@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from "react";
@@ -85,16 +84,10 @@ function getPaymentMethod(transactionId?: string | null) {
    Transaction ID: Copy and Share
 ========================================================= */
 
-function TransactionId({
-  transactionId,
-}: {
-  transactionId?: string | null;
-}) {
+function TransactionId({ transactionId }: { transactionId?: string | null }) {
   const [copied, setCopied] = React.useState(false);
 
-  const copyTimeout = React.useRef<ReturnType<typeof setTimeout> | null>(
-    null,
-  );
+  const copyTimeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   React.useEffect(() => {
     return () => {
@@ -221,13 +214,9 @@ export default function PaymentHistory({
       const amount = String(payment.amount ?? "");
       const method = getPaymentMethod(payment.transactionId);
 
-      return [
-        title,
-        transactionId,
-        status,
-        amount,
-        method,
-      ].some((value) => value.toLowerCase().includes(query));
+      return [title, transactionId, status, amount, method].some((value) =>
+        value.toLowerCase().includes(query),
+      );
     });
   }, [payments, paymentsSearch]);
 
@@ -240,9 +229,7 @@ export default function PaymentHistory({
      Pagination
   ========================================================== */
 
-  const totalPages = Math.ceil(
-    filteredPayments.length / ITEMS_PER_PAGE,
-  );
+  const totalPages = Math.ceil(filteredPayments.length / ITEMS_PER_PAGE);
 
   React.useEffect(() => {
     setCurrentPage((page) => Math.min(page, Math.max(totalPages, 1)));
@@ -305,16 +292,17 @@ export default function PaymentHistory({
         {/* Loading */}
 
         {isLoading && (
-          <div
-            className="space-y-3 p-5"
-            aria-busy="true"
-          >
+          <div className="space-y-3 p-5" aria-busy="true">
             <Skeleton className="h-5 w-48" />
-            {["payment-one", "payment-two", "payment-three", "payment-four", "payment-five"].map(
-              (row) => (
-                <Skeleton key={row} className="h-12 w-full" />
-              ),
-            )}
+            {[
+              "payment-one",
+              "payment-two",
+              "payment-three",
+              "payment-four",
+              "payment-five",
+            ].map((row) => (
+              <Skeleton key={row} className="h-12 w-full" />
+            ))}
           </div>
         )}
 
@@ -347,97 +335,95 @@ export default function PaymentHistory({
 
         {/* Payment Table */}
 
-        {!isLoading &&
-          !isError &&
-          filteredPayments.length > 0 && (
-            <>
-              <div className="w-full overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Complaint</TableHead>
-                      <TableHead>Method</TableHead>
-                      <TableHead>Transaction ID</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Paid At</TableHead>
-                      <TableHead>Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
+        {!isLoading && !isError && filteredPayments.length > 0 && (
+          <>
+            <div className="w-full overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Complaint</TableHead>
+                    <TableHead>Method</TableHead>
+                    <TableHead>Transaction ID</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Paid At</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
 
-                  <TableBody>
-                    {paginatedPayments.map((payment) => {
-                      const status = payment.status ?? "RECORDED";
+                <TableBody>
+                  {paginatedPayments.map((payment) => {
+                    const status = payment.status ?? "RECORDED";
 
-                      return (
-                        <TableRow key={payment.id}>
-                          {/* Complaint */}
+                    return (
+                      <TableRow key={payment.id}>
+                        {/* Complaint */}
 
-                          <TableCell>
-                            <div className="min-w-[160px]">
-                              <p className="font-medium">
-                                {payment.complaint?.title ?? "Complaint"}
-                              </p>
-                            </div>
-                          </TableCell>
+                        <TableCell>
+                          <div className="min-w-[160px]">
+                            <p className="font-medium">
+                              {payment.complaint?.title ?? "Complaint"}
+                            </p>
+                          </div>
+                        </TableCell>
 
-                          {/* Method */}
+                        {/* Method */}
 
-                          <TableCell>
-                            <Badge variant="outline">
-                              {getPaymentMethod(payment.transactionId)}
-                            </Badge>
-                          </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">
+                            {getPaymentMethod(payment.transactionId)}
+                          </Badge>
+                        </TableCell>
 
-                          {/* Transaction ID */}
+                        {/* Transaction ID */}
 
-                          <TableCell>
-                            <TransactionId
-                              transactionId={payment.transactionId}
-                            />
-                          </TableCell>
+                        <TableCell>
+                          <TransactionId
+                            transactionId={payment.transactionId}
+                          />
+                        </TableCell>
 
-                          {/* Amount */}
+                        {/* Amount */}
 
-                          <TableCell className="whitespace-nowrap font-semibold">
-                            {payment.amount !== undefined &&
-                            payment.amount !== null
-                              ? `৳${payment.amount}`
-                              : "—"}
-                          </TableCell>
+                        <TableCell className="whitespace-nowrap font-semibold">
+                          {payment.amount !== undefined &&
+                          payment.amount !== null
+                            ? `৳${payment.amount}`
+                            : "—"}
+                        </TableCell>
 
-                          {/* Paid At */}
+                        {/* Paid At */}
 
-                          <TableCell className="whitespace-nowrap">
-                            {formatDateTime(payment.paidAt)}
-                          </TableCell>
+                        <TableCell className="whitespace-nowrap">
+                          {formatDateTime(payment.paidAt)}
+                        </TableCell>
 
-                          {/* Status */}
+                        {/* Status */}
 
-                          <TableCell>
-                            <Badge variant={getStatusVariant(status)}>
-                              {status}
-                            </Badge>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
+                        <TableCell>
+                          <Badge variant={getStatusVariant(status)}>
+                            {status}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Pagination */}
+
+            {totalPages > 1 && (
+              <div className="border-t p-4">
+                <CommonPagination
+                  page={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                />
               </div>
-
-              {/* Pagination */}
-
-              {totalPages > 1 && (
-                <div className="border-t p-4">
-                  <CommonPagination
-                    page={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={handlePageChange}
-                  />
-                </div>
-              )}
-            </>
-          )}
+            )}
+          </>
+        )}
       </div>
     </section>
   );

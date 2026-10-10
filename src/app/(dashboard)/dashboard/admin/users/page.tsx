@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useMemo, useState } from "react";
@@ -6,12 +5,7 @@ import { AlertCircle, Trash2, Users } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CommonPagination } from "@/components/common/CommonPagination";
 import { CommonSearch } from "@/components/common/CommonSearch";
 import { CommonStatusFilter } from "@/components/common/CommonStatusFilter";
@@ -264,226 +258,222 @@ export default function AdminUsersPage() {
         title="Users"
         description="Manage registered citizens and CivicFlow staff accounts."
       >
-      {isLoading ? (
-        <div
-          className="space-y-4 rounded-xl border bg-card p-5"
-          aria-busy="true"
-        >
-          <div className="flex items-center justify-between gap-4">
-            <Skeleton className="h-6 w-40" />
-            <Skeleton className="h-9 w-64" />
-          </div>
-          <Skeleton className="h-9 w-48" />
-          <div className="space-y-2">
-            {["user-one", "user-two", "user-three", "user-four", "user-five"].map(
-              (row) => (
-                <Skeleton key={row} className="h-12 w-full" />
-              ),
-            )}
-          </div>
-        </div>
-      ) : isError ? (
-        <div className="flex items-center gap-2 rounded-lg border border-destructive/30 p-4 text-sm text-destructive">
-          <AlertCircle className="size-5 shrink-0" />
-          {error instanceof Error
-            ? error.message
-            : "Failed to load users."}
-        </div>
-      ) : (
-        <Card>
-          <CardHeader className="gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="size-5" />
-                All Users
-              </CardTitle>
-
-              <p className="mt-1 text-sm text-muted-foreground">
-                {filteredUsers.length} matching accounts
-              </p>
+        {isLoading ? (
+          <div
+            className="space-y-4 rounded-xl border bg-card p-5"
+            aria-busy="true"
+          >
+            <div className="flex items-center justify-between gap-4">
+              <Skeleton className="h-6 w-40" />
+              <Skeleton className="h-9 w-64" />
             </div>
+            <Skeleton className="h-9 w-48" />
+            <div className="space-y-2">
+              {[
+                "user-one",
+                "user-two",
+                "user-three",
+                "user-four",
+                "user-five",
+              ].map((row) => (
+                <Skeleton key={row} className="h-12 w-full" />
+              ))}
+            </div>
+          </div>
+        ) : isError ? (
+          <div className="flex items-center gap-2 rounded-lg border border-destructive/30 p-4 text-sm text-destructive">
+            <AlertCircle className="size-5 shrink-0" />
+            {error instanceof Error ? error.message : "Failed to load users."}
+          </div>
+        ) : (
+          <Card>
+            <CardHeader className="gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="size-5" />
+                  All Users
+                </CardTitle>
 
-            <CommonSearch
-              value={search}
-              onChange={changeSearch}
-              placeholder="Search name, email, or ID..."
-            />
-          </CardHeader>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {filteredUsers.length} matching accounts
+                </p>
+              </div>
 
-          <CardContent className="space-y-4">
-            <CommonStatusFilter
-              value={role}
-              options={ROLE_OPTIONS}
-              onChange={changeRole}
-            />
+              <CommonSearch
+                value={search}
+                onChange={changeSearch}
+                placeholder="Search name, email, or ID..."
+              />
+            </CardHeader>
 
-            <div className="overflow-x-auto rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>User</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Account Status</TableHead>
-                    <TableHead>Email Verified</TableHead>
-                    <TableHead>Auth Provider</TableHead>
-                    <TableHead>Joined</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
+            <CardContent className="space-y-4">
+              <CommonStatusFilter
+                value={role}
+                options={ROLE_OPTIONS}
+                onChange={changeRole}
+              />
 
-                <TableBody>
-                  {pageUsers.length > 0 ? (
-                    pageUsers.map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell>
-                          <div className="flex min-w-48 items-center gap-3">
-                            {user.imageUrl ? (
-                              <img
-                                src={user.imageUrl}
-                                alt={user.name || "User"}
-                                className="size-10 shrink-0 rounded-full border object-cover"
-                              />
-                            ) : (
-                              <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted font-semibold">
-                                {user.name?.charAt(0).toUpperCase() || "U"}
+              <div className="overflow-x-auto rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>User</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Role</TableHead>
+                      <TableHead>Account Status</TableHead>
+                      <TableHead>Email Verified</TableHead>
+                      <TableHead>Auth Provider</TableHead>
+                      <TableHead>Joined</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+
+                  <TableBody>
+                    {pageUsers.length > 0 ? (
+                      pageUsers.map((user) => (
+                        <TableRow key={user.id}>
+                          <TableCell>
+                            <div className="flex min-w-48 items-center gap-3">
+                              {user.imageUrl ? (
+                                <img
+                                  src={user.imageUrl}
+                                  alt={user.name || "User"}
+                                  className="size-10 shrink-0 rounded-full border object-cover"
+                                />
+                              ) : (
+                                <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted font-semibold">
+                                  {user.name?.charAt(0).toUpperCase() || "U"}
+                                </div>
+                              )}
+
+                              <div className="min-w-0">
+                                <p className="truncate font-medium">
+                                  {user.name || "Unnamed User"}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  {user.id.slice(0, 8)}...
+                                </p>
                               </div>
-                            )}
-
-                            <div className="min-w-0">
-                              <p className="truncate font-medium">
-                                {user.name || "Unnamed User"}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                {user.id.slice(0, 8)}...
-                              </p>
                             </div>
+                          </TableCell>
+
+                          <TableCell className="whitespace-nowrap">
+                            {user.email || "—"}
+                          </TableCell>
+
+                          <TableCell>
+                            <Select
+                              value={user.role}
+                              onValueChange={(value) =>
+                                handleRoleChange(user, value)
+                              }
+                              disabled={isUpdatingRole}
+                            >
+                              <SelectTrigger
+                                className="w-36"
+                                aria-label={`Update role for ${user.name || user.email}`}
+                              >
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {USER_ROLE_OPTIONS.map((option) => (
+                                  <SelectItem
+                                    key={option.value}
+                                    value={option.value}
+                                  >
+                                    {option.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
+
+                          <TableCell>
+                            <Select
+                              value={user.status}
+                              onValueChange={(value) =>
+                                handleStatusChange(user, value)
+                              }
+                              disabled={isUpdatingStatus}
+                            >
+                              <SelectTrigger
+                                className="w-36"
+                                aria-label={`Update status for ${user.name || user.email}`}
+                              >
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {USER_STATUS_OPTIONS.map((option) => (
+                                  <SelectItem
+                                    key={option.value}
+                                    value={option.value}
+                                  >
+                                    {option.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
+
+                          <TableCell>
+                            <Badge
+                              variant={
+                                user.emailVerified ? "default" : "secondary"
+                              }
+                            >
+                              {user.emailVerified ? "Verified" : "Not verified"}
+                            </Badge>
+                          </TableCell>
+
+                          <TableCell>{user.authProvider || "—"}</TableCell>
+
+                          <TableCell className="whitespace-nowrap">
+                            {formatDate(user.createdAt)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              aria-label={`Delete ${user.name || user.email}`}
+                              title="Delete user"
+                              onClick={() => setUserToDelete(user)}
+                            >
+                              <Trash2 className="size-4 text-destructive" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell
+                          colSpan={8}
+                          className="h-28 text-center text-muted-foreground"
+                        >
+                          <div className="flex flex-col items-center gap-2">
+                            <Users className="size-6" />
+                            <p>No users found.</p>
+                            <p className="text-xs">
+                              Try changing your search or role filter.
+                            </p>
                           </div>
                         </TableCell>
-
-                        <TableCell className="whitespace-nowrap">
-                          {user.email || "—"}
-                        </TableCell>
-
-                        <TableCell>
-                          <Select
-                            value={user.role}
-                            onValueChange={(value) =>
-                              handleRoleChange(user, value)
-                            }
-                            disabled={isUpdatingRole}
-                          >
-                            <SelectTrigger
-                              className="w-36"
-                              aria-label={`Update role for ${user.name || user.email}`}
-                            >
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {USER_ROLE_OPTIONS.map((option) => (
-                                <SelectItem
-                                  key={option.value}
-                                  value={option.value}
-                                >
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </TableCell>
-
-                        <TableCell>
-                          <Select
-                            value={user.status}
-                            onValueChange={(value) =>
-                              handleStatusChange(user, value)
-                            }
-                            disabled={isUpdatingStatus}
-                          >
-                            <SelectTrigger
-                              className="w-36"
-                              aria-label={`Update status for ${user.name || user.email}`}
-                            >
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {USER_STATUS_OPTIONS.map((option) => (
-                                <SelectItem
-                                  key={option.value}
-                                  value={option.value}
-                                >
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </TableCell>
-
-                        <TableCell>
-                          <Badge
-                            variant={
-                              user.emailVerified
-                                ? "default"
-                                : "secondary"
-                            }
-                          >
-                            {user.emailVerified
-                              ? "Verified"
-                              : "Not verified"}
-                          </Badge>
-                        </TableCell>
-
-                        <TableCell>
-                          {user.authProvider || "—"}
-                        </TableCell>
-
-                        <TableCell className="whitespace-nowrap">
-                          {formatDate(user.createdAt)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            aria-label={`Delete ${user.name || user.email}`}
-                            title="Delete user"
-                            onClick={() => setUserToDelete(user)}
-                          >
-                            <Trash2 className="size-4 text-destructive" />
-                          </Button>
-                        </TableCell>
                       </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell
-                        colSpan={8}
-                        className="h-28 text-center text-muted-foreground"
-                      >
-                        <div className="flex flex-col items-center gap-2">
-                          <Users className="size-6" />
-                          <p>No users found.</p>
-                          <p className="text-xs">
-                            Try changing your search or role filter.
-                          </p>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
 
-            {totalPages > 1 && (
-              <CommonPagination
-                page={currentPage}
-                totalPages={totalPages}
-                onPageChange={setPage}
-              />
-            )}
-          </CardContent>
-        </Card>
-      )}
+              {totalPages > 1 && (
+                <CommonPagination
+                  page={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setPage}
+                />
+              )}
+            </CardContent>
+          </Card>
+        )}
       </AdminPage>
       <AlertDialog
         open={Boolean(userToDelete)}
@@ -503,9 +493,7 @@ export default function AdminUsersPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>
-              Cancel
-            </AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               disabled={isDeleting}
               onClick={handleDeleteUser}

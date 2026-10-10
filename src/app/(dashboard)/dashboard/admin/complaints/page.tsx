@@ -48,10 +48,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  useAdminUsers,
-  useCreateAdminAssignment,
-} from "@/hooks/admin.hook";
+import { useAdminUsers, useCreateAdminAssignment } from "@/hooks/admin.hook";
 import { useManagerComplaints } from "@/hooks/manager.hook";
 import { COMPLAINT_STATUS_OPTIONS } from "@/lib/complaint-status";
 import { AdminPage } from "../AdminPage";
@@ -149,9 +146,7 @@ function AdminAssignTechnician({ complaintId }: { complaintId: string }) {
                 Technician
               </FieldLabel>
               {usersLoading ? (
-                <Skeleton
-                  className="h-10 w-full"
-                />
+                <Skeleton className="h-10 w-full" />
               ) : (
                 <Select
                   value={technicianId || null}
@@ -281,11 +276,15 @@ export default function AdminComplaintsPage() {
           </div>
           <Skeleton className="h-9 w-48" />
           <div className="space-y-2">
-            {["complaint-one", "complaint-two", "complaint-three", "complaint-four", "complaint-five"].map(
-              (row) => (
-                <Skeleton key={row} className="h-12 w-full" />
-              ),
-            )}
+            {[
+              "complaint-one",
+              "complaint-two",
+              "complaint-three",
+              "complaint-four",
+              "complaint-five",
+            ].map((row) => (
+              <Skeleton key={row} className="h-12 w-full" />
+            ))}
           </div>
         </div>
       ) : isError ? (
@@ -331,12 +330,9 @@ export default function AdminComplaintsPage() {
                     <TableHead>Location</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Payment</TableHead>
-                 
-                    <TableHead>Assignment</TableHead>
-                   <TableHead >
-                Action
-              </TableHead>
 
+                    <TableHead>Assignment</TableHead>
+                    <TableHead>Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -354,26 +350,25 @@ export default function AdminComplaintsPage() {
                         <TableCell>
                           <Badge variant="outline">{complaint.status}</Badge>
                         </TableCell>
+                        <TableCell>{complaint.paymentStatus ?? "—"}</TableCell>
                         <TableCell>
-                          {complaint.paymentStatus ?? "—"}
-                        </TableCell>
-                        <TableCell>
-                          <AssignTechnician complaintId={complaint.id} complaintStatus={complaint.status} />
+                          <AssignTechnician
+                            complaintId={complaint.id}
+                            complaintStatus={complaint.status}
+                          />
                           {/* <AdminAssignTechnician complaintId={complaint.id} /> */}
                         </TableCell>
 
-
-                  {/* View Complaint */}
-                  <TableCell className="text-right">
-                    <Link
-                      href={`/dashboard/admin/complaints/${complaint.id}`}
-                      className="inline-flex h-9 items-center justify-center gap-2 rounded-md px-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
-                    >
-                      <Eye className="h-4 w-4" />
-                      View
-                    </Link>
-                  </TableCell>
-
+                        {/* View Complaint */}
+                        <TableCell className="text-right">
+                          <Link
+                            href={`/dashboard/admin/complaints/${complaint.id}`}
+                            className="inline-flex h-9 items-center justify-center gap-2 rounded-md px-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+                          >
+                            <Eye className="h-4 w-4" />
+                            View
+                          </Link>
+                        </TableCell>
                       </TableRow>
                     ))
                   ) : (

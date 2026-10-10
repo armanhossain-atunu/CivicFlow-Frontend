@@ -83,8 +83,7 @@ export function useCreateAdminCategory() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: AdminCategoryPayload) =>
-      createAdminCategory(payload),
+    mutationFn: (payload: AdminCategoryPayload) => createAdminCategory(payload),
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: adminQueryKeys.categories }),

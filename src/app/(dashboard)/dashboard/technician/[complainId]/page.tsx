@@ -1,12 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetMyAssignments } from "@/hooks/technician.hook";
 import { useParams } from "next/navigation";
@@ -107,9 +102,7 @@ export default function ComplaintDetailsPage() {
       <main className="mx-auto w-full max-w-5xl px-4 py-8">
         <Card>
           <CardContent className="py-10 text-center">
-            <h1 className="text-xl font-semibold">
-              Failed to load complaint
-            </h1>
+            <h1 className="text-xl font-semibold">Failed to load complaint</h1>
 
             <p className="mt-2 text-sm text-muted-foreground">
               Something went wrong while loading your assignments.
@@ -125,9 +118,7 @@ export default function ComplaintDetailsPage() {
       <main className="mx-auto w-full max-w-5xl px-4 py-8">
         <Card>
           <CardContent className="py-10 text-center">
-            <h1 className="text-xl font-semibold">
-              Complaint not found
-            </h1>
+            <h1 className="text-xl font-semibold">Complaint not found</h1>
 
             <p className="mt-2 text-sm text-muted-foreground">
               No complaint found with ID:
@@ -146,9 +137,7 @@ export default function ComplaintDetailsPage() {
     <main className="mx-auto w-full max-w-5xl space-y-6 px-4 py-8">
       {/* Header */}
       <div>
-        <p className="text-sm font-medium text-primary">
-          Complaint Details
-        </p>
+        <p className="text-sm font-medium text-primary">Complaint Details</p>
 
         <h1 className="mt-1 text-3xl font-bold">
           {complaint.title || "Untitled Complaint"}
@@ -168,20 +157,14 @@ export default function ComplaintDetailsPage() {
         <CardContent>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">
-                Current Status
-              </p>
+              <p className="text-sm text-muted-foreground">Current Status</p>
 
               <p className="mt-1 font-medium">
-               {complaint.status?.replaceAll("_", " ") ||
-                    "UNKNOWN"}
+                {complaint.status?.replaceAll("_", " ") || "UNKNOWN"}
               </p>
             </div>
 
-            <Badge>
-              {complaint.status?.replaceAll("_", " ") ||
-                    "UNKNOWN"}
-            </Badge>
+            <Badge>{complaint.status?.replaceAll("_", " ") || "UNKNOWN"}</Badge>
           </div>
         </CardContent>
       </Card>
@@ -200,8 +183,7 @@ export default function ComplaintDetailsPage() {
             </p>
 
             <p className="mt-1">
-              {complaint.description ||
-                "No description available."}
+              {complaint.description || "No description available."}
             </p>
           </div>
 
@@ -209,9 +191,7 @@ export default function ComplaintDetailsPage() {
           <div className="grid gap-6 sm:grid-cols-2">
             {/* Department */}
             <div>
-              <p className="text-sm text-muted-foreground">
-                Department
-              </p>
+              <p className="text-sm text-muted-foreground">Department</p>
 
               <p className="mt-1 font-medium">
                 {complaint.department || "N/A"}
@@ -220,34 +200,25 @@ export default function ComplaintDetailsPage() {
 
             {/* Location */}
             <div>
-              <p className="text-sm text-muted-foreground">
-                Location
-              </p>
+              <p className="text-sm text-muted-foreground">Location</p>
 
-              <p className="mt-1 font-medium">
-                {complaint.location || "N/A"}
-              </p>
+              <p className="mt-1 font-medium">{complaint.location || "N/A"}</p>
             </div>
 
             {/* Complaint Status */}
             <div>
-              <p className="text-sm text-muted-foreground">
-                Complaint Status
-              </p>
+              <p className="text-sm text-muted-foreground">Complaint Status</p>
 
               <div className="mt-1">
                 <Badge>
-                  {complaint.status?.replaceAll("_", " ") ||
-                    "UNKNOWN"}
+                  {complaint.status?.replaceAll("_", " ") || "UNKNOWN"}
                 </Badge>
               </div>
             </div>
 
             {/* Payment Amount */}
             <div>
-              <p className="text-sm text-muted-foreground">
-                Payment Amount
-              </p>
+              <p className="text-sm text-muted-foreground">Payment Amount</p>
 
               <p className="mt-1 font-medium">
                 {complaint.paymentAmount !== undefined
@@ -258,16 +229,12 @@ export default function ComplaintDetailsPage() {
 
             {/* Payment Status */}
             <div>
-              <p className="text-sm text-muted-foreground">
-                Payment Status
-              </p>
+              <p className="text-sm text-muted-foreground">Payment Status</p>
 
               <div className="mt-1">
                 <Badge
                   variant={
-                    complaint.paymentStatus === "PAID"
-                      ? "default"
-                      : "outline"
+                    complaint.paymentStatus === "PAID" ? "default" : "outline"
                   }
                 >
                   {complaint.paymentStatus || "N/A"}

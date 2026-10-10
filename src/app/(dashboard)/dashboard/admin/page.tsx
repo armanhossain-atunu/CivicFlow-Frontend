@@ -91,32 +91,32 @@ export default function AdminDashboard() {
       label: "Total complaints",
       isLoading: complaintsQuery.isLoading,
       value: complaintsQuery.isError
-          ? "Unavailable"
-          : (complaintsQuery.data?.total ?? 0).toLocaleString(),
+        ? "Unavailable"
+        : (complaintsQuery.data?.total ?? 0).toLocaleString(),
     },
     {
       label: "Payment records",
       isLoading: paymentsQuery.isLoading,
       value: paymentsQuery.isError
-          ? "Unavailable"
-          : (countArrayPayload(paymentsQuery.data)?.toLocaleString() ??
-            "Unavailable"),
+        ? "Unavailable"
+        : (countArrayPayload(paymentsQuery.data)?.toLocaleString() ??
+          "Unavailable"),
     },
     {
       label: "User accounts",
       isLoading: usersQuery.isLoading,
       value: usersQuery.isError
-          ? "Unavailable"
-          : (countArrayPayload(usersQuery.data)?.toLocaleString() ??
-            "Unavailable"),
+        ? "Unavailable"
+        : (countArrayPayload(usersQuery.data)?.toLocaleString() ??
+          "Unavailable"),
     },
     {
       label: "Categories",
       isLoading: categoriesQuery.isLoading,
       value: categoriesQuery.isError
-          ? "Unavailable"
-          : (countArrayPayload(categoriesQuery.data)?.toLocaleString() ??
-            "Unavailable"),
+        ? "Unavailable"
+        : (countArrayPayload(categoriesQuery.data)?.toLocaleString() ??
+          "Unavailable"),
     },
   ];
 
@@ -138,9 +138,7 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               {isLoading ? (
-                <Skeleton
-                  className="h-8 w-24"
-                />
+                <Skeleton className="h-8 w-24" />
               ) : (
                 <p className="text-2xl font-semibold tabular-nums">{value}</p>
               )}

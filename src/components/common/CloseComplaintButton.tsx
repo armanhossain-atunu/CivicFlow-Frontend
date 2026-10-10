@@ -5,7 +5,6 @@ import { Loader2, LockKeyhole } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import { useCloseComplaint } from "@/hooks/complain.hook";
-;
 
 type CloseAssignmentButtonProps = {
   complaintId: string;
@@ -33,9 +32,7 @@ export function CloseAssignmentButton({
         toast.add({
           title: "Failed to close complaint",
           description:
-            error instanceof Error
-              ? error.message
-              : "Something went wrong.",
+            error instanceof Error ? error.message : "Something went wrong.",
           type: "error",
         });
       },
@@ -55,11 +52,7 @@ export function CloseAssignmentButton({
         <LockKeyhole className="mr-2 h-4 w-4" />
       )}
 
-      {isClosed
-        ? "Closed"
-        : isPending
-          ? "Closing..."
-          : "Close Complaint"}
+      {isClosed ? "Closed" : isPending ? "Closing..." : "Close Complaint"}
     </Button>
   );
 }

@@ -1,12 +1,7 @@
-
 "use client";
 
 import React from "react";
-import {
-  CheckCircle2,
-  Loader2,
-  PlayCircle,
-} from "lucide-react";
+import { CheckCircle2, Loader2, PlayCircle } from "lucide-react";
 
 import { useUpdateStatus } from "@/hooks/technician.hook";
 import { toast } from "@/components/ui/toast";
@@ -23,24 +18,16 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-type Status =
-  | "ASSIGNED"
-  | "IN_PROGRESS"
-  | "RESOLVED";
+type Status = "ASSIGNED" | "IN_PROGRESS" | "RESOLVED";
 
 type StatusUpdateProps = {
   assignmentId: string;
   currentStatus?: string;
 };
 
-const StatusUpdate = ({
-  assignmentId,
-  currentStatus,
-}: StatusUpdateProps) => {
-  const {
-    mutate: updateStatusMutation,
-    isPending: isUpdating,
-  } = useUpdateStatus();
+const StatusUpdate = ({ assignmentId, currentStatus }: StatusUpdateProps) => {
+  const { mutate: updateStatusMutation, isPending: isUpdating } =
+    useUpdateStatus();
 
   // Determine next status
   const nextStatus: Status | null =
@@ -51,17 +38,9 @@ const StatusUpdate = ({
         : null;
 
   // Already resolved
-  if (
-    currentStatus === "RESOLVED" ||
-    nextStatus === null
-  ) {
+  if (currentStatus === "RESOLVED" || nextStatus === null) {
     return (
-      <Button
-        type="button"
-        size="sm"
-        variant="outline"
-        disabled
-      >
+      <Button type="button" size="sm" variant="outline" disabled>
         <CheckCircle2 className="mr-2 h-4 w-4" />
         Resolved
       </Button>
@@ -95,8 +74,7 @@ const StatusUpdate = ({
 
           toast.add({
             title: "Update failed",
-            description:
-              "Failed to update complaint status.",
+            description: "Failed to update complaint status.",
             type: "error",
           });
         },
@@ -108,29 +86,21 @@ const StatusUpdate = ({
     <Dialog>
       <DialogTrigger
         render={
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-          >
+          <Button type="button" size="sm" variant="outline">
             {isResolving ? (
               <CheckCircle2 className="mr-2 h-4 w-4" />
             ) : (
               <PlayCircle className="mr-2 h-4 w-4" />
             )}
 
-            {isResolving
-              ? "Resolve"
-              : "Update Status"}
+            {isResolving ? "Resolve" : "Update Status"}
           </Button>
         }
       />
 
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>
-            Update Complaint Status
-          </DialogTitle>
+          <DialogTitle>Update Complaint Status</DialogTitle>
 
           <DialogDescription>
             Update this assignment to the next status.
@@ -140,9 +110,7 @@ const StatusUpdate = ({
         <div className="space-y-3 py-4">
           {/* Current Status */}
           <div className="rounded-md border p-3">
-            <p className="text-xs text-muted-foreground">
-              Current Status
-            </p>
+            <p className="text-xs text-muted-foreground">Current Status</p>
 
             <p className="mt-1 font-medium">
               {currentStatus?.replace("_", " ")}
@@ -151,9 +119,7 @@ const StatusUpdate = ({
 
           {/* Next Status */}
           <div className="rounded-md border bg-muted/50 p-3">
-            <p className="text-xs text-muted-foreground">
-              New Status
-            </p>
+            <p className="text-xs text-muted-foreground">New Status</p>
 
             <div className="mt-1 flex items-center gap-2">
               {isResolving ? (
@@ -162,9 +128,7 @@ const StatusUpdate = ({
                 <PlayCircle className="h-4 w-4" />
               )}
 
-              <p className="font-medium">
-                {nextStatus.replace("_", " ")}
-              </p>
+              <p className="font-medium">{nextStatus.replace("_", " ")}</p>
             </div>
           </div>
         </div>
@@ -172,11 +136,7 @@ const StatusUpdate = ({
         <DialogFooter>
           <DialogClose
             render={
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isUpdating}
-              >
+              <Button type="button" variant="outline" disabled={isUpdating}>
                 Cancel
               </Button>
             }
@@ -211,7 +171,3 @@ const StatusUpdate = ({
 };
 
 export default StatusUpdate;
-
-
-
-

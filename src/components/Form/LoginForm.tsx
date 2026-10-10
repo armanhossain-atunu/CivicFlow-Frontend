@@ -1,4 +1,4 @@
- /** biome-ignore-all lint/a11y/noSvgWithoutTitle: GitHub icon is decorative */
+/** biome-ignore-all lint/a11y/noSvgWithoutTitle: GitHub icon is decorative */
 /** biome-ignore-all lint/correctness/noUnusedImports: <explanation> */
 "use client";
 
@@ -77,9 +77,7 @@ export function LoginForm() {
               manager: "/dashboard/manager",
               technician: "/dashboard/technician",
             };
-            const dashboardPath = role
-              ? dashboardPathByRole[role]
-              : undefined;
+            const dashboardPath = role ? dashboardPathByRole[role] : undefined;
 
             if (!dashboardPath) {
               throw new Error("Your account role has no dashboard.");
@@ -231,11 +229,7 @@ export function LoginForm() {
 
         {/* Login */}
         <Field>
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={loginPending}
-          >
+          <Button type="submit" className="w-full" disabled={loginPending}>
             {loginPending ? "Logging in..." : "Login"}
           </Button>
         </Field>

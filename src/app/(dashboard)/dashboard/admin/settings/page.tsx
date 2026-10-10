@@ -35,10 +35,7 @@ export default function AdminSettingsPage() {
       description="Review your administrator account and access information."
     >
       {isLoading ? (
-        <div
-          className="grid gap-4 lg:grid-cols-2"
-          aria-busy="true"
-        >
+        <div className="grid gap-4 lg:grid-cols-2" aria-busy="true">
           {["account", "security"].map((section) => (
             <Card key={section}>
               <CardHeader>

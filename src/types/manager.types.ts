@@ -7,7 +7,7 @@ export type ManagerComplaint = {
   department?: string;
   category?: string;
   location?: string;
-  paymentStatus?:string;
+  paymentStatus?: string;
   citizenName?: string;
   citizenEmail?: string;
   technicianId?: string;
@@ -185,7 +185,7 @@ export function normalizeTechnician(value: unknown): Technician | null {
   return {
     id,
     name,
-    role: getText(value.role) ,
+    role: getText(value.role),
     email: email ?? "",
   };
 }
@@ -268,7 +268,7 @@ export function normalizeTechnicians(value: unknown): Technician[] {
     (technician): technician is Technician => technician !== null,
   );
 }
-//  
+//
 export function normalizeComplaintPayload(value: unknown): ManagerComplaint {
   const complaint = normalizeComplaint(getObjectPayload(value));
   if (!complaint) {

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -90,9 +89,7 @@ const ComplaintTable = ({
       <div className="border-b px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold">
-              All Complaints
-            </h2>
+            <h2 className="text-lg font-semibold">All Complaints</h2>
 
             <p className="text-sm text-muted-foreground">
               Manage and monitor citizen complaints.
@@ -127,12 +124,8 @@ const ComplaintTable = ({
               <TableHead>Location</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Payment</TableHead>
-              <TableHead className="text-right">
-                Assign
-              </TableHead>
-              <TableHead className="text-right">
-                Action
-              </TableHead>
+              <TableHead className="text-right">Assign</TableHead>
+              <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
 
@@ -143,9 +136,7 @@ const ComplaintTable = ({
                   {/* Title */}
                   <TableCell>
                     <div className="max-w-[250px]">
-                      <p className="truncate font-medium">
-                        {complaint.title}
-                      </p>
+                      <p className="truncate font-medium">{complaint.title}</p>
 
                       {complaint.description && (
                         <p className="truncate text-xs text-muted-foreground">
@@ -156,9 +147,7 @@ const ComplaintTable = ({
                   </TableCell>
 
                   {/* Department */}
-                  <TableCell>
-                    {complaint.department || "N/A"}
-                  </TableCell>
+                  <TableCell>{complaint.department || "N/A"}</TableCell>
 
                   {/* Location */}
                   <TableCell>
@@ -169,19 +158,14 @@ const ComplaintTable = ({
 
                   {/* Complaint Status */}
                   <TableCell>
-                    <Badge
-                      variant={getStatusVariant(complaint.status)}
-                    >
-                      {complaint.status?.replaceAll("_", " ") ||
-                        "UNKNOWN"}
+                    <Badge variant={getStatusVariant(complaint.status)}>
+                      {complaint.status?.replaceAll("_", " ") || "UNKNOWN"}
                     </Badge>
                   </TableCell>
 
                   {/* Payment Status */}
                   <TableCell>
-                      <Badge>
-                   {complaint?.paymentStatus}
-                   </Badge>
+                    <Badge>{complaint?.paymentStatus}</Badge>
                   </TableCell>
 
                   {/* Assign Technician */}

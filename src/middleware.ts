@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 type Role = "CITIZEN" | "STAFF" | "TECHNICIAN" | "MANAGER" | "ADMIN";
 

@@ -19,11 +19,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Field,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import {
   Table,
   TableBody,
@@ -118,13 +114,7 @@ function CreateCategoryDialog() {
         if (!isPending) setOpen(nextOpen);
       }}
     >
-      <DialogTrigger
-        render={
-          <Button type="button">
-            Create category
-          </Button>
-        }
-      />
+      <DialogTrigger render={<Button type="button">Create category</Button>} />
       <DialogContent className="sm:max-w-lg">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
@@ -161,9 +151,7 @@ function CreateCategoryDialog() {
               />
             </Field>
             <Field>
-              <FieldLabel htmlFor="category-department">
-                Department
-              </FieldLabel>
+              <FieldLabel htmlFor="category-department">Department</FieldLabel>
               <input
                 id="category-department"
                 value={department}
@@ -216,23 +204,26 @@ function getCategories(value: unknown): Category[] {
         } = item;
         if (typeof id !== "string" || typeof name !== "string") return [];
 
-        return [{
-          id,
-          name,
-          description:
-            typeof description === "string" ? description : undefined,
-          department:
-            typeof department === "string" ? department : undefined,
-          isActive: typeof isActive === "boolean" ? isActive : undefined,
-          paymentRequired:
-            typeof paymentRequired === "boolean" ? paymentRequired : undefined,
-          paymentAmount:
-            typeof paymentAmount === "number" ||
-            typeof paymentAmount === "string" ||
-            paymentAmount === null
-              ? paymentAmount
-              : undefined,
-        }];
+        return [
+          {
+            id,
+            name,
+            description:
+              typeof description === "string" ? description : undefined,
+            department: typeof department === "string" ? department : undefined,
+            isActive: typeof isActive === "boolean" ? isActive : undefined,
+            paymentRequired:
+              typeof paymentRequired === "boolean"
+                ? paymentRequired
+                : undefined,
+            paymentAmount:
+              typeof paymentAmount === "number" ||
+              typeof paymentAmount === "string" ||
+              paymentAmount === null
+                ? paymentAmount
+                : undefined,
+          },
+        ];
       });
     }
 
@@ -295,11 +286,15 @@ export default function AdminCategoriesPage() {
           </div>
           <Skeleton className="h-9 w-48" />
           <div className="space-y-2">
-            {["category-one", "category-two", "category-three", "category-four", "category-five"].map(
-              (row) => (
-                <Skeleton key={row} className="h-12 w-full" />
-              ),
-            )}
+            {[
+              "category-one",
+              "category-two",
+              "category-three",
+              "category-four",
+              "category-five",
+            ].map((row) => (
+              <Skeleton key={row} className="h-12 w-full" />
+            ))}
           </div>
         </div>
       ) : isError ? (
@@ -370,9 +365,7 @@ export default function AdminCategoriesPage() {
                         <TableCell>
                           <Badge
                             variant={
-                              category.paymentRequired
-                                ? "secondary"
-                                : "outline"
+                              category.paymentRequired ? "secondary" : "outline"
                             }
                           >
                             {category.paymentRequired

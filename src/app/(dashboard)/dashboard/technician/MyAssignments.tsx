@@ -62,10 +62,7 @@ const MyAssignments = () => {
 
   if (isLoading) {
     return (
-      <div
-        className="mx-auto max-w-7xl space-y-6"
-        aria-busy="true"
-      >
+      <div className="mx-auto max-w-7xl space-y-6" aria-busy="true">
         <div className="space-y-2">
           <Skeleton className="h-8 w-48" />
           <Skeleton className="h-4 w-72" />
@@ -76,11 +73,15 @@ const MyAssignments = () => {
             <Skeleton className="h-4 w-64" />
           </CardHeader>
           <CardContent className="space-y-2">
-            {["assignment-one", "assignment-two", "assignment-three", "assignment-four", "assignment-five"].map(
-              (row) => (
-                <Skeleton key={row} className="h-12 w-full" />
-              ),
-            )}
+            {[
+              "assignment-one",
+              "assignment-two",
+              "assignment-three",
+              "assignment-four",
+              "assignment-five",
+            ].map((row) => (
+              <Skeleton key={row} className="h-12 w-full" />
+            ))}
           </CardContent>
         </Card>
       </div>
@@ -199,20 +200,20 @@ const MyAssignments = () => {
                           </span>
                         </TableCell>
                         {/* Assing node */}
-                      <TableCell>
-  {assignment.note?.trim() ? (
-    <Badge
-      variant="outline"
-      className="max-w-[220px] whitespace-normal break-words"
-    >
-      {assignment.note}
-    </Badge>
-  ) : (
-    <span className="text-sm text-muted-foreground">
-      No note
-    </span>
-  )}
-</TableCell>
+                        <TableCell>
+                          {assignment.note?.trim() ? (
+                            <Badge
+                              variant="outline"
+                              className="max-w-[220px] whitespace-normal break-words"
+                            >
+                              {assignment.note}
+                            </Badge>
+                          ) : (
+                            <span className="text-sm text-muted-foreground">
+                              No note
+                            </span>
+                          )}
+                        </TableCell>
 
                         {/* Status  */}
                         <TableCell>{status}</TableCell>

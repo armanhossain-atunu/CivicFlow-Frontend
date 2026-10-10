@@ -34,10 +34,10 @@ export function getTechnicians() {
 export function assignmentCreate(payload: createAssignment) {
   return apiClient("/complaint-assignments", {
     method: "POST",
-   body: payload,
+    body: payload,
   });
 }
-// 
+//
 export function closeComplaint(complaintId: string) {
   return apiClient(
     `/complaint-assignments/${encodeURIComponent(complaintId)}/close`,

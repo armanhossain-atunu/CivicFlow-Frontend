@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { getAllPayments, getMyPaymentsHistory } from "@/api/payment.api";
 
@@ -9,7 +8,6 @@ export function useMyPaymentsHistory() {
     retry: false,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
-   
   });
 }
 

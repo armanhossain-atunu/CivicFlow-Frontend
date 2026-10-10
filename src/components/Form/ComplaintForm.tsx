@@ -214,9 +214,7 @@ export function ComplaintForm() {
                 <FieldLabel htmlFor={field.name}>Category</FieldLabel>
 
                 {categoriesLoading ? (
-                  <Skeleton
-                    className="h-10 w-full"
-                  />
+                  <Skeleton className="h-10 w-full" />
                 ) : (
                   <select
                     id={field.name}

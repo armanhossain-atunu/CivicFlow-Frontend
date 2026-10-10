@@ -42,11 +42,14 @@ export default function ManagerDashboard() {
         </section>
         <div className="space-y-2 rounded-xl border p-5">
           <Skeleton className="h-6 w-48" />
-          {["complaint-one", "complaint-two", "complaint-three", "complaint-four"].map(
-            (row) => (
-              <Skeleton key={row} className="h-12 w-full" />
-            ),
-          )}
+          {[
+            "complaint-one",
+            "complaint-two",
+            "complaint-three",
+            "complaint-four",
+          ].map((row) => (
+            <Skeleton key={row} className="h-12 w-full" />
+          ))}
         </div>
       </main>
     );
@@ -76,7 +79,7 @@ export default function ManagerDashboard() {
         totalPages={totalPages}
         onPageChange={setPage}
       />
-      <GetAllPayments/>
+      <GetAllPayments />
     </main>
   );
 }

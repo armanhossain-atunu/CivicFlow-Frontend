@@ -1,13 +1,7 @@
-
 "use client";
 
 import { useState } from "react";
-import {
-  CreditCard,
-  MapPin,
-  RefreshCw,
-  AlertCircle,
-} from "lucide-react";
+import { CreditCard, MapPin, RefreshCw, AlertCircle } from "lucide-react";
 
 import {
   useGetAllPendingComplaints,
@@ -78,13 +72,9 @@ function parseComplaint(value: unknown): PendingComplaint | null {
     return null;
   }
 
-  const category = isRecord(value.category)
-    ? value.category
-    : null;
+  const category = isRecord(value.category) ? value.category : null;
 
-  const payment = isRecord(value.payment)
-    ? value.payment
-    : null;
+  const payment = isRecord(value.payment) ? value.payment : null;
 
   const paymentStatus =
     getString(value.paymentStatus) ??
@@ -101,9 +91,7 @@ function parseComplaint(value: unknown): PendingComplaint | null {
     title: getString(value.title) ?? "Untitled complaint",
 
     categoryName:
-      getString(value.categoryName) ??
-      getString(category?.name) ??
-      "—",
+      getString(value.categoryName) ?? getString(category?.name) ?? "—",
 
     location: getString(value.location) ?? "—",
 
@@ -130,9 +118,7 @@ function getComplaints(value: unknown): PendingComplaint[] {
     if (Array.isArray(current)) {
       return current
         .map(parseComplaint)
-        .filter(
-          (item): item is PendingComplaint => item !== null,
-        );
+        .filter((item): item is PendingComplaint => item !== null);
     }
 
     if (!isRecord(current)) {
@@ -143,9 +129,7 @@ function getComplaints(value: unknown): PendingComplaint[] {
     if (Array.isArray(current.complaints)) {
       return current.complaints
         .map(parseComplaint)
-        .filter(
-          (item): item is PendingComplaint => item !== null,
-        );
+        .filter((item): item is PendingComplaint => item !== null);
     }
 
     if (!("data" in current)) {
@@ -231,17 +215,12 @@ function isPendingPayment(complaint: PendingComplaint): boolean {
 ========================================================= */
 
 export default function PaymentPending() {
-  const [payingComplaintId, setPayingComplaintId] =
-    useState<string | null>(null);
+  const [payingComplaintId, setPayingComplaintId] = useState<string | null>(
+    null,
+  );
 
-  const {
-    data,
-    isLoading,
-    isError,
-    error,
-    refetch,
-    isFetching,
-  } = useGetAllPendingComplaints();
+  const { data, isLoading, isError, error, refetch, isFetching } =
+    useGetAllPendingComplaints();
 
   const { mutateAsync: payForComplaint } = usePayForComplaint();
 
@@ -274,9 +253,7 @@ export default function PaymentPending() {
       const checkoutUrl = getPaymentUrl(result);
 
       if (!checkoutUrl) {
-        throw new Error(
-          "The server did not return a bKash checkout URL.",
-        );
+        throw new Error("The server did not return a bKash checkout URL.");
       }
 
       let parsedUrl: URL;
@@ -317,9 +294,7 @@ export default function PaymentPending() {
   if (isLoading) {
     return (
       <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6">
-        <h1 className="text-2xl font-bold tracking-tight">
-          Pending payments
-        </h1>
+        <h1 className="text-2xl font-bold tracking-tight">Pending payments</h1>
 
         <div
           className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
@@ -354,9 +329,7 @@ export default function PaymentPending() {
           <CardContent className="flex flex-col items-center gap-4 py-10 text-center">
             <AlertCircle className="size-10 text-destructive" />
 
-            <h2 className="font-semibold">
-              Failed to load complaints
-            </h2>
+            <h2 className="font-semibold">Failed to load complaints</h2>
 
             <p className="text-sm text-muted-foreground">
               {error instanceof Error
@@ -370,9 +343,7 @@ export default function PaymentPending() {
               disabled={isFetching}
             >
               <RefreshCw
-                className={`mr-2 size-4 ${
-                  isFetching ? "animate-spin" : ""
-                }`}
+                className={`mr-2 size-4 ${isFetching ? "animate-spin" : ""}`}
               />
               {isFetching ? "Retrying..." : "Try again"}
             </Button>
@@ -407,9 +378,7 @@ export default function PaymentPending() {
           disabled={isFetching || payingComplaintId !== null}
         >
           <RefreshCw
-            className={`mr-2 size-4 ${
-              isFetching ? "animate-spin" : ""
-            }`}
+            className={`mr-2 size-4 ${isFetching ? "animate-spin" : ""}`}
           />
           Refresh
         </Button>
@@ -427,9 +396,7 @@ export default function PaymentPending() {
             Complaints awaiting payment
           </p>
 
-          <p className="text-2xl font-bold">
-            {pendingComplaints.length}
-          </p>
+          <p className="text-2xl font-bold">{pendingComplaints.length}</p>
         </div>
       </div>
 
@@ -442,14 +409,12 @@ export default function PaymentPending() {
               <CreditCard className="size-7 text-muted-foreground" />
             </div>
 
-            <h2 className="font-semibold">
-              No pending payments found
-            </h2>
+            <h2 className="font-semibold">No pending payments found</h2>
 
             <p className="mt-1 max-w-md text-sm text-muted-foreground">
-              No complaints matched the pending payment statuses.
-              Refresh the list or inspect the API response to verify
-              the payment status fields.
+              No complaints matched the pending payment statuses. Refresh the
+              list or inspect the API response to verify the payment status
+              fields.
             </p>
 
             <Button
@@ -459,9 +424,7 @@ export default function PaymentPending() {
               disabled={isFetching}
             >
               <RefreshCw
-                className={`mr-2 size-4 ${
-                  isFetching ? "animate-spin" : ""
-                }`}
+                className={`mr-2 size-4 ${isFetching ? "animate-spin" : ""}`}
               />
               {isFetching ? "Refreshing..." : "Refresh complaints"}
             </Button>
@@ -481,9 +444,7 @@ export default function PaymentPending() {
               >
                 <CardHeader>
                   <div className="mb-2">
-                    <Badge variant="outline">
-                      Payment pending
-                    </Badge>
+                    <Badge variant="outline">Payment pending</Badge>
                   </div>
 
                   <CardTitle className="line-clamp-2">
@@ -519,9 +480,7 @@ export default function PaymentPending() {
                     </div>
 
                     <Badge variant="secondary">
-                      {complaint.paymentStatus ??
-                        complaint.status ??
-                        "UNKNOWN"}
+                      {complaint.paymentStatus ?? complaint.status ?? "UNKNOWN"}
                     </Badge>
                   </div>
                 </CardContent>
@@ -534,9 +493,7 @@ export default function PaymentPending() {
                   >
                     <CreditCard className="mr-2 size-4" />
 
-                    {isPaying
-                      ? "Creating payment..."
-                      : "Pay with bKash"}
+                    {isPaying ? "Creating payment..." : "Pay with bKash"}
                   </Button>
                 </CardFooter>
               </Card>

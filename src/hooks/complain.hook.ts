@@ -49,7 +49,6 @@ export function useCreateComplaint() {
   });
 }
 
-
 // get all categories
 export function useGetAllCategories() {
   return useQuery({
@@ -76,7 +75,7 @@ export function usePayForComplaint() {
         queryClient.invalidateQueries({
           queryKey: ["own-complaints"],
         }),
-        queryClient.invalidateQueries({ queryKey: ["pending-payments"], }),
+        queryClient.invalidateQueries({ queryKey: ["pending-payments"] }),
       ]);
     },
   });
@@ -125,9 +124,88 @@ export function useGetAllComplaints(params: GetAllComplaintsParams = {}) {
     placeholderData: keepPreviousData,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
- 
   });
 }
+
+const COMPLAINT_STATISTICS_PAGE_SIZE = 100;
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function getComplaintRecords(value: unknown) {
+  let current = value;
+
+  for (let depth = 0; depth < 4; depth += 1) {
+    if (Array.isArray(current)) {
+      return current.filter(
+        (item): item is Record<string, unknown> =>
+          isRecord(item) && typeof item.id === "string",
+      );
+    }
+
+    if (!isRecord(current) || !("data" in current)) {
+      return [];
+    }
+
+    current = current.data;
+  }
+
+  return [];
+}
+
+export function useGetComplaintStatistics() {
+  return useQuery({
+    queryKey: ["complaints", "statistics"],
+    queryFn: async () => {
+      const complaintsById = new Map<string, { id: string; status?: string }>();
+
+      for (let page = 1; ; page += 1) {
+        const response = await getAllComplaints({
+          page,
+          limit: COMPLAINT_STATISTICS_PAGE_SIZE,
+        });
+        const complaints = getComplaintRecords(response);
+        const previousCount = complaintsById.size;
+
+        for (const complaint of complaints) {
+          if (typeof complaint.id !== "string") {
+            continue;
+          }
+
+          const id = complaint.id;
+          const status =
+            typeof complaint.status === "string" ? complaint.status : undefined;
+
+          complaintsById.set(id, { id, status });
+        }
+
+        if (
+          complaints.length < COMPLAINT_STATISTICS_PAGE_SIZE ||
+          complaintsById.size === previousCount
+        ) {
+          break;
+        }
+      }
+
+      const uniqueComplaints = Array.from(complaintsById.values());
+
+      return {
+        totalComplaints: uniqueComplaints.length,
+        resolvedComplaints: uniqueComplaints.filter(
+          (complaint) => complaint.status?.toUpperCase() === "RESOLVED",
+        ).length,
+        activeRequests: uniqueComplaints.filter((complaint) =>
+          ["SUBMITTED", "ASSIGNED", "IN_PROGRESS"].includes(
+            complaint.status?.toUpperCase() ?? "",
+          ),
+        ).length,
+      };
+    },
+    retry: false,
+  });
+}
+
 // get single complaint
 export function useGetSingleComplaint(complaintId: string) {
   return useQuery({
@@ -180,10 +258,7 @@ export function useGetFeedbacks() {
 // get my all pending payments for complaint
 
 // Get all pending complaints for the current user
-export function useGetAllPendingComplaints(
-  page = 1,
-  limit = 10,
-) {
+export function useGetAllPendingComplaints(page = 1, limit = 10) {
   return useQuery({
     queryKey: ["pending-complaints", page, limit],
     queryFn: () => getMyAllComplaints({ page, limit }),
@@ -197,8 +272,7 @@ export function useCloseComplaint() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (complaintId: string) =>
-      closeComplaint(complaintId),
+    mutationFn: (complaintId: string) => closeComplaint(complaintId),
 
     onSuccess: async () => {
       await Promise.all([

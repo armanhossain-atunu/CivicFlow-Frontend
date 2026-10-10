@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -13,12 +12,7 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { CommonPagination } from "@/components/common/CommonPagination";
 import { CommonSearch } from "@/components/common/CommonSearch";
@@ -35,9 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import {
-  useManagerComplaints,
-} from "@/hooks/manager.hook";
+import { useManagerComplaints } from "@/hooks/manager.hook";
 import { useCloseAdminAssignment } from "@/hooks/admin.hook";
 import { AdminPage } from "../AdminPage";
 import { AssignTechnician } from "../../manager/AssignTechnician";
@@ -102,13 +94,9 @@ export default function AdminAssignmentsPage() {
       .replaceAll(/[\s-]+/g, "_");
     const hasAssignment =
       Boolean(complaint.technicianId) ||
-      [
-        "ASSIGNED",
-        "IN_PROGRESS",
-        "RESOLVED",
-        "COMPLETED",
-        "CLOSED",
-      ].includes(normalizedStatus);
+      ["ASSIGNED", "IN_PROGRESS", "RESOLVED", "COMPLETED", "CLOSED"].includes(
+        normalizedStatus,
+      );
     const matchesSearch =
       !normalizedSearch ||
       [
@@ -295,9 +283,7 @@ export default function AdminAssignmentsPage() {
                             "Technician not linked"}
                         </TableCell>
 
-                        <TableCell>
-                          {complaint.department || "—"}
-                        </TableCell>
+                        <TableCell>{complaint.department || "—"}</TableCell>
 
                         <TableCell>
                           <Badge variant="outline">
@@ -306,14 +292,15 @@ export default function AdminAssignmentsPage() {
                         </TableCell>
 
                         <TableCell>
-                          <Badge
-                            variant={getStatusVariant(complaint.status)}
-                          >
+                          <Badge variant={getStatusVariant(complaint.status)}>
                             {complaint.status || "UNKNOWN"}
                           </Badge>
                         </TableCell>
                         <TableCell>
-                         <AssignTechnician complaintId={complaint.id} complaintStatus={complaint.status}/>
+                          <AssignTechnician
+                            complaintId={complaint.id}
+                            complaintStatus={complaint.status}
+                          />
                         </TableCell>
 
                         <TableCell className="whitespace-nowrap">

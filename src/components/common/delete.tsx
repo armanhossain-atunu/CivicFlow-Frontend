@@ -16,11 +16,7 @@ type DeleteProps = {
   onConfirm: () => void;
 };
 
-export function Delete({
-  title,
-  isDeleting = false,
-  onConfirm,
-}: DeleteProps) {
+export function Delete({ title, isDeleting = false, onConfirm }: DeleteProps) {
   return (
     <AlertDialogContent>
       <AlertDialogHeader>
@@ -38,9 +34,7 @@ export function Delete({
       </AlertDialogHeader>
 
       <AlertDialogFooter>
-        <AlertDialogCancel disabled={isDeleting}>
-          Cancel
-        </AlertDialogCancel>
+        <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
 
         <AlertDialogAction
           disabled={isDeleting}

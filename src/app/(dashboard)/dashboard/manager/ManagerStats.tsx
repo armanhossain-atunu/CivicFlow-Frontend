@@ -1,4 +1,3 @@
-
 import {
   ClipboardList,
   CircleCheck,
@@ -15,9 +14,7 @@ interface ManagerStatsProps {
 }
 
 function isResolved(status: string) {
-  return ["RESOLVED", "COMPLETED", "CLOSED"].includes(
-    status.toUpperCase(),
-  );
+  return ["RESOLVED", "COMPLETED", "CLOSED"].includes(status.toUpperCase());
 }
 
 function isInProgress(status: string) {
@@ -38,23 +35,19 @@ export default function ManagerStats({
     },
     {
       label: "Unassigned",
-      value: complaints.filter(
-        (complaint) => !complaint.technicianId,
-      ).length,
+      value: complaints.filter((complaint) => !complaint.technicianId).length,
       icon: UserRoundPlus,
     },
     {
       label: "In progress",
-      value: complaints.filter((complaint) =>
-        isInProgress(complaint.status),
-      ).length,
+      value: complaints.filter((complaint) => isInProgress(complaint.status))
+        .length,
       icon: Wrench,
     },
     {
       label: "Resolved",
-      value: complaints.filter((complaint) =>
-        isResolved(complaint.status),
-      ).length,
+      value: complaints.filter((complaint) => isResolved(complaint.status))
+        .length,
       icon: CircleCheck,
     },
   ];
@@ -68,9 +61,7 @@ export default function ManagerStats({
         <Card key={label}>
           <CardContent className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-sm text-muted-foreground">
-                {label}
-              </p>
+              <p className="text-sm text-muted-foreground">{label}</p>
 
               <p className="mt-2 text-2xl font-semibold tabular-nums">
                 {value}

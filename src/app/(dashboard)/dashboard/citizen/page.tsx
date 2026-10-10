@@ -42,7 +42,7 @@ import {
 } from "@/components/ui/sidebar";
 
 import {
-  ComplaintStatus,
+  type ComplaintStatus,
   useDeleteComplaint,
   useGetMyAllComplaints,
 } from "@/hooks/complain.hook";
@@ -214,8 +214,7 @@ function getPaginationMeta(value: unknown) {
         page: getNumber(raw.page) ?? fallback.page,
         limit: getNumber(raw.limit) ?? fallback.limit,
         total: getNumber(raw.total) ?? fallback.total,
-        totalPage:
-          getNumber(raw.totalPage) ?? fallback.totalPage,
+        totalPage: getNumber(raw.totalPage) ?? fallback.totalPage,
       };
     }
 
@@ -238,10 +237,7 @@ export default function CitizenDashboard() {
       page,
       limit: PAGE_SIZE,
       search: search.trim() || undefined,
-      status:
-        status === "ALL"
-          ? undefined
-          : (status as  ComplaintStatus),
+      status: status === "ALL" ? undefined : (status as ComplaintStatus),
     }),
     [page, search, status],
   );
@@ -316,9 +312,7 @@ export default function CitizenDashboard() {
   };
 
   const resolvedCount = complaints.filter((item) =>
-    ["RESOLVED", "COMPLETED"].includes(
-      item.status?.toUpperCase() ?? "",
-    ),
+    ["RESOLVED", "COMPLETED"].includes(item.status?.toUpperCase() ?? ""),
   ).length;
 
   const pendingPayments = complaints.filter(
@@ -458,14 +452,10 @@ export default function CitizenDashboard() {
             ].map((item) => (
               <Card key={item.label}>
                 <CardContent className="p-5">
-                  <p className="text-sm text-muted-foreground">
-                    {item.label}
-                  </p>
+                  <p className="text-sm text-muted-foreground">{item.label}</p>
                   <div className="mt-2 text-3xl font-bold">
                     {item.loading ? (
-                      <Skeleton
-                        className="h-9 w-24"
-                      />
+                      <Skeleton className="h-9 w-24" />
                     ) : (
                       item.value
                     )}
@@ -509,20 +499,14 @@ export default function CitizenDashboard() {
                         cursor={false}
                         content={<ChartTooltipContent hideLabel />}
                       />
-                      <RadialBar
-                        dataKey="value"
-                        background
-                        cornerRadius={10}
-                      />
+                      <RadialBar dataKey="value" background cornerRadius={10} />
                     </RadialBarChart>
                   </ChartContainer>
                 )}
 
                 <div className="text-3xl font-bold">
                   {complaintsQuery.isLoading ? (
-                    <Skeleton
-                      className="h-9 w-20"
-                    />
+                    <Skeleton className="h-9 w-20" />
                   ) : (
                     `${resolutionPercentage}%`
                   )}
@@ -597,10 +581,7 @@ export default function CitizenDashboard() {
             </div>
 
             {complaintsQuery.isLoading ? (
-              <div
-                className="space-y-3 rounded-xl border p-5"
-                aria-busy="true"
-              >
+              <div className="space-y-3 rounded-xl border p-5" aria-busy="true">
                 {["complaint-one", "complaint-two", "complaint-three"].map(
                   (row) => (
                     <Skeleton key={row} className="h-16 w-full" />
@@ -625,17 +606,14 @@ export default function CitizenDashboard() {
                   onPageChange={handlePageChange}
                   onDelete={handleDeleteComplaint}
                   deletingComplaintId={
-                    deleteMutation.isPending
-                      ? deleteMutation.variables
-                      : null
+                    deleteMutation.isPending ? deleteMutation.variables : null
                   }
                 />
               </>
             )}
           </section>
-{/* payment history */}
+          {/* payment history */}
           <section id="payment-history" className="scroll-mt-6">
-         
             <PaymentHistory
               payments={payments}
               isLoading={paymentsQuery.isLoading}

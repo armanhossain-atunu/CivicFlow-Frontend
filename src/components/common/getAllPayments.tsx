@@ -1,16 +1,10 @@
-
 "use client";
 
 import { useEffect, useRef, useState } from "react";
 import { Check, Copy } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -141,7 +135,10 @@ function CopyableId({
 
   return (
     <div className="flex items-center gap-1">
-      <span className="max-w-36 truncate font-mono text-xs" title={String(value)}>
+      <span
+        className="max-w-36 truncate font-mono text-xs"
+        title={String(value)}
+      >
         {value}
       </span>
       <Button
@@ -163,7 +160,9 @@ function CopyableId({
   );
 }
 
-function getStatusVariant(status?: string): "default" | "secondary" | "destructive" | "outline" {
+function getStatusVariant(
+  status?: string,
+): "default" | "secondary" | "destructive" | "outline" {
   switch (status?.toUpperCase()) {
     case "PAID":
     case "SUCCESS":
@@ -192,9 +191,7 @@ export default function GetAllPayments() {
 
   if (isLoading) {
     return (
-      <Card
-        aria-busy="true"
-      >
+      <Card aria-busy="true">
         <CardHeader>
           <Skeleton className="h-6 w-40" />
           <Skeleton className="h-4 w-32" />
@@ -203,11 +200,15 @@ export default function GetAllPayments() {
           <Skeleton className="h-9 w-full" />
           <Skeleton className="h-9 w-48" />
           <div className="space-y-2">
-            {["payment-one", "payment-two", "payment-three", "payment-four", "payment-five"].map(
-              (row) => (
-                <Skeleton key={row} className="h-12 w-full" />
-              ),
-            )}
+            {[
+              "payment-one",
+              "payment-two",
+              "payment-three",
+              "payment-four",
+              "payment-five",
+            ].map((row) => (
+              <Skeleton key={row} className="h-12 w-full" />
+            ))}
           </div>
         </CardContent>
       </Card>
@@ -233,9 +234,7 @@ export default function GetAllPayments() {
         : [];
   const normalizedSearch = search.trim().toLowerCase();
   const filteredPayments = payments.filter((payment: any) => {
-    const paymentStatus = String(
-      payment.paymentStatus ?? payment.status ?? "",
-    )
+    const paymentStatus = String(payment.paymentStatus ?? payment.status ?? "")
       .trim()
       .toUpperCase();
     const normalizedStatus =
@@ -323,9 +322,7 @@ export default function GetAllPayments() {
             <TableBody>
               {pagePayments.length > 0 ? (
                 pagePayments.map((payment: any, index: number) => (
-                  <TableRow
-                    key={payment.id ?? payment.paymentId ?? index}
-                  >
+                  <TableRow key={payment.id ?? payment.paymentId ?? index}>
                     <TableCell>
                       {(currentPage - 1) * ITEMS_PER_PAGE + index + 1}
                     </TableCell>
@@ -353,9 +350,7 @@ export default function GetAllPayments() {
                     </TableCell>
 
                     <TableCell>
-                      {payment.paymentMethod ??
-                        payment.method ??
-                        "—"}
+                      {payment.paymentMethod ?? payment.method ?? "—"}
                     </TableCell>
 
                     <TableCell>
@@ -364,9 +359,7 @@ export default function GetAllPayments() {
                           payment.paymentStatus ?? payment.status,
                         )}
                       >
-                        {payment.paymentStatus ??
-                          payment.status ??
-                          "UNKNOWN"}
+                        {payment.paymentStatus ?? payment.status ?? "UNKNOWN"}
                       </Badge>
                     </TableCell>
 

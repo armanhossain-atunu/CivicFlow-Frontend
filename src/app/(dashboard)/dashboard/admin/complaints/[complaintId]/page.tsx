@@ -6,19 +6,18 @@ import { useParams } from "next/navigation";
 import { CloseAssignmentButton } from "@/components/common/CloseComplaintButton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useManagerComplaint } from "@/hooks/manager.hook";
 
 export default function ComplaintDetailsPage() {
   const { complaintId } = useParams<{ complaintId: string }>();
-  const { data: complaint, isLoading, isError, error } =
-    useManagerComplaint(complaintId);
+  const {
+    data: complaint,
+    isLoading,
+    isError,
+    error,
+  } = useManagerComplaint(complaintId);
 
   if (isLoading) {
     return (

@@ -53,7 +53,6 @@ export function useManagerComplaint(complaintId: string | undefined) {
     retry: false,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
-  
   });
 }
 // get all technicians

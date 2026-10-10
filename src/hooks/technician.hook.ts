@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getMyAssignments, updateStatus } from "@/api/technician.api";
 
-
 export function useUpdateStatus() {
   const queryClient = useQueryClient();
 
@@ -12,7 +11,7 @@ export function useUpdateStatus() {
     }: {
       assignmentId: string;
       status: "IN_PROGRESS" | "RESOLVED";
-      note?:string;
+      note?: string;
     }) => updateStatus(assignmentId, status),
 
     onSuccess: () => {
@@ -23,8 +22,6 @@ export function useUpdateStatus() {
   });
 }
 
-
-
 // useGetMyAssignments
 export function useGetMyAssignments() {
   return useQuery({
@@ -32,7 +29,5 @@ export function useGetMyAssignments() {
     queryFn: getMyAssignments,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
-   
   });
 }
-

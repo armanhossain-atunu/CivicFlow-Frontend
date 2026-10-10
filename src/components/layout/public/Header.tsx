@@ -92,9 +92,7 @@ export const Header = () => {
    */
   const role = user?.role?.trim().toLowerCase();
 
-  const dashboardPath = role
-    ? dashboardPathByRole[role]
-    : undefined;
+  const dashboardPath = role ? dashboardPathByRole[role] : undefined;
 
   /**
    * Logout
@@ -140,10 +138,7 @@ export const Header = () => {
         {/* =====================================================
             LOGO
         ====================================================== */}
-        <Link
-          href="/"
-          className="flex items-center gap-3"
-        >
+        <Link href="/" className="flex items-center gap-3">
           <Logo />
 
           <span className="text-xl font-bold tracking-tight text-slate-900">
@@ -184,9 +179,7 @@ export const Header = () => {
         <div className="flex items-center gap-3">
           {/* Loading */}
           {isLoading ? (
-            <Skeleton
-              className="size-9 rounded-full"
-            />
+            <Skeleton className="size-9 rounded-full" />
           ) : user ? (
             /* =================================================
                LOGGED IN USER
@@ -206,18 +199,13 @@ export const Header = () => {
                         alt={user.name ?? "User"}
                       />
 
-                      <AvatarFallback>
-                        {userInitial}
-                      </AvatarFallback>
+                      <AvatarFallback>{userInitial}</AvatarFallback>
                     </Avatar>
                   </Button>
                 }
               />
 
-              <DropdownMenuContent
-                align="end"
-                className="w-56"
-              >
+              <DropdownMenuContent align="end" className="w-56">
                 {/* =================================================
                     USER INFORMATION
                 ================================================== */}
@@ -246,9 +234,7 @@ export const Header = () => {
                   ================================================== */}
                   {dashboardPath && (
                     <DropdownMenuItem
-                      onClick={() =>
-                        router.push(dashboardPath)
-                      }
+                      onClick={() => router.push(dashboardPath)}
                     >
                       <LayoutDashboard />
 
@@ -261,11 +247,7 @@ export const Header = () => {
                   {/* =================================================
                       PROFILE
                   ================================================== */}
-                  <DropdownMenuItem
-                    onClick={() =>
-                      router.push("/profile")
-                    }
-                  >
+                  <DropdownMenuItem onClick={() => router.push("/profile")}>
                     <BadgeCheckIcon />
                     Profile
                   </DropdownMenuItem>
@@ -276,9 +258,7 @@ export const Header = () => {
                   ================================================== */}
                   {role === "citizen" && (
                     <DropdownMenuItem
-                      onClick={() =>
-                        router.push("/payment-pending")
-                      }
+                      onClick={() => router.push("/payment-pending")}
                     >
                       <BanknoteArrowDown />
                       Payment Pending
@@ -289,9 +269,7 @@ export const Header = () => {
                       NOTIFICATIONS
                   ================================================== */}
                   <DropdownMenuItem
-                    onClick={() =>
-                      router.push("/notifications")
-                    }
+                    onClick={() => router.push("/notifications")}
                   >
                     <BellIcon />
                     Notifications
@@ -310,9 +288,7 @@ export const Header = () => {
                 >
                   <LogOutIcon />
 
-                  {logoutPending
-                    ? "Signing out..."
-                    : "Sign Out"}
+                  {logoutPending ? "Signing out..." : "Sign Out"}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

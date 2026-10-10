@@ -1,7 +1,12 @@
 "use client";
 
 import { useMemo } from "react";
-import { AlertCircle, ChartNoAxesCombined, CreditCard, FileText } from "lucide-react";
+import {
+  AlertCircle,
+  ChartNoAxesCombined,
+  CreditCard,
+  FileText,
+} from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,9 +26,7 @@ function getArrayPayload(value: unknown, names: string[]): unknown[] {
     if (!isRecord(current)) return [];
 
     const record = current;
-    const namedArray = names
-      .map((name) => record[name])
-      .find(Array.isArray);
+    const namedArray = names.map((name) => record[name]).find(Array.isArray);
     if (namedArray) return namedArray;
     if (!("data" in current)) return [];
     current = current.data;
@@ -69,7 +72,8 @@ export default function AdminReportsPage() {
       {hasError && (
         <div className="flex items-center gap-2 rounded-lg border border-destructive/30 p-4 text-sm text-destructive">
           <AlertCircle className="size-4 shrink-0" />
-          Some report data could not be loaded. Available figures are shown below.
+          Some report data could not be loaded. Available figures are shown
+          below.
         </div>
       )}
 
@@ -93,10 +97,7 @@ export default function AdminReportsPage() {
               Total reported complaints
             </p>
             {complaintsQuery.isLoading ? (
-              <div
-                className="flex flex-wrap gap-2"
-                aria-busy="true"
-              >
+              <div className="flex flex-wrap gap-2" aria-busy="true">
                 <Skeleton className="h-6 w-24" />
                 <Skeleton className="h-6 w-28" />
                 <Skeleton className="h-6 w-20" />
@@ -142,10 +143,7 @@ export default function AdminReportsPage() {
               Payment records returned by the payments service
             </p>
             {paymentsQuery.isLoading ? (
-              <div
-                className="flex flex-wrap gap-2"
-                aria-busy="true"
-              >
+              <div className="flex flex-wrap gap-2" aria-busy="true">
                 <Skeleton className="h-6 w-24" />
                 <Skeleton className="h-6 w-28" />
                 <Skeleton className="h-6 w-20" />
