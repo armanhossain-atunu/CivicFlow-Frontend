@@ -17,6 +17,7 @@ import { useCallback, useMemo, useState } from "react";
 import { RadialBar, RadialBarChart } from "recharts";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   ChartContainer,
   ChartTooltip,
@@ -460,9 +461,15 @@ export default function CitizenDashboard() {
                   <p className="text-sm text-muted-foreground">
                     {item.label}
                   </p>
-                  <p className="mt-2 text-3xl font-bold">
-                    {item.loading ? "—" : item.value}
-                  </p>
+                  <div className="mt-2 text-3xl font-bold">
+                    {item.loading ? (
+                      <Skeleton
+                        className="h-9 w-24"
+                      />
+                    ) : (
+                      item.value
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -483,35 +490,43 @@ export default function CitizenDashboard() {
                   </p>
                 </div>
 
-                <ChartContainer
-                  config={chartConfig}
-                  className="h-[220px] w-full max-w-[220px]"
-                >
-                  <RadialBarChart
-                    data={radialChartData}
-                    startAngle={90}
-                    endAngle={90 - resolutionPercentage * 3.6}
-                    innerRadius={70}
-                    outerRadius={100}
-                    barSize={18}
+                {complaintsQuery.isLoading ? (
+                  <Skeleton className="h-[220px] w-full max-w-[220px] rounded-full" />
+                ) : (
+                  <ChartContainer
+                    config={chartConfig}
+                    className="h-[220px] w-full max-w-[220px]"
                   >
-                    <ChartTooltip
-                      cursor={false}
-                      content={<ChartTooltipContent hideLabel />}
-                    />
-                    <RadialBar
-                      dataKey="value"
-                      background
-                      cornerRadius={10}
-                    />
-                  </RadialBarChart>
-                </ChartContainer>
+                    <RadialBarChart
+                      data={radialChartData}
+                      startAngle={90}
+                      endAngle={90 - resolutionPercentage * 3.6}
+                      innerRadius={70}
+                      outerRadius={100}
+                      barSize={18}
+                    >
+                      <ChartTooltip
+                        cursor={false}
+                        content={<ChartTooltipContent hideLabel />}
+                      />
+                      <RadialBar
+                        dataKey="value"
+                        background
+                        cornerRadius={10}
+                      />
+                    </RadialBarChart>
+                  </ChartContainer>
+                )}
 
-                <p className="text-3xl font-bold">
-                  {complaintsQuery.isLoading
-                    ? "—"
-                    : `${resolutionPercentage}%`}
-                </p>
+                <div className="text-3xl font-bold">
+                  {complaintsQuery.isLoading ? (
+                    <Skeleton
+                      className="h-9 w-20"
+                    />
+                  ) : (
+                    `${resolutionPercentage}%`
+                  )}
+                </div>
               </CardContent>
             </Card>
           </section>
@@ -582,9 +597,16 @@ export default function CitizenDashboard() {
             </div>
 
             {complaintsQuery.isLoading ? (
-              <p className="rounded-xl border p-5 text-sm text-muted-foreground">
-                Loading complaints...
-              </p>
+              <div
+                className="space-y-3 rounded-xl border p-5"
+                aria-busy="true"
+              >
+                {["complaint-one", "complaint-two", "complaint-three"].map(
+                  (row) => (
+                    <Skeleton key={row} className="h-16 w-full" />
+                  ),
+                )}
+              </div>
             ) : complaintsQuery.isError ? (
               <p className="rounded-xl border p-5 text-sm text-destructive">
                 Unable to load complaints.

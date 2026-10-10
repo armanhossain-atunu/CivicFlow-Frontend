@@ -4,9 +4,30 @@ import type {
   AdminCategoryPayload,
   AdminUsersResponse,
 } from "@/types/admin.type";
+import type { UserRole, UserStatus } from "@/types/user.type";
 
 export function getAdminUsers() {
   return apiClient<AdminUsersResponse>("/user", { method: "GET" });
+}
+
+export function deleteAdminUser(userId: string) {
+  return apiClient(`/user/${encodeURIComponent(userId)}`, {
+    method: "DELETE",
+  });
+}
+
+export function updateAdminUserRole(userId: string, role: UserRole) {
+  return apiClient(`/user/${encodeURIComponent(userId)}/role`, {
+    method: "PATCH",
+    body: { role },
+  });
+}
+
+export function updateAdminUserStatus(userId: string, status: UserStatus) {
+  return apiClient(`/user/${encodeURIComponent(userId)}/status`, {
+    method: "PATCH",
+    body: { status },
+  });
 }
 
 export function getAdminCategories() {

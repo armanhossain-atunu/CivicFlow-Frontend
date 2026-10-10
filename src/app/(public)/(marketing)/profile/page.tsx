@@ -5,13 +5,14 @@ import { type ChangeEvent, useRef } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/toast";
 import { useGetme, useUpdateProfile } from "@/hooks";
 
 export default function ProfilePage() {
   const imageInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
-  const { data, error, isError } = useGetme();
+  const { data, error, isError, isLoading } = useGetme();
   const { mutate: updateProfile, isPending: isUpdatingProfile } =
     useUpdateProfile();
   const user = data?.data;
@@ -63,6 +64,35 @@ export default function ProfilePage() {
         <p className="mt-2 text-muted-foreground">
           {error instanceof Error ? error.message : "Please try again later."}
         </p>
+      </main>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <main
+        className="mx-auto w-full max-w-3xl px-4 py-12"
+        aria-busy="true"
+        aria-label="Loading profile"
+      >
+        <section className="space-y-6 rounded-xl border bg-card p-6 shadow-sm">
+          <div className="flex items-center gap-4">
+            <Skeleton className="size-20 rounded-full" />
+            <div className="space-y-3">
+              <Skeleton className="h-7 w-40" />
+              <Skeleton className="h-4 w-52" />
+              <Skeleton className="h-9 w-32" />
+            </div>
+          </div>
+          <dl className="grid gap-5 border-t pt-5 sm:grid-cols-2">
+            {["name", "email", "contact", "role"].map((field) => (
+              <div key={field} className="space-y-2">
+                <Skeleton className="h-4 w-28" />
+                <Skeleton className="h-5 w-40" />
+              </div>
+            ))}
+          </dl>
+        </section>
       </main>
     );
   }

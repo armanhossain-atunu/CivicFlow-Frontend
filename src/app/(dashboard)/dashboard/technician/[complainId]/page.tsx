@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useGetMyAssignments } from "@/hooks/technician.hook";
 import { useParams } from "next/navigation";
 
@@ -63,6 +64,43 @@ export default function ComplaintDetailsPage() {
    * Get complaint from assignment
    */
   const complaint = assignment?.complaint;
+
+  if (isLoading) {
+    return (
+      <main
+        className="mx-auto w-full max-w-5xl space-y-6 px-4 py-8"
+        aria-busy="true"
+        aria-label="Loading complaint details"
+      >
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-36" />
+          <Skeleton className="h-9 w-3/4" />
+          <Skeleton className="h-4 w-56" />
+        </div>
+        <Card>
+          <CardHeader className="gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <Skeleton className="h-6 w-52" />
+            <Skeleton className="h-9 w-40" />
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-28" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-4/5" />
+            </div>
+            <div className="grid gap-6 sm:grid-cols-2">
+              {["one", "two", "three", "four", "five"].map((item) => (
+                <div key={item} className="space-y-2">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-5 w-40" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </main>
+    );
+  }
 
   if (isError) {
     return (

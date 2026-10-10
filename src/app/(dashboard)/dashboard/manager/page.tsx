@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useManagerComplaints } from "@/hooks/manager.hook";
 import ComplaintTable from "./ComplaintTable";
 import ManagerStats from "./ManagerStats";
@@ -16,8 +18,36 @@ export default function ManagerDashboard() {
 
   if (isLoading) {
     return (
-      <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <p>Loading complaints...</p>
+      <main
+        className="mx-auto w-full max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8"
+        aria-busy="true"
+        aria-label="Loading manager dashboard"
+      >
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-28" />
+          <Skeleton className="h-9 w-64" />
+          <Skeleton className="h-4 w-full max-w-xl" />
+        </div>
+        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {["stat-one", "stat-two", "stat-three", "stat-four"].map((stat) => (
+            <Card key={stat}>
+              <CardHeader>
+                <Skeleton className="h-4 w-28" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-8 w-20" />
+              </CardContent>
+            </Card>
+          ))}
+        </section>
+        <div className="space-y-2 rounded-xl border p-5">
+          <Skeleton className="h-6 w-48" />
+          {["complaint-one", "complaint-two", "complaint-three", "complaint-four"].map(
+            (row) => (
+              <Skeleton key={row} className="h-12 w-full" />
+            ),
+          )}
+        </div>
       </main>
     );
   }

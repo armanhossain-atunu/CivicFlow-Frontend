@@ -24,6 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "@/components/ui/toast";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useGetme, useLogout } from "@/hooks";
 
 export const Header = () => {
@@ -183,7 +184,9 @@ export const Header = () => {
         <div className="flex items-center gap-3">
           {/* Loading */}
           {isLoading ? (
-            <div className="size-9 animate-pulse rounded-full bg-slate-200" />
+            <Skeleton
+              className="size-9 rounded-full"
+            />
           ) : user ? (
             /* =================================================
                LOGGED IN USER

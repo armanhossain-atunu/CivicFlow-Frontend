@@ -24,6 +24,7 @@ import { CommonPagination } from "@/components/common/CommonPagination";
 import { CommonSearch } from "@/components/common/CommonSearch";
 import { CommonStatusFilter } from "@/components/common/CommonStatusFilter";
 import { toast } from "@/components/ui/toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import {
   Table,
@@ -209,9 +210,25 @@ export default function AdminAssignmentsPage() {
       description="Review technician assignments attached to complaints."
     >
       {isLoading ? (
-        <div className="flex items-center gap-2 py-10 text-muted-foreground">
-          <Loader2 className="size-4 animate-spin" />
-          Loading assignments...
+        <div
+          className="space-y-4 rounded-xl border bg-card p-5"
+          aria-busy="true"
+        >
+          <Skeleton className="h-6 w-56" />
+          <Skeleton className="h-4 w-64" />
+          <Skeleton className="h-9 w-full" />
+          <Skeleton className="h-9 w-48" />
+          <div className="space-y-2">
+            {[
+              "assignment-one",
+              "assignment-two",
+              "assignment-three",
+              "assignment-four",
+              "assignment-five",
+            ].map((row) => (
+              <Skeleton key={row} className="h-12 w-full" />
+            ))}
+          </div>
         </div>
       ) : isError ? (
         <div className="flex items-center gap-2 rounded-lg border border-destructive/30 p-4 text-sm text-destructive">

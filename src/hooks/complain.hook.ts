@@ -1,15 +1,20 @@
 /** biome-ignore-all assist/source/organizeImports: <explanation> */
 import {
   createComplaint,
+  createFeedback,
   deleteComplaint,
   getAllCategories,
   getAllComplaints,
   getComplaint,
+  getFeedbacks,
   getMyAllComplaints,
   payForComplaint,
 } from "@/api/complaint.api";
 import { closeComplaint } from "@/api/manager.api";
-import { GetAllComplaintsParams } from "@/types/complaints.type";
+import type {
+  CreateFeedbackPayload,
+  GetAllComplaintsParams,
+} from "@/types/complaints.type";
 import {
   keepPreviousData,
   useMutation,
@@ -145,6 +150,30 @@ export function useDeleteComplaint() {
         queryClient.invalidateQueries({ queryKey: ["complaint", complaintId] }),
       ]);
     },
+  });
+}
+
+export function useCreateFeedback() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: CreateFeedbackPayload) => createFeedback(payload),
+    onSuccess: async (_data, payload) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["my-complaints"] }),
+        queryClient.invalidateQueries({
+          queryKey: ["complaint", payload.complaintId],
+        }),
+      ]);
+    },
+  });
+}
+
+export function useGetFeedbacks() {
+  return useQuery({
+    queryKey: ["feedbacks"],
+    queryFn: getFeedbacks,
+    retry: false,
   });
 }
 

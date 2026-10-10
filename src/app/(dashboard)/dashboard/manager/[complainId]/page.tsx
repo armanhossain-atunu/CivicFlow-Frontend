@@ -3,6 +3,7 @@
 import { CloseAssignmentButton } from "@/components/common/CloseComplaintButton";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useGetAllComplaints } from "@/hooks/complain.hook";
 import type { Complaint } from "@/types/complaints.type";
 import { useParams } from "next/navigation";
@@ -55,8 +56,37 @@ export default function ComplaintDetailsPage() {
 
   if (isLoading) {
     return (
-      <main className="mx-auto w-full max-w-5xl px-4 py-8">
-        <p className="text-muted-foreground">Loading complaint...</p>
+      <main
+        className="mx-auto w-full max-w-5xl space-y-6 px-4 py-8"
+        aria-busy="true"
+        aria-label="Loading complaint details"
+      >
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-36" />
+          <Skeleton className="h-9 w-3/4" />
+          <Skeleton className="h-4 w-56" />
+        </div>
+        <Card>
+          <CardHeader className="flex-row items-center justify-between">
+            <Skeleton className="h-6 w-52" />
+            <Skeleton className="h-9 w-40" />
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-28" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-4/5" />
+            </div>
+            <div className="grid gap-6 sm:grid-cols-2">
+              {["one", "two", "three", "four", "five"].map((item) => (
+                <div key={item} className="space-y-2">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-5 w-40" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </main>
     );
   }

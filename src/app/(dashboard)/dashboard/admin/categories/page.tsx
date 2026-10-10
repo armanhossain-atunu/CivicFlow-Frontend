@@ -36,6 +36,7 @@ import { toast } from "@/components/ui/toast";
 import { useGetAllCategories } from "@/hooks/complain.hook";
 import { useCreateAdminCategory } from "@/hooks/admin.hook";
 import { AdminPage } from "../AdminPage";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const PAGE_SIZE = 10;
 const CATEGORY_FILTERS = [
@@ -284,9 +285,22 @@ export default function AdminCategoriesPage() {
       description="Review service categories and their current payment requirements."
     >
       {isLoading ? (
-        <div className="flex items-center gap-2 py-10 text-muted-foreground">
-          <Loader2 className="size-4 animate-spin" />
-          Loading categories...
+        <div
+          className="space-y-4 rounded-xl border bg-card p-5"
+          aria-busy="true"
+        >
+          <div className="flex items-center justify-between gap-4">
+            <Skeleton className="h-6 w-48" />
+            <Skeleton className="h-9 w-64" />
+          </div>
+          <Skeleton className="h-9 w-48" />
+          <div className="space-y-2">
+            {["category-one", "category-two", "category-three", "category-four", "category-five"].map(
+              (row) => (
+                <Skeleton key={row} className="h-12 w-full" />
+              ),
+            )}
+          </div>
         </div>
       ) : isError ? (
         <div className="flex items-center gap-2 rounded-lg border border-destructive/30 p-4 text-sm text-destructive">

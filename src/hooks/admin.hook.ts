@@ -3,14 +3,18 @@ import {
   closeAdminAssignment,
   createAdminAssignment,
   createAdminCategory,
+  deleteAdminUser,
   getAdminCategories,
   getAdminUsers,
   updateAdminCategory,
+  updateAdminUserRole,
+  updateAdminUserStatus,
 } from "@/api/admin.api";
 import type {
   AdminAssignmentPayload,
   AdminCategoryPayload,
 } from "@/types/admin.type";
+import type { UserRole, UserStatus } from "@/types/user.type";
 
 const adminQueryKeys = {
   users: ["admin", "users"] as const,
@@ -23,6 +27,47 @@ export function useAdminUsers() {
     queryKey: adminQueryKeys.users,
     queryFn: getAdminUsers,
     retry: false,
+  });
+}
+
+export function useDeleteAdminUser() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (userId: string) => deleteAdminUser(userId),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: adminQueryKeys.users }),
+        queryClient.invalidateQueries({ queryKey: ["technicians"] }),
+      ]);
+    },
+  });
+}
+
+export function useUpdateAdminUserRole() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ userId, role }: { userId: string; role: UserRole }) =>
+      updateAdminUserRole(userId, role),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: adminQueryKeys.users }),
+        queryClient.invalidateQueries({ queryKey: ["technicians"] }),
+      ]);
+    },
+  });
+}
+
+export function useUpdateAdminUserStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ userId, status }: { userId: string; status: UserStatus }) =>
+      updateAdminUserStatus(userId, status),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: adminQueryKeys.users });
+    },
   });
 }
 

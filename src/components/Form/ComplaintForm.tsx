@@ -5,6 +5,7 @@ import { cn } from "cn";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Field,
   FieldDescription,
@@ -212,43 +213,43 @@ export function ComplaintForm() {
               <Field>
                 <FieldLabel htmlFor={field.name}>Category</FieldLabel>
 
-                <select
-                  id={field.name}
-                  name={field.name}
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(event) => {
-                    const categoryId = event.target.value;
+                {categoriesLoading ? (
+                  <Skeleton
+                    className="h-10 w-full"
+                  />
+                ) : (
+                  <select
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(event) => {
+                      const categoryId = event.target.value;
 
-                    field.handleChange(categoryId);
+                      field.handleChange(categoryId);
 
-                    const category = categoryList.find(
-                      (item) => item.id === categoryId,
-                    );
+                      const category = categoryList.find(
+                        (item) => item.id === categoryId,
+                      );
 
-                    // Auto set department
-                    form.setFieldValue(
-                      "department",
-                      category?.department ?? "",
-                    );
-                  }}
-                  aria-invalid={isInvalid}
-                  disabled={categoriesLoading}
-                  className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  required
-                >
-                  <option value="">
-                    {categoriesLoading
-                      ? "Loading categories..."
-                      : "Select a category"}
-                  </option>
+                      form.setFieldValue(
+                        "department",
+                        category?.department ?? "",
+                      );
+                    }}
+                    aria-invalid={isInvalid}
+                    className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    required
+                  >
+                    <option value="">Select a category</option>
 
-                  {categoryList.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
+                    {categoryList.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
 
                 {/* Payment information */}
                 {selectedCategory?.paymentRequired && (

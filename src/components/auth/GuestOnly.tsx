@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { useEffect } from "react";
 
 import { useGetme } from "@/hooks";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function GuestOnly({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -19,9 +20,18 @@ export function GuestOnly({ children }: { children: ReactNode }) {
 
   if (isLoading || isAuthenticated) {
     return (
-      <output className="flex min-h-svh items-center justify-center">
-        Checking your session...
-      </output>
+      <main
+        className="flex min-h-svh items-center justify-center p-4"
+        aria-busy="true"
+        aria-label="Checking your session"
+      >
+        <div className="w-full max-w-sm space-y-4 rounded-xl border p-6">
+          <Skeleton className="mx-auto size-12 rounded-full" />
+          <Skeleton className="mx-auto h-5 w-40" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+      </main>
     );
   }
 

@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/toast";
 import { usePayForComplaint } from "@/hooks/complain.hook";
 
@@ -304,8 +305,14 @@ export default function BillingPage() {
     <Suspense
       fallback={
         <main className="min-h-screen bg-slate-50 px-4 py-12 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl">
-            <p className="text-slate-600">Loading payment details...</p>
+          <div
+            className="mx-auto max-w-2xl space-y-4 rounded-xl border bg-card p-6"
+            aria-busy="true"
+          >
+            <Skeleton className="h-8 w-56" />
+            <Skeleton className="h-5 w-40" />
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-10 w-full" />
           </div>
         </main>
       }

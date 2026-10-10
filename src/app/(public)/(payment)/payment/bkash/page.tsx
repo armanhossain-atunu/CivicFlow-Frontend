@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
 
+import { Skeleton } from "@/components/ui/skeleton";
 import apiClient from "@/lib/apiClient";
 
 function BkashPaymentResult() {
@@ -125,7 +126,19 @@ function BkashPaymentResult() {
 export default function BkashPage() {
   return (
     <Suspense
-      fallback={<p className="py-10 text-center">Loading payment result...</p>}
+      fallback={
+        <main
+          className="mx-auto flex min-h-[50vh] w-full max-w-xl items-center px-4 py-10"
+          aria-busy="true"
+          aria-label="Loading payment result"
+        >
+          <div className="w-full space-y-4 rounded-xl border bg-card p-6">
+            <Skeleton className="mx-auto h-8 w-48" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="mx-auto h-10 w-44" />
+          </div>
+        </main>
+      }
     >
       <BkashPaymentResult />
     </Suspense>

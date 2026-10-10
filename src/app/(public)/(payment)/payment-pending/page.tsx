@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 /* =========================================================
    Types
@@ -320,22 +321,21 @@ export default function PaymentPending() {
           Pending payments
         </h1>
 
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {Array.from({ length: 4 }, (_, index) => (
-            <Card key={index} className="animate-pulse">
-              <CardHeader>
-                <div className="h-5 w-3/4 rounded bg-muted" />
-                <div className="h-3 w-1/2 rounded bg-muted" />
+        <div
+          className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+          aria-busy="true"
+        >
+          {["one", "two", "three", "four"].map((card) => (
+            <Card key={card}>
+              <CardHeader className="space-y-3">
+                <Skeleton className="h-5 w-3/4" />
+                <Skeleton className="h-3 w-1/2" />
               </CardHeader>
-
               <CardContent className="space-y-4">
-                <div className="h-12 rounded bg-muted" />
-                <div className="h-12 rounded bg-muted" />
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-9 w-full" />
               </CardContent>
-
-              <CardFooter>
-                <div className="h-9 w-full rounded bg-muted" />
-              </CardFooter>
             </Card>
           ))}
         </div>

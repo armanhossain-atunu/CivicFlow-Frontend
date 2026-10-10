@@ -2,7 +2,12 @@
 import { MyComplaintsQuery } from "@/hooks/complain.hook";
 import apiClient from "@/lib/apiClient";
 import { ICreateComplaint } from "@/types/auth.type";
-import { GetAllComplaintsParams, GetAllComplaintsResponse } from "@/types/complaints.type";
+import {
+  CreateFeedbackPayload,
+  FeedbackListResponse,
+  GetAllComplaintsParams,
+  GetAllComplaintsResponse,
+} from "@/types/complaints.type";
 import { CreateComplaintPaymentResponse } from "@/types/payment.type";
 
 export type CategoryPayload = {
@@ -121,5 +126,18 @@ export function getComplaint(complaintId: string) {
 export function deleteComplaint(complaintId: string) {
   return apiClient(`/complaint/${encodeURIComponent(complaintId)}`, {
     method: "DELETE",
+  });
+}
+
+export function createFeedback(payload: CreateFeedbackPayload) {
+  return apiClient("/feedbacks", {
+    method: "POST",
+    body: payload,
+  });
+}
+
+export function getFeedbacks() {
+  return apiClient<FeedbackListResponse>("/feedbacks", {
+    method: "GET",
   });
 }

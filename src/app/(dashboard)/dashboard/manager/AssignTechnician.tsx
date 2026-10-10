@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import {
   Dialog,
@@ -179,43 +180,40 @@ const isAssignDisabled = disabledStatuses.includes(
                 Technician
               </FieldLabel>
 
-              <Select
-                value={selectedTechnicianId || null}
-                onValueChange={(value) => {
-                  setSelectedTechnicianId(value ?? "");
-                }}
-                disabled={
-                  isLoading ||
-                  isPending ||
-                  technicians.length === 0
-                }
-              >
-                <SelectTrigger
-                  id="technician"
-                  className="w-full"
+              {isLoading ? (
+                <Skeleton
+                  className="h-10 w-full"
+                />
+              ) : (
+                <Select
+                  value={selectedTechnicianId || null}
+                  onValueChange={(value) => {
+                    setSelectedTechnicianId(value ?? "");
+                  }}
+                  disabled={isPending || technicians.length === 0}
                 >
-                  <SelectValue
-                    placeholder={
-                      isLoading
-                        ? "Loading technicians..."
-                        : technicians.length === 0
+                  <SelectTrigger id="technician" className="w-full">
+                    <SelectValue
+                      placeholder={
+                        technicians.length === 0
                           ? "No technicians available"
                           : "Select technician"
-                    }
-                  />
-                </SelectTrigger>
+                      }
+                    />
+                  </SelectTrigger>
 
-                <SelectContent>
-                  {technicians.map((technician) => (
-                    <SelectItem
-                      key={technician.id}
-                      value={technician.id}
-                    >
-                      {technician.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                  <SelectContent>
+                    {technicians.map((technician) => (
+                      <SelectItem
+                        key={technician.id}
+                        value={technician.id}
+                      >
+                        {technician.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
 
               <FieldDescription>
                 Choose the technician responsible for this complaint.
@@ -291,4 +289,3 @@ const isAssignDisabled = disabledStatuses.includes(
     </Dialog>
   );
 }
-

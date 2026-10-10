@@ -5,6 +5,7 @@ import { AlertCircle, ChartNoAxesCombined, CreditCard, FileText } from "lucide-r
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useManagerComplaints } from "@/hooks/manager.hook";
 import { useGetPayments } from "@/hooks/payments.hook";
 import { AdminPage } from "../AdminPage";
@@ -81,18 +82,25 @@ export default function AdminReportsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <p className="text-3xl font-semibold tabular-nums">
-              {complaintsQuery.isLoading
-                ? "…"
-                : (complaintsQuery.data?.total ?? "Unavailable")}
-            </p>
+            <div className="text-3xl font-semibold tabular-nums">
+              {complaintsQuery.isLoading ? (
+                <Skeleton className="h-9 w-20" />
+              ) : (
+                (complaintsQuery.data?.total ?? "Unavailable")
+              )}
+            </div>
             <p className="text-sm text-muted-foreground">
               Total reported complaints
             </p>
             {complaintsQuery.isLoading ? (
-              <p className="text-sm text-muted-foreground">
-                Loading status breakdown...
-              </p>
+              <div
+                className="flex flex-wrap gap-2"
+                aria-busy="true"
+              >
+                <Skeleton className="h-6 w-24" />
+                <Skeleton className="h-6 w-28" />
+                <Skeleton className="h-6 w-20" />
+              </div>
             ) : (
               <div className="flex flex-wrap gap-2">
                 {Object.entries(complaintStatuses).map(([status, count]) => (
@@ -123,16 +131,25 @@ export default function AdminReportsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <p className="text-3xl font-semibold tabular-nums">
-              {paymentsQuery.isLoading ? "…" : payments.length}
-            </p>
+            <div className="text-3xl font-semibold tabular-nums">
+              {paymentsQuery.isLoading ? (
+                <Skeleton className="h-9 w-20" />
+              ) : (
+                payments.length
+              )}
+            </div>
             <p className="text-sm text-muted-foreground">
               Payment records returned by the payments service
             </p>
             {paymentsQuery.isLoading ? (
-              <p className="text-sm text-muted-foreground">
-                Loading payment status breakdown...
-              </p>
+              <div
+                className="flex flex-wrap gap-2"
+                aria-busy="true"
+              >
+                <Skeleton className="h-6 w-24" />
+                <Skeleton className="h-6 w-28" />
+                <Skeleton className="h-6 w-20" />
+              </div>
             ) : (
               <div className="flex flex-wrap gap-2">
                 {Object.entries(paymentStatuses).map(([status, count]) => (

@@ -47,6 +47,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   useAdminUsers,
   useCreateAdminAssignment,
@@ -147,33 +148,37 @@ function AdminAssignTechnician({ complaintId }: { complaintId: string }) {
               <FieldLabel htmlFor={`technician-${complaintId}`}>
                 Technician
               </FieldLabel>
-              <Select
-                value={technicianId || null}
-                onValueChange={(value) => setTechnicianId(value ?? "")}
-                disabled={usersLoading || isPending || technicians.length === 0}
-              >
-                <SelectTrigger
-                  id={`technician-${complaintId}`}
-                  className="w-full"
+              {usersLoading ? (
+                <Skeleton
+                  className="h-10 w-full"
+                />
+              ) : (
+                <Select
+                  value={technicianId || null}
+                  onValueChange={(value) => setTechnicianId(value ?? "")}
+                  disabled={isPending || technicians.length === 0}
                 >
-                  <SelectValue
-                    placeholder={
-                      usersLoading
-                        ? "Loading technicians..."
-                        : technicians.length === 0
+                  <SelectTrigger
+                    id={`technician-${complaintId}`}
+                    className="w-full"
+                  >
+                    <SelectValue
+                      placeholder={
+                        technicians.length === 0
                           ? "No technicians available"
                           : "Select technician"
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  {technicians.map((technician) => (
-                    <SelectItem key={technician.id} value={technician.id}>
-                      {technician.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {technicians.map((technician) => (
+                      <SelectItem key={technician.id} value={technician.id}>
+                        {technician.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
               <FieldDescription>
                 Choose the technician responsible for this complaint.
               </FieldDescription>
@@ -266,9 +271,22 @@ export default function AdminComplaintsPage() {
       description="Review incoming complaints, track status, and assign technicians."
     >
       {isLoading ? (
-        <div className="flex items-center gap-2 py-10 text-muted-foreground">
-          <Loader2 className="size-4 animate-spin" />
-          Loading complaints...
+        <div
+          className="space-y-4 rounded-xl border bg-card p-5"
+          aria-busy="true"
+        >
+          <div className="flex items-center justify-between gap-4">
+            <Skeleton className="h-6 w-48" />
+            <Skeleton className="h-9 w-64" />
+          </div>
+          <Skeleton className="h-9 w-48" />
+          <div className="space-y-2">
+            {["complaint-one", "complaint-two", "complaint-three", "complaint-four", "complaint-five"].map(
+              (row) => (
+                <Skeleton key={row} className="h-12 w-full" />
+              ),
+            )}
+          </div>
         </div>
       ) : isError ? (
         <div className="flex items-center gap-2 rounded-lg border border-destructive/30 p-4 text-sm text-destructive">

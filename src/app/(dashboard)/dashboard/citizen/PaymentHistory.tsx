@@ -19,6 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import { Skeleton } from "@/components/ui/skeleton";
 import type { PaymentHistoryProps } from "@/types/payment.type";
 
 /* =========================================================
@@ -304,8 +305,16 @@ export default function PaymentHistory({
         {/* Loading */}
 
         {isLoading && (
-          <div className="p-5 text-sm text-muted-foreground">
-            Loading payment history...
+          <div
+            className="space-y-3 p-5"
+            aria-busy="true"
+          >
+            <Skeleton className="h-5 w-48" />
+            {["payment-one", "payment-two", "payment-three", "payment-four", "payment-five"].map(
+              (row) => (
+                <Skeleton key={row} className="h-12 w-full" />
+              ),
+            )}
           </div>
         )}
 
@@ -433,4 +442,3 @@ export default function PaymentHistory({
     </section>
   );
 }
-

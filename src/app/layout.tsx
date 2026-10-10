@@ -4,7 +4,8 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import Providers from "@/providers";
 import { Toaster } from "@/components/ui/toast";
-import { GlobalLoading } from "@/components/global-loading";
+import GlobalLoading from "@/components/global-loading";
+
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 

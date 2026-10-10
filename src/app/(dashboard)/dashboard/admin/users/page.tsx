@@ -2,9 +2,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AlertCircle, Loader2, Users } from "lucide-react";
+import { AlertCircle, Trash2, Users } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -22,10 +23,34 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "@/components/ui/toast";
 
-import { useAdminUsers } from "@/hooks/admin.hook";
-import type { IUser } from "@/types/user.type";
+import {
+  useAdminUsers,
+  useDeleteAdminUser,
+  useUpdateAdminUserRole,
+  useUpdateAdminUserStatus,
+} from "@/hooks/admin.hook";
+import type { IUser, UserRole, UserStatus } from "@/types/user.type";
 import { AdminPage } from "../AdminPage";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const PAGE_SIZE = 10;
 
@@ -35,6 +60,20 @@ const ROLE_OPTIONS = [
   { value: "TECHNICIAN", label: "Technicians" },
   { value: "MANAGER", label: "Managers" },
   { value: "ADMIN", label: "Admins" },
+];
+
+const USER_ROLE_OPTIONS: { value: UserRole; label: string }[] = [
+  { value: "CITIZEN", label: "Citizen" },
+  { value: "TECHNICIAN", label: "Technician" },
+  { value: "MANAGER", label: "Manager" },
+  { value: "ADMIN", label: "Admin" },
+];
+
+const USER_STATUS_OPTIONS: { value: UserStatus; label: string }[] = [
+  { value: "ACTIVE", label: "Active" },
+  { value: "BLOCKED", label: "Blocked" },
+  { value: "SUSPENDED", label: "Suspended" },
+  { value: "DELETED", label: "Deleted" },
 ];
 
 function formatDate(value?: string) {
@@ -47,21 +86,6 @@ function formatDate(value?: string) {
   return date.toLocaleDateString("en-BD", {
     dateStyle: "medium",
   });
-}
-
-function getStatusVariant(status?: string) {
-  switch (status?.toUpperCase()) {
-    case "ACTIVE":
-      return "default" as const;
-
-    case "BLOCKED":
-    case "SUSPENDED":
-    case "DELETED":
-      return "destructive" as const;
-
-    default:
-      return "secondary" as const;
-  }
 }
 
 function getUsersFromResponse(response: unknown): IUser[] {
@@ -101,12 +125,78 @@ function getUsersFromResponse(response: unknown): IUser[] {
 
 export default function AdminUsersPage() {
   const { data, isLoading, isError, error } = useAdminUsers();
+  const { mutate: deleteUser, isPending: isDeleting } = useDeleteAdminUser();
+  const { mutate: updateUserRole, isPending: isUpdatingRole } =
+    useUpdateAdminUserRole();
+  const { mutate: updateUserStatus, isPending: isUpdatingStatus } =
+    useUpdateAdminUserStatus();
 
   const [search, setSearch] = useState("");
   const [role, setRole] = useState("ALL");
   const [page, setPage] = useState(1);
+  const [userToDelete, setUserToDelete] = useState<IUser | null>(null);
 
   const users = useMemo(() => getUsersFromResponse(data), [data]);
+
+  function handleRoleChange(user: IUser, nextRole: string | null) {
+    const selectedRole = USER_ROLE_OPTIONS.find(
+      (option) => option.value === nextRole,
+    )?.value;
+    if (!selectedRole || selectedRole === user.role) return;
+
+    updateUserRole(
+      { userId: user.id, role: selectedRole },
+      {
+        onSuccess: () => {
+          toast.add({
+            title: "User role updated",
+            description: `${user.name || user.email} is now a ${selectedRole.toLowerCase()}.`,
+            type: "success",
+          });
+        },
+        onError: (updateError) => {
+          toast.add({
+            title: "Failed to update user role",
+            description:
+              updateError instanceof Error
+                ? updateError.message
+                : "Unable to update this user's role.",
+            type: "error",
+          });
+        },
+      },
+    );
+  }
+
+  function handleStatusChange(user: IUser, nextStatus: string | null) {
+    const selectedStatus = USER_STATUS_OPTIONS.find(
+      (option) => option.value === nextStatus,
+    )?.value;
+    if (!selectedStatus || selectedStatus === user.status) return;
+
+    updateUserStatus(
+      { userId: user.id, status: selectedStatus },
+      {
+        onSuccess: () => {
+          toast.add({
+            title: "User status updated",
+            description: `${user.name || user.email} is now ${selectedStatus.toLowerCase()}.`,
+            type: "success",
+          });
+        },
+        onError: (updateError) => {
+          toast.add({
+            title: "Failed to update user status",
+            description:
+              updateError instanceof Error
+                ? updateError.message
+                : "Unable to update this user's status.",
+            type: "error",
+          });
+        },
+      },
+    );
+  }
 
   const filteredUsers = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -142,15 +232,55 @@ export default function AdminUsersPage() {
     setPage(1);
   }
 
+  function handleDeleteUser() {
+    if (!userToDelete) return;
+
+    const deletedUser = userToDelete;
+    deleteUser(deletedUser.id, {
+      onSuccess: () => {
+        toast.add({
+          title: "User deleted",
+          description: `${deletedUser.name || deletedUser.email} was deleted.`,
+          type: "success",
+        });
+        setUserToDelete(null);
+      },
+      onError: (deleteError) => {
+        toast.add({
+          title: "Failed to delete user",
+          description:
+            deleteError instanceof Error
+              ? deleteError.message
+              : "Unable to delete this user.",
+          type: "error",
+        });
+      },
+    });
+  }
+
   return (
-    <AdminPage
-      title="Users"
-      description="Manage registered citizens and CivicFlow staff accounts."
-    >
+    <>
+      <AdminPage
+        title="Users"
+        description="Manage registered citizens and CivicFlow staff accounts."
+      >
       {isLoading ? (
-        <div className="flex items-center gap-2 py-10 text-muted-foreground">
-          <Loader2 className="size-5 animate-spin" />
-          Loading users...
+        <div
+          className="space-y-4 rounded-xl border bg-card p-5"
+          aria-busy="true"
+        >
+          <div className="flex items-center justify-between gap-4">
+            <Skeleton className="h-6 w-40" />
+            <Skeleton className="h-9 w-64" />
+          </div>
+          <Skeleton className="h-9 w-48" />
+          <div className="space-y-2">
+            {["user-one", "user-two", "user-three", "user-four", "user-five"].map(
+              (row) => (
+                <Skeleton key={row} className="h-12 w-full" />
+              ),
+            )}
+          </div>
         </div>
       ) : isError ? (
         <div className="flex items-center gap-2 rounded-lg border border-destructive/30 p-4 text-sm text-destructive">
@@ -198,6 +328,7 @@ export default function AdminUsersPage() {
                     <TableHead>Email Verified</TableHead>
                     <TableHead>Auth Provider</TableHead>
                     <TableHead>Joined</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
 
@@ -235,15 +366,57 @@ export default function AdminUsersPage() {
                         </TableCell>
 
                         <TableCell>
-                          <Badge variant="outline">
-                            {user.role || "UNKNOWN"}
-                          </Badge>
+                          <Select
+                            value={user.role}
+                            onValueChange={(value) =>
+                              handleRoleChange(user, value)
+                            }
+                            disabled={isUpdatingRole}
+                          >
+                            <SelectTrigger
+                              className="w-36"
+                              aria-label={`Update role for ${user.name || user.email}`}
+                            >
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {USER_ROLE_OPTIONS.map((option) => (
+                                <SelectItem
+                                  key={option.value}
+                                  value={option.value}
+                                >
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </TableCell>
 
                         <TableCell>
-                          <Badge variant={getStatusVariant(user.status)}>
-                            {user.status || "UNKNOWN"}
-                          </Badge>
+                          <Select
+                            value={user.status}
+                            onValueChange={(value) =>
+                              handleStatusChange(user, value)
+                            }
+                            disabled={isUpdatingStatus}
+                          >
+                            <SelectTrigger
+                              className="w-36"
+                              aria-label={`Update status for ${user.name || user.email}`}
+                            >
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {USER_STATUS_OPTIONS.map((option) => (
+                                <SelectItem
+                                  key={option.value}
+                                  value={option.value}
+                                >
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </TableCell>
 
                         <TableCell>
@@ -267,12 +440,24 @@ export default function AdminUsersPage() {
                         <TableCell className="whitespace-nowrap">
                           {formatDate(user.createdAt)}
                         </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            aria-label={`Delete ${user.name || user.email}`}
+                            title="Delete user"
+                            onClick={() => setUserToDelete(user)}
+                          >
+                            <Trash2 className="size-4 text-destructive" />
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))
                   ) : (
                     <TableRow>
                       <TableCell
-                        colSpan={7}
+                        colSpan={8}
                         className="h-28 text-center text-muted-foreground"
                       >
                         <div className="flex flex-col items-center gap-2">
@@ -299,6 +484,38 @@ export default function AdminUsersPage() {
           </CardContent>
         </Card>
       )}
-    </AdminPage>
+      </AdminPage>
+      <AlertDialog
+        open={Boolean(userToDelete)}
+        onOpenChange={(open) => {
+          if (!open && !isDeleting) setUserToDelete(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete user?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete{" "}
+              <span className="font-medium text-foreground">
+                {userToDelete?.name || userToDelete?.email || "this user"}
+              </span>
+              ? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={isDeleting}
+              onClick={handleDeleteUser}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? "Deleting..." : "Delete user"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

@@ -24,6 +24,7 @@ import { CommonPagination } from "./CommonPagination";
 import { CommonSearch } from "./CommonSearch";
 import { CommonStatusFilter } from "./CommonStatusFilter";
 import { toast } from "@/components/ui/toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -190,7 +191,27 @@ export default function GetAllPayments() {
   const [page, setPage] = useState(1);
 
   if (isLoading) {
-    return <p className="p-6">Loading payments...</p>;
+    return (
+      <Card
+        aria-busy="true"
+      >
+        <CardHeader>
+          <Skeleton className="h-6 w-40" />
+          <Skeleton className="h-4 w-32" />
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Skeleton className="h-9 w-full" />
+          <Skeleton className="h-9 w-48" />
+          <div className="space-y-2">
+            {["payment-one", "payment-two", "payment-three", "payment-four", "payment-five"].map(
+              (row) => (
+                <Skeleton key={row} className="h-12 w-full" />
+              ),
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   if (isError) {

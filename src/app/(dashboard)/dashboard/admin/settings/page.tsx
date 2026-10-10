@@ -1,8 +1,9 @@
 "use client";
 
-import { AlertCircle, Loader2, ShieldCheck, UserRound } from "lucide-react";
+import { AlertCircle, ShieldCheck, UserRound } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useGetme } from "@/hooks/auth.hook";
 import { AdminPage } from "../AdminPage";
 
@@ -34,9 +35,25 @@ export default function AdminSettingsPage() {
       description="Review your administrator account and access information."
     >
       {isLoading ? (
-        <div className="flex items-center gap-2 py-10 text-muted-foreground">
-          <Loader2 className="size-4 animate-spin" />
-          Loading account settings...
+        <div
+          className="grid gap-4 lg:grid-cols-2"
+          aria-busy="true"
+        >
+          {["account", "security"].map((section) => (
+            <Card key={section}>
+              <CardHeader>
+                <Skeleton className="h-6 w-48" />
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {["first", "second", "third"].map((row) => (
+                  <div key={row} className="space-y-2">
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-5 w-40" />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          ))}
         </div>
       ) : isError ? (
         <div className="flex items-center gap-2 rounded-lg border border-destructive/30 p-4 text-sm text-destructive">

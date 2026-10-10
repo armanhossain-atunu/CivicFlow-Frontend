@@ -1,15 +1,20 @@
 /** biome-ignore-all lint/style/useImportType: <explanation> */
 "use client";
 
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Star } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/toast";
 import {
+  useGetFeedbacks,
   useGetSingleComplaint,
   usePayForComplaint,
 } from "@/hooks/complain.hook";
-import { ComplaintDetailsData } from "@/types/complaints.type";
+import type {
+  ComplaintDetailsData,
+  FeedbackRecord,
+} from "@/types/complaints.type";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -113,6 +118,30 @@ function formatCurrency(value?: number) {
   }).format(value);
 }
 
+function getFeedbackRecords(value: unknown): FeedbackRecord[] {
+  let current = value;
+
+  for (let depth = 0; depth < 4; depth += 1) {
+    if (Array.isArray(current)) {
+      return current.filter(
+        (item): item is FeedbackRecord =>
+          isRecord(item) &&
+          typeof item.complaintId === "string" &&
+          typeof item.rating === "number" &&
+          typeof item.comment === "string",
+      );
+    }
+
+    if (!isRecord(current) || !("data" in current)) {
+      return [];
+    }
+
+    current = current.data;
+  }
+
+  return [];
+}
+
 function Detail({
   label,
   children,
@@ -134,11 +163,15 @@ export default function ComplaintDetails({
   complaintId: string;
 }) {
   const complaintQuery = useGetSingleComplaint(complaintId);
+  const feedbackQuery = useGetFeedbacks();
   const { mutateAsync: payForComplaint, isPending: isPaying } =
     usePayForComplaint();
   const complaint = complaintQuery.data
     ? normalizeComplaint(complaintQuery.data)
     : null;
+  const feedback = getFeedbackRecords(feedbackQuery.data).find(
+    (record) => record.complaintId === complaintId,
+  );
 
   const handlePayNow = async (id: string) => {
     try {
@@ -200,9 +233,25 @@ export default function ComplaintDetails({
       </header>
 
       {complaintQuery.isPending ? (
-        <output className="block rounded-xl border bg-card p-6 text-sm text-muted-foreground">
-          Loading complaint details…
-        </output>
+        <article
+          className="space-y-6 rounded-xl border bg-card p-6"
+          aria-busy="true"
+          aria-label="Loading complaint details"
+        >
+          <div className="space-y-3">
+            <Skeleton className="h-6 w-56" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-4/5" />
+          </div>
+          <dl className="grid gap-5 border-t pt-5 sm:grid-cols-2">
+            {["one", "two", "three", "four", "five", "six"].map((item) => (
+              <div key={item} className="space-y-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-5 w-40" />
+              </div>
+            ))}
+          </dl>
+        </article>
       ) : complaintQuery.isError ? (
         <div className="space-y-3 rounded-xl border border-destructive/30 bg-card p-6">
           <p role="alert" className="text-sm text-destructive">
@@ -226,40 +275,111 @@ export default function ComplaintDetails({
           The complaint details response has an unexpected format.
         </p>
       ) : (
-        <article className="space-y-6 rounded-xl border bg-card p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-semibold">
-                {complaint.title || "Complaint"}
-              </h2>
-              <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
-                {complaint.description || "No description provided."}
-              </p>
+        <>
+          <article className="space-y-6 rounded-xl border bg-card p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-semibold">
+                  {complaint.title || "Complaint"}
+                </h2>
+                <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
+                  {complaint.description || "No description provided."}
+                </p>
+              </div>
+              {complaint.status === "PAYMENT_PENDING" && (
+                <Button
+                  type="button"
+                  className="shrink-0"
+                  disabled={isPaying}
+                  onClick={() => void handlePayNow(complaint.id)}
+                >
+                  {isPaying ? "Creating payment..." : "Pay Now"}
+                </Button>
+              )}
             </div>
-            {complaint.status === "PAYMENT_PENDING" && (
+
+            <dl className="grid gap-5 border-t pt-5 sm:grid-cols-2">
+              <Detail label="Status">{complaint.status}</Detail>
+              <Detail label="Submitted">{formatDate(complaint.createdAt)}</Detail>
+              <Detail label="Department">{complaint.department}</Detail>
+              <Detail label="Category">{complaint.category}</Detail>
+              <Detail label="Location">{complaint.location}</Detail>
+              <Detail label="Payment status">{complaint.paymentStatus}</Detail>
+              <Detail label="Payment amount">
+                {formatCurrency(complaint.paymentAmount)}
+              </Detail>
+            </dl>
+          </article>
+
+          {feedbackQuery.isPending ? (
+            <section
+              className="space-y-3 rounded-xl border bg-card p-6"
+              aria-busy="true"
+              aria-label="Loading feedback"
+            >
+              <Skeleton className="h-5 w-36" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-28" />
+            </section>
+          ) : feedbackQuery.isError ? (
+            <section className="space-y-3 rounded-xl border border-destructive/30 bg-card p-6">
+              <p role="alert" className="text-sm text-destructive">
+                {feedbackQuery.error instanceof Error
+                  ? feedbackQuery.error.message
+                  : "Could not load feedback."}
+              </p>
               <Button
                 type="button"
-                className="shrink-0"
-                disabled={isPaying}
-                onClick={() => void handlePayNow(complaint.id)}
+                variant="outline"
+                onClick={() => void feedbackQuery.refetch()}
               >
-                {isPaying ? "Creating payment..." : "Pay Now"}
+                Try again
               </Button>
-            )}
-          </div>
-
-          <dl className="grid gap-5 border-t pt-5 sm:grid-cols-2">
-            <Detail label="Status">{complaint.status}</Detail>
-            <Detail label="Submitted">{formatDate(complaint.createdAt)}</Detail>
-            <Detail label="Department">{complaint.department}</Detail>
-            <Detail label="Category">{complaint.category}</Detail>
-            <Detail label="Location">{complaint.location}</Detail>
-            <Detail label="Payment status">{complaint.paymentStatus}</Detail>
-            <Detail label="Payment amount">
-              {formatCurrency(complaint.paymentAmount)}
-            </Detail>
-          </dl>
-        </article>
+            </section>
+          ) : feedback ? (
+            <section
+              aria-labelledby="complaint-feedback-heading"
+              className="space-y-4 rounded-xl border bg-card p-6"
+            >
+              <h2
+                id="complaint-feedback-heading"
+                className="text-xl font-semibold"
+              >
+                Feedback
+              </h2>
+              <article className="space-y-3">
+                <div
+                  className="flex items-center gap-1"
+                  role="img"
+                  aria-label={`Rated ${feedback.rating} out of 5 stars`}
+                >
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      aria-hidden="true"
+                      className={`size-5 ${
+                        star <= feedback.rating
+                          ? "fill-amber-500 text-amber-500"
+                          : "text-muted"
+                      }`}
+                    />
+                  ))}
+                  <span className="ml-2 text-sm font-medium">
+                    {feedback.rating} out of 5
+                  </span>
+                </div>
+                <p className="whitespace-pre-wrap text-sm leading-6">
+                  {feedback.comment}
+                </p>
+                {feedback.createdAt && (
+                  <p className="text-xs text-muted-foreground">
+                    Submitted {formatDate(feedback.createdAt)}
+                  </p>
+                )}
+              </article>
+            </section>
+          ) : null}
+        </>
       )}
     </main>
   );

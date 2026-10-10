@@ -15,6 +15,7 @@ import { useManagerComplaints } from "@/hooks/manager.hook";
 import { useGetPayments } from "@/hooks/payments.hook";
 import { useGetTechnicians } from "@/hooks/manager.hook";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { AdminPage } from "./AdminPage";
 
 const sections = [
@@ -88,35 +89,31 @@ export default function AdminDashboard() {
   const metrics = [
     {
       label: "Total complaints",
-      value: complaintsQuery.isLoading
-        ? "Loading..."
-        : complaintsQuery.isError
+      isLoading: complaintsQuery.isLoading,
+      value: complaintsQuery.isError
           ? "Unavailable"
           : (complaintsQuery.data?.total ?? 0).toLocaleString(),
     },
     {
       label: "Payment records",
-      value: paymentsQuery.isLoading
-        ? "Loading..."
-        : paymentsQuery.isError
+      isLoading: paymentsQuery.isLoading,
+      value: paymentsQuery.isError
           ? "Unavailable"
           : (countArrayPayload(paymentsQuery.data)?.toLocaleString() ??
             "Unavailable"),
     },
     {
       label: "User accounts",
-      value: usersQuery.isLoading
-        ? "Loading..."
-        : usersQuery.isError
+      isLoading: usersQuery.isLoading,
+      value: usersQuery.isError
           ? "Unavailable"
           : (countArrayPayload(usersQuery.data)?.toLocaleString() ??
             "Unavailable"),
     },
     {
       label: "Categories",
-      value: categoriesQuery.isLoading
-        ? "Loading..."
-        : categoriesQuery.isError
+      isLoading: categoriesQuery.isLoading,
+      value: categoriesQuery.isError
           ? "Unavailable"
           : (countArrayPayload(categoriesQuery.data)?.toLocaleString() ??
             "Unavailable"),
@@ -132,7 +129,7 @@ export default function AdminDashboard() {
         aria-label="Platform totals"
         className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
       >
-        {metrics.map(({ label, value }) => (
+        {metrics.map(({ label, value, isLoading }) => (
           <Card key={label}>
             <CardHeader>
               <CardTitle className="text-sm text-muted-foreground">
@@ -140,7 +137,13 @@ export default function AdminDashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-semibold tabular-nums">{value}</p>
+              {isLoading ? (
+                <Skeleton
+                  className="h-8 w-24"
+                />
+              ) : (
+                <p className="text-2xl font-semibold tabular-nums">{value}</p>
+              )}
             </CardContent>
           </Card>
         ))}

@@ -54,6 +54,41 @@ export type ComplaintDetailsData = {
   createdAt?: string;
 };
 
+export type CreateFeedbackPayload = {
+  rating: number;
+  comment: string;
+  complaintId: string;
+};
+
+export type FeedbackRecord = {
+  id: string;
+  rating: number;
+  comment: string;
+  complaintId: string;
+  citizenId: string;
+  createdAt?: string;
+  updatedAt?: string;
+  complaint?: {
+    id: string;
+    trackingId?: string;
+    title?: string;
+    status?: string;
+    categoryName?: string;
+    department?: string;
+  };
+  citizen?: {
+    id: string;
+    name?: string;
+    email?: string;
+  };
+};
+
+export type FeedbackListResponse = {
+  success?: boolean;
+  message?: string;
+  data?: FeedbackRecord[];
+  meta?: ComplaintPaginationMeta;
+};
 
 
 

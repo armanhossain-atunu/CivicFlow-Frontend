@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Eye, Loader2, ClipboardList, Play, CheckCircle2 } from "lucide-react";
+import { Eye, ClipboardList, Play, CheckCircle2 } from "lucide-react";
 
 import { useGetMyAssignments } from "@/hooks/technician.hook";
 
@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/table";
 
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import StatusUpdate from "./StatusUpdate";
 
 type Complaint = {
@@ -49,7 +50,7 @@ type Assignment = {
 };
 
 const MyAssignments = () => {
-  const { data, isError } = useGetMyAssignments();
+  const { data, isLoading, isError } = useGetMyAssignments();
 
   console.log(data, "My Assignments");
 
@@ -58,6 +59,33 @@ const MyAssignments = () => {
     : Array.isArray(data?.data)
       ? data.data
       : [];
+
+  if (isLoading) {
+    return (
+      <div
+        className="mx-auto max-w-7xl space-y-6"
+        aria-busy="true"
+      >
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-4 w-72" />
+        </div>
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-48" />
+            <Skeleton className="h-4 w-64" />
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {["assignment-one", "assignment-two", "assignment-three", "assignment-four", "assignment-five"].map(
+              (row) => (
+                <Skeleton key={row} className="h-12 w-full" />
+              ),
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (isError) {
     return (
