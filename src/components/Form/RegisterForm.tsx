@@ -29,6 +29,7 @@ export function RegisterForm() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
   const { mutate: register, isPending: registerPending } = useRegister();
+  console.log(register,"register form");
 
   type RegisterDefaultValues = z.infer<typeof RegisterZodSchema>;
   const defaultValues: RegisterDefaultValues = {
@@ -54,8 +55,7 @@ export function RegisterForm() {
       };
 
       register(registerData, {
-        onSuccess: (res) => {
-          console.log(res);
+        onSuccess: () => {
           toast.add({
             title: "Verification OTP Sent to your email",
             description:

@@ -1,7 +1,7 @@
 import { GoogleLogin } from "@react-oauth/google";
+import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/toast";
 import { useGoogleOAuth } from "@/hooks";
-import { useRouter } from "next/dist/client/components/navigation";
 
 export default function GoogleLoginComponent() {
   const { mutate: googleLogin } = useGoogleOAuth();
@@ -23,9 +23,7 @@ export default function GoogleLoginComponent() {
     googleLogin(
       { idToken },
       {
-        onSuccess: (res) => {
-          console.log(res);
-
+        onSuccess: () => {
           toast.add({
             title: "Google login successful",
             description: "Welcome to CivicFlow!",

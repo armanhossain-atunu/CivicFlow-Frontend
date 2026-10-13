@@ -25,7 +25,7 @@ export default function LoginPage() {
       </div>
       <div className="relative hidden bg-muted lg:block">
         <Image
-          src="/login.jpg"
+          src="/Login.jpg"
           alt="Login"
           fill
           sizes="50vw"

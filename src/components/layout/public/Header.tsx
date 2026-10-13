@@ -71,6 +71,7 @@ export const Header = () => {
   const dashboardPathByRole: Record<string, string> = {
     admin: "/dashboard/admin",
     citizen: "/dashboard/citizen",
+    staff: "/dashboard/citizen",
     manager: "/dashboard/manager",
     technician: "/dashboard/technician",
   };
@@ -104,10 +105,6 @@ export const Header = () => {
         queryClient.removeQueries({
           queryKey: ["user"],
         });
-
-        // Remove stored tokens
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
 
         toast.add({
           title: "Logged out",

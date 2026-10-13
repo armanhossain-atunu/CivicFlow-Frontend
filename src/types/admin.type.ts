@@ -1,5 +1,14 @@
 import type { IUserListResponse } from "@/types/user.type";
 
+export interface ICreateCategory {
+  name: string;
+  description?: string;
+  department: string;
+  isActive?: boolean;
+  paymentRequired?: boolean;
+  paymentAmount?: number;
+}
+
 export type AdminCategory = {
   id: string;
   name: string;
@@ -16,6 +25,7 @@ export type AdminCategoryPayload = {
   department: string;
   isActive: boolean;
   paymentRequired: boolean;
+  paymentAmount?: number;
 };
 
 export type AdminAssignmentPayload = {

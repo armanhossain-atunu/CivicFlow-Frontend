@@ -229,14 +229,6 @@ export default function PaymentPending() {
   const pendingComplaints = complaints.filter(isPendingPayment);
 
   /* =======================================================
-     Debug: Check API response in browser console
-  ======================================================= */
-
-  console.log("Pending payment API response:", data);
-  console.log("Parsed complaints:", complaints);
-  console.log("Filtered pending complaints:", pendingComplaints);
-
-  /* =======================================================
      Handle Payment
   ======================================================= */
 

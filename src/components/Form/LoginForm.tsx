@@ -2,12 +2,12 @@
 /** biome-ignore-all lint/correctness/noUnusedImports: <explanation> */
 "use client";
 
-import Link from "next/link";
 import { useForm } from "@tanstack/react-form";
+import { cn } from "cn";
 import { Eye, EyeOff } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
-
-import { LoginZodSchema } from "@/validation";
+import { getme } from "@/api";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -17,11 +17,10 @@ import {
   FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { cn } from "cn";
-import { getme } from "@/api";
 import { useLogin } from "@/hooks";
-import { toast } from "../ui/toast";
+import { LoginZodSchema } from "@/validation";
 import GoogleLoginComponent from "../modules/google-login/GoogleLogin";
+import { toast } from "../ui/toast";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -50,6 +49,57 @@ export function LoginForm() {
 
   const { mutate: login, isPending: loginPending } = useLogin();
 
+  const authenticate = (loginData: { email: string; password: string }) => {
+    login(loginData, {
+      onSuccess: async () => {
+        try {
+          const userResponse = await getme();
+          const role = getRole(userResponse);
+          const dashboardPathByRole: Record<string, string> = {
+            admin: "/dashboard/admin",
+            citizen: "/dashboard/citizen",
+            staff: "/dashboard/citizen",
+            manager: "/dashboard/manager",
+            technician: "/dashboard/technician",
+          };
+          const dashboardPath = role ? dashboardPathByRole[role] : undefined;
+
+          if (!dashboardPath) {
+            throw new Error("Your account role has no dashboard.");
+          }
+
+          toast.add({
+            title: "Login successful",
+            description: "Welcome back CivicFlow!",
+            type: "success",
+          });
+
+          window.location.href = dashboardPath;
+        } catch (error) {
+          toast.add({
+            title: "Could not open your dashboard",
+            description:
+              error instanceof Error
+                ? error.message
+                : "Your account role could not be determined.",
+            type: "error",
+          });
+        }
+      },
+
+      onError: (err) => {
+        console.error("Login error:", err);
+
+        toast.add({
+          title: "Login failed",
+          description:
+            "Invalid credentials. Please check your email and password.",
+          type: "error",
+        });
+      },
+    });
+  };
+
   const form = useForm({
     defaultValues: {
       email: "",
@@ -61,60 +111,27 @@ export function LoginForm() {
     },
 
     onSubmit: ({ value }) => {
-      const loginData = {
-        email: value.email,
-        password: value.password,
-      };
-
-      login(loginData, {
-        onSuccess: async () => {
-          try {
-            const userResponse = await getme();
-            const role = getRole(userResponse);
-            const dashboardPathByRole: Record<string, string> = {
-              admin: "/dashboard/admin",
-              citizen: "/dashboard/citizen",
-              manager: "/dashboard/manager",
-              technician: "/dashboard/technician",
-            };
-            const dashboardPath = role ? dashboardPathByRole[role] : undefined;
-
-            if (!dashboardPath) {
-              throw new Error("Your account role has no dashboard.");
-            }
-
-            toast.add({
-              title: "Login successful",
-              description: "Welcome back CivicFlow!",
-              type: "success",
-            });
-
-            window.location.href = dashboardPath;
-          } catch (error) {
-            toast.add({
-              title: "Could not open your dashboard",
-              description:
-                error instanceof Error
-                  ? error.message
-                  : "Your account role could not be determined.",
-              type: "error",
-            });
-          }
-        },
-
-        onError: (err) => {
-          console.error("Login error:", err);
-
-          toast.add({
-            title: "Login failed",
-            description:
-              "Invalid credentials. Please check your email and password.",
-            type: "error",
-          });
-        },
-      });
+      authenticate(value);
     },
   });
+
+  const demoAccounts = [
+    {
+      label: "Admin",
+      email: "admin@gmail.com",
+      password: "A@dmin12345",
+    },
+    {
+      label: "Manager",
+      email: "manager@gmail.com",
+      password: "Manager@admin12345",
+    },
+    {
+      label: "Technician",
+      email: "technician@gmail.com",
+      password: "Technician@12345",
+    },
+  ];
 
   return (
     <form
@@ -232,6 +249,26 @@ export function LoginForm() {
           <Button type="submit" className="w-full" disabled={loginPending}>
             {loginPending ? "Logging in..." : "Login"}
           </Button>
+        </Field>
+
+        <Field>
+          <FieldDescription className="text-center">
+            Quick demo login
+          </FieldDescription>
+          <div className="grid grid-cols-3 gap-2">
+            {demoAccounts.map((account) => (
+              <Button
+                key={account.email}
+                type="button"
+                variant="outline"
+                className="w-full"
+                disabled={loginPending}
+                onClick={() => authenticate(account)}
+              >
+                {account.label}
+              </Button>
+            ))}
+          </div>
         </Field>
 
         <FieldSeparator>Or continue with</FieldSeparator>

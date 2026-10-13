@@ -52,8 +52,6 @@ type Assignment = {
 const MyAssignments = () => {
   const { data, isLoading, isError } = useGetMyAssignments();
 
-  console.log(data, "My Assignments");
-
   const assignments: Assignment[] = Array.isArray(data)
     ? data
     : Array.isArray(data?.data)

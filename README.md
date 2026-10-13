@@ -49,13 +49,15 @@ complaint progress.
 3. Set the environment values for your local API and Google sign-in client:
 
    ```dotenv
-   NEXT_PUBLIC_API_BASE_URL=http://localhost:5000/api/v1
+   API_BASE_URL=http://localhost:5000/api/v1
    NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-google-oauth-client-id
    ```
 
-   `NEXT_PUBLIC_API_BASE_URL` must point to the API base path expected by the
-   backend. The API client sends requests with credentials, so the backend must
-   allow credentialed requests from the frontend origin.
+   `API_BASE_URL` must point to the API base path expected by the backend. All
+   API requests are sent through the Next.js app, which sets the authentication
+   cookies on the frontend origin. In Vercel, configure `API_BASE_URL` for each
+   deployment environment and redeploy after changing it. The backend does not
+   need to allow browser requests from the frontend origin.
 
 4. Start the development server:
 

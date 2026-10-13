@@ -17,6 +17,13 @@ export function registerUser(payload: RegisterPayload) {
 export function userLogin(payload: LoginPayload) {
   return apiClient("/auth/login", { method: "POST", body: payload });
 }
+
+// export function userLogin(payload: LoginPayload) {
+// return apiClient("/api/auth/login", {
+// method: "POST",
+// body: payload,
+// });
+// }
 // get current user
 export function getme() {
   return apiClient("/auth/me", { method: "GET" });

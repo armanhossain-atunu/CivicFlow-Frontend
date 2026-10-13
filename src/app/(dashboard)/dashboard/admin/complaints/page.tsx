@@ -243,7 +243,6 @@ export default function AdminComplaintsPage() {
     PAGE_SIZE,
   );
   const complaints = data?.complaints ?? [];
-  console.log(complaints.length, "complaints");
   const query = search.trim().toLowerCase();
   const filteredComplaints = complaints.filter((complaint) => {
     const matchesSearch =

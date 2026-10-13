@@ -31,9 +31,6 @@ export default function ComplaintDetailsPage() {
 
   const { data, isLoading, isError } = useGetMyAssignments();
 
-  console.log("Complaint ID:", complainId);
-  console.log("Assignments:", data);
-
   /*
    * Handle different possible API response structures
    */

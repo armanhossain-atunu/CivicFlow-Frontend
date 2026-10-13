@@ -29,12 +29,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "@/components/ui/toast";
-import { useGetAllCategories } from "@/hooks/complain.hook";
-import { useCreateAdminCategory } from "@/hooks/admin.hook";
-import { AdminPage } from "../AdminPage";
 import { Skeleton } from "@/components/ui/skeleton";
 
+import { useGetAllCategories } from "@/hooks/complain.hook";
+import { useCreateAdminCategory } from "@/hooks/admin.hook";
+
+import { useUpdateAdminCategory } from "@/hooks/admin.hook";
+
+import { AdminPage } from "../AdminPage";
+
 const PAGE_SIZE = 10;
+
 const CATEGORY_FILTERS = [
   { value: "ALL", label: "All categories" },
   { value: "PAID", label: "Payment required" },
@@ -51,79 +56,118 @@ type Category = {
   paymentAmount?: number | string | null;
 };
 
-function CreateCategoryDialog() {
+type CreateCategoryDialogProps = {
+  onCreated: () => void;
+};
+
+function CreateCategoryDialog({ onCreated }: CreateCategoryDialogProps) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [department, setDepartment] = useState("");
+  const [paymentRequired, setPaymentRequired] = useState(false);
+  const [paymentAmount, setPaymentAmount] = useState("");
+
   const { mutate: createCategory, isPending } = useCreateAdminCategory();
+
+  const resetForm = () => {
+    setName("");
+    setDescription("");
+    setDepartment("");
+    setPaymentRequired(false);
+    setPaymentAmount("");
+  };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
     const trimmedName = name.trim();
     const trimmedDescription = description.trim();
     const trimmedDepartment = department.trim();
+    const amount = Number(paymentAmount);
 
     if (!trimmedName || !trimmedDescription || !trimmedDepartment) {
       toast.add({
         title: "Required fields missing",
-        description: "Enter a name, description, and department.",
+        description: "Enter a category name, description, and department.",
         type: "error",
       });
       return;
     }
 
-    createCategory(
-      {
-        name: trimmedName,
-        description: trimmedDescription,
-        department: trimmedDepartment,
-        isActive: true,
-        paymentRequired: false,
+    if (
+      paymentRequired &&
+      (!paymentAmount.trim() || !Number.isFinite(amount) || amount <= 0)
+    ) {
+      toast.add({
+        title: "Invalid payment amount",
+        description: "Enter a payment amount greater than zero.",
+        type: "error",
+      });
+      return;
+    }
+
+    const payload = {
+      name: trimmedName,
+      description: trimmedDescription,
+      department: trimmedDepartment,
+      isActive: true,
+      paymentRequired,
+      ...(paymentRequired ? { paymentAmount: amount } : {}),
+    };
+
+    createCategory(payload, {
+      onSuccess: () => {
+        toast.add({
+          title: "Category created",
+          description: `${trimmedName} was added successfully.`,
+          type: "success",
+        });
+
+        resetForm();
+        setOpen(false);
+
+        // Tell the parent to refresh the categories list.
+        onCreated();
       },
-      {
-        onSuccess: () => {
-          toast.add({
-            title: "Category created",
-            description: `${trimmedName} was added successfully.`,
-            type: "success",
-          });
-          setName("");
-          setDescription("");
-          setDepartment("");
-          setOpen(false);
-        },
-        onError: (error) => {
-          toast.add({
-            title: "Category creation failed",
-            description:
-              error instanceof Error
-                ? error.message
-                : "Unable to create the category.",
-            type: "error",
-          });
-        },
+
+      onError: (error) => {
+        toast.add({
+          title: "Category creation failed",
+          description:
+            error instanceof Error
+              ? error.message
+              : "Unable to create the category.",
+          type: "error",
+        });
       },
-    );
+    });
   };
 
   return (
     <Dialog
       open={open}
       onOpenChange={(nextOpen) => {
-        if (!isPending) setOpen(nextOpen);
+        if (isPending) return;
+
+        setOpen(nextOpen);
+
+        if (!nextOpen) {
+          resetForm();
+        }
       }}
     >
       <DialogTrigger render={<Button type="button">Create category</Button>} />
+
       <DialogContent className="sm:max-w-lg">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Create category</DialogTitle>
             <DialogDescription>
-              Add a service category. New categories are active and do not
-              require payment.
+              Add a service category and configure its payment requirements.
             </DialogDescription>
           </DialogHeader>
+
           <FieldGroup className="py-4">
             <Field>
               <FieldLabel htmlFor="category-name">Name</FieldLabel>
@@ -133,9 +177,12 @@ function CreateCategoryDialog() {
                 onChange={(event) => setName(event.target.value)}
                 required
                 disabled={isPending}
+                maxLength={100}
+                placeholder="e.g. Road Damage"
                 className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
               />
             </Field>
+
             <Field>
               <FieldLabel htmlFor="category-description">
                 Description
@@ -147,9 +194,11 @@ function CreateCategoryDialog() {
                 required
                 disabled={isPending}
                 rows={3}
+                placeholder="Describe this service category"
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
               />
             </Field>
+
             <Field>
               <FieldLabel htmlFor="category-department">Department</FieldLabel>
               <input
@@ -158,10 +207,56 @@ function CreateCategoryDialog() {
                 onChange={(event) => setDepartment(event.target.value)}
                 required
                 disabled={isPending}
+                placeholder="e.g. Public Works"
                 className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
               />
             </Field>
+
+            <Field>
+              <FieldLabel htmlFor="category-payment">
+                Payment requirement
+              </FieldLabel>
+              <select
+                id="category-payment"
+                value={paymentRequired ? "PAID" : "FREE"}
+                onChange={(event) => {
+                  const isPaid = event.target.value === "PAID";
+
+                  setPaymentRequired(isPaid);
+
+                  if (!isPaid) {
+                    setPaymentAmount("");
+                  }
+                }}
+                disabled={isPending}
+                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <option value="FREE">No payment</option>
+                <option value="PAID">Payment required</option>
+              </select>
+            </Field>
+
+            {paymentRequired && (
+              <Field>
+                <FieldLabel htmlFor="category-payment-amount">
+                  Payment amount (৳)
+                </FieldLabel>
+                <input
+                  id="category-payment-amount"
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  value={paymentAmount}
+                  onChange={(event) => setPaymentAmount(event.target.value)}
+                  required
+                  disabled={isPending}
+                  placeholder="e.g. 500"
+                  className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                />
+              </Field>
+            )}
           </FieldGroup>
+
           <DialogFooter>
             <DialogClose
               render={
@@ -170,6 +265,7 @@ function CreateCategoryDialog() {
                 </Button>
               }
             />
+
             <Button type="submit" disabled={isPending}>
               {isPending && <Loader2 className="size-4 animate-spin" />}
               {isPending ? "Creating..." : "Create category"}
@@ -188,7 +284,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function getCategories(value: unknown): Category[] {
   let current = value;
 
-  for (let depth = 0; depth < 4; depth += 1) {
+  for (let depth = 0; depth < 5; depth += 1) {
     if (Array.isArray(current)) {
       return current.flatMap((item): Category[] => {
         if (!isRecord(item)) return [];
@@ -202,11 +298,17 @@ function getCategories(value: unknown): Category[] {
           paymentRequired,
           paymentAmount,
         } = item;
-        if (typeof id !== "string" || typeof name !== "string") return [];
+
+        if (
+          (typeof id !== "string" && typeof id !== "number") ||
+          typeof name !== "string"
+        ) {
+          return [];
+        }
 
         return [
           {
-            id,
+            id: String(id),
             name,
             description:
               typeof description === "string" ? description : undefined,
@@ -228,10 +330,13 @@ function getCategories(value: unknown): Category[] {
     }
 
     if (!isRecord(current)) return [];
+
     if (Array.isArray(current.categories)) {
       current = current.categories;
     } else if ("data" in current) {
       current = current.data;
+    } else if ("result" in current) {
+      current = current.result;
     } else {
       return [];
     }
@@ -241,34 +346,52 @@ function getCategories(value: unknown): Category[] {
 }
 
 export default function AdminCategoriesPage() {
-  const { data, isLoading, isError, error } = useGetAllCategories();
+  const { data, isLoading, isError, error, refetch } = useGetAllCategories();
+
   const [search, setSearch] = useState("");
   const [paymentFilter, setPaymentFilter] = useState("ALL");
   const [page, setPage] = useState(1);
-  const categories = getCategories(data);
+
+  const categories = useMemo(() => getCategories(data), [data]);
 
   const filteredCategories = useMemo(() => {
     const query = search.trim().toLowerCase();
+
     return categories.filter((category) => {
+      // Search is controlled only by the user's input.
       const matchesSearch =
         !query ||
         [category.name, category.department].some((value) =>
           value?.toLowerCase().includes(query),
         );
+
       const matchesPayment =
         paymentFilter === "ALL" ||
         (paymentFilter === "PAID" && category.paymentRequired === true) ||
         (paymentFilter === "FREE" && category.paymentRequired === false);
+
       return matchesSearch && matchesPayment;
     });
   }, [categories, search, paymentFilter]);
 
   const totalPages = Math.ceil(filteredCategories.length / PAGE_SIZE);
+
   const currentPage = Math.min(page, Math.max(totalPages, 1));
+
   const pageCategories = filteredCategories.slice(
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE,
   );
+
+  const handleCategoryCreated = () => {
+    // Never place the newly created category name in search.
+    setSearch("");
+    setPaymentFilter("ALL");
+    setPage(1);
+
+    // Fetch the latest categories without reloading the page.
+    void refetch();
+  };
 
   return (
     <AdminPage
@@ -284,7 +407,9 @@ export default function AdminCategoriesPage() {
             <Skeleton className="h-6 w-48" />
             <Skeleton className="h-9 w-64" />
           </div>
+
           <Skeleton className="h-9 w-48" />
+
           <div className="space-y-2">
             {[
               "category-one",
@@ -300,9 +425,21 @@ export default function AdminCategoriesPage() {
       ) : isError ? (
         <div className="flex items-center gap-2 rounded-lg border border-destructive/30 p-4 text-sm text-destructive">
           <AlertCircle className="size-4 shrink-0" />
-          {error instanceof Error
-            ? error.message
-            : "Failed to load categories."}
+
+          <span>
+            {error instanceof Error
+              ? error.message
+              : "Failed to load categories."}
+          </span>
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="ml-auto"
+            onClick={() => void refetch()}
+          >
+            Retry
+          </Button>
         </div>
       ) : (
         <Card>
@@ -313,6 +450,7 @@ export default function AdminCategoriesPage() {
                 {filteredCategories.length} matching categories
               </p>
             </div>
+
             <div className="flex flex-col gap-3 sm:flex-row">
               <CommonSearch
                 value={search}
@@ -322,9 +460,11 @@ export default function AdminCategoriesPage() {
                 }}
                 placeholder="Search categories..."
               />
-              <CreateCategoryDialog />
+
+              <CreateCategoryDialog onCreated={handleCategoryCreated} />
             </div>
           </CardHeader>
+
           <CardContent className="space-y-4">
             <CommonStatusFilter
               value={paymentFilter}
@@ -334,6 +474,7 @@ export default function AdminCategoriesPage() {
                 setPage(1);
               }}
             />
+
             <div className="overflow-x-auto rounded-md border">
               <Table>
                 <TableHeader>
@@ -346,15 +487,19 @@ export default function AdminCategoriesPage() {
                     <TableHead>Amount</TableHead>
                   </TableRow>
                 </TableHeader>
+
                 <TableBody>
-                  {pageCategories.length ? (
+                  {pageCategories.length > 0 ? (
                     pageCategories.map((category) => (
                       <TableRow key={category.id}>
                         <TableCell className="font-medium">
                           {category.name}
                         </TableCell>
-                        <TableCell>{category.description ?? "—"}</TableCell>
-                        <TableCell>{category.department ?? "—"}</TableCell>
+
+                        <TableCell>{category.description || "—"}</TableCell>
+
+                        <TableCell>{category.department || "—"}</TableCell>
+
                         <TableCell>
                           <Badge
                             variant={category.isActive ? "default" : "outline"}
@@ -362,6 +507,7 @@ export default function AdminCategoriesPage() {
                             {category.isActive ? "Active" : "Inactive"}
                           </Badge>
                         </TableCell>
+
                         <TableCell>
                           <Badge
                             variant={
@@ -373,10 +519,13 @@ export default function AdminCategoriesPage() {
                               : "No payment"}
                           </Badge>
                         </TableCell>
+
                         <TableCell>
                           {category.paymentRequired &&
                           category.paymentAmount != null
-                            ? `৳${Number(category.paymentAmount).toLocaleString("en-BD")}`
+                            ? `৳${Number(category.paymentAmount).toLocaleString(
+                                "en-BD",
+                              )}`
                             : "—"}
                         </TableCell>
                       </TableRow>
@@ -394,6 +543,7 @@ export default function AdminCategoriesPage() {
                 </TableBody>
               </Table>
             </div>
+
             {totalPages > 1 && (
               <CommonPagination
                 page={currentPage}

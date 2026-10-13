@@ -16,7 +16,6 @@ export default function ProfilePage() {
   const { mutate: updateProfile, isPending: isUpdatingProfile } =
     useUpdateProfile();
   const user = data?.data;
-  console.log("data", user);
 
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
     const image = event.target.files?.[0];

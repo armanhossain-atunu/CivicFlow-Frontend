@@ -49,9 +49,6 @@ export default function ComplaintDetailsPage() {
 
   const complaints = getComplaints(data);
 
-  console.log("Complaint ID:", complainId);
-  console.log("Complaints:", complaints);
-
   const complaint = complaints.find((item) => item.id === complainId);
 
   if (isLoading) {

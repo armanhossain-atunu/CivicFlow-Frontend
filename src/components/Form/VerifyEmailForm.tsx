@@ -38,9 +38,7 @@ export function VerifyEmailForm() {
       };
 
       verifyEmail(verifyData, {
-        onSuccess: (res) => {
-          console.log("Email verification response:", res);
-
+        onSuccess: () => {
           toast.add({
             title: "Email verification successful",
             description: "Welcome to CivicFlow! Please login to continue.",
