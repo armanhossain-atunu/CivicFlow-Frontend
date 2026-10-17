@@ -123,8 +123,10 @@ export function createFeedback(payload: CreateFeedbackPayload) {
     body: payload,
   });
 }
-
-export function getFeedbacks() {
+// get all feedbacks
+export async  function getFeedbacks() {
+  const res = await apiClient< FeedbackListResponse>("/feedbacks", { method: "GET" });
+  console.log(res,"api res")
   return apiClient<FeedbackListResponse>("/feedbacks", {
     method: "GET",
   });

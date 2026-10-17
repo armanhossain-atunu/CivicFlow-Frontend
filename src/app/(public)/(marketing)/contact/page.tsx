@@ -1,5 +1,12 @@
+
+"use client";
+
+import { useState, type FormEvent } from "react";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 
 const contactOptions = [
   {
@@ -11,16 +18,76 @@ const contactOptions = [
   {
     title: "Support desk",
     value: "support@civicflow.com",
-    description: "Need help with a report, service status, or account access.",
+    description:
+      "Need help with a report, service status, or account access.",
   },
   {
     title: "Office",
     value: "+1 (800) 555-0142",
-    description: "Reach our civic operations team during business hours.",
+    description:
+      "Reach our civic operations team during business hours.",
   },
 ];
 
+const initialFormData = {
+  name: "",
+  email: "",
+  message: "",
+};
+
 const ContactPage = () => {
+  const [formData, setFormData] = useState(initialFormData);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = event.target;
+
+    setFormData((previous) => ({
+      ...previous,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (isSubmitting) return;
+
+    if (
+      !formData.name.trim() ||
+      !formData.email.trim() ||
+      !formData.message.trim()
+    ) {
+      toast.add({
+        title: "Missing information",
+        description: "Please fill in all fields before submitting.",
+        type: "error",
+      });
+
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Frontend-only submission.
+      // Connect your backend API here to actually send the message.
+
+      setFormData({ ...initialFormData });
+
+      toast.add({
+        title: "Message submitted!",
+        description:
+          "Your form has been cleared successfully. Thank you for contacting CivicFlow.",
+        type: "success",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
       <section className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
@@ -28,9 +95,11 @@ const ContactPage = () => {
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">
             Contact
           </p>
+
           <h1 className="mt-4 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
             Let’s make city services more responsive
           </h1>
+
           <p className="mt-6 max-w-xl text-lg text-slate-600">
             Whether you’re a resident, municipal team member, or partner
             organization, we can help you improve how communities report and
@@ -46,9 +115,11 @@ const ContactPage = () => {
                 <h2 className="text-lg font-semibold text-slate-900">
                   {item.title}
                 </h2>
+
                 <p className="mt-2 text-base font-medium text-primary">
                   {item.value}
                 </p>
+
                 <p className="mt-2 text-sm leading-6 text-slate-600">
                   {item.description}
                 </p>
@@ -61,7 +132,11 @@ const ContactPage = () => {
           <h2 className="text-2xl font-semibold text-slate-900">
             Send a message
           </h2>
-          <form className="mt-6 space-y-4">
+
+          <form
+            className="mt-6 space-y-4"
+            onSubmit={handleSubmit}
+          >
             <div>
               <Label
                 htmlFor="name"
@@ -69,11 +144,19 @@ const ContactPage = () => {
               >
                 Full name
               </Label>
+
               <Input
-                className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none ring-0 focus:border-primary"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
                 placeholder="Your name"
+                autoComplete="name"
+                required
+                className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm focus-visible:border-primary"
               />
             </div>
+
             <div>
               <Label
                 htmlFor="email"
@@ -81,12 +164,20 @@ const ContactPage = () => {
               >
                 Email address
               </Label>
+
               <Input
+                id="email"
+                name="email"
                 type="email"
-                className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none ring-0 focus:border-primary"
+                value={formData.email}
+                onChange={handleChange}
                 placeholder="you@example.com"
+                autoComplete="email"
+                required
+                className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm focus-visible:border-primary"
               />
             </div>
+
             <div>
               <Label
                 htmlFor="message"
@@ -94,18 +185,26 @@ const ContactPage = () => {
               >
                 Message
               </Label>
+
               <textarea
+                id="message"
+                name="message"
                 rows={5}
-                className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none ring-0 focus:border-primary"
+                value={formData.message}
+                onChange={handleChange}
                 placeholder="Tell us how we can help"
+                required
+                className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
               />
             </div>
-            <button
-              type="button"
-              className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90"
+
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full"
             >
-              Send message
-            </button>
+              {isSubmitting ? "Submitting..." : "Send message"}
+            </Button>
           </form>
         </div>
       </section>

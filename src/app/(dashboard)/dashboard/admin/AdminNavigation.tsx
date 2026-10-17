@@ -52,7 +52,7 @@ export function AdminNavigation() {
         const isActive =
           href === "/dashboard/admin"
             ? pathname === href
-            : pathname.startsWith(href);
+            : pathname === href || pathname.startsWith(`${href}/`);
 
         return (
           <Link

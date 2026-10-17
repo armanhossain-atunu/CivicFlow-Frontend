@@ -25,11 +25,11 @@ const Feedback = () => {
     }),
   );
 
-  const feedbackQuery = useGetFeedbacks();
-  console.log(feedbackQuery, "feedbackQuery");
-  const feedback = feedbackQuery.data?.data ?? [];
-  console.log(feedback, "feedback");
 
+  const feedbackQuery = useGetFeedbacks();
+  const feedback = feedbackQuery.data?.data ?? [];
+ console.log("Full feedback response:", feedbackQuery.data);
+console.log("First feedback:", feedbackQuery.data?.data?.[0]);
   if (feedbackQuery.isLoading) {
     return (
       <section className="mx-auto w-full max-w-7xl space-y-8 px-4 py-12">
@@ -92,7 +92,7 @@ const Feedback = () => {
         className="mx-auto w-full"
       >
         <CarouselContent>
-          {feedback.map((item ) => (
+          {feedback.map((item  ) => (
             <CarouselItem key={item.id} className="md:basis-1/2 lg:basis-1/3">
               <div className="h-full p-2">
                 <Card className="h-full rounded-2xl border bg-card shadow-sm transition-shadow duration-300 hover:shadow-lg">
@@ -125,13 +125,13 @@ const Feedback = () => {
                     </p>
 
                     {/* Citizen details */}
+                    {/* Citizen details */}
                     <div className="flex items-center gap-3 border-t pt-5">
                       <Avatar className="h-12 w-12 border">
                         <AvatarImage
-                          src={item.citizen?.imageUrl ?? ""}
+                          src={item.citizen?.imageUrl || undefined}
                           alt={item.citizen?.name ?? "Citizen"}
                         />
-
                         <AvatarFallback className="bg-primary/10 font-semibold text-primary">
                           {item.citizen?.name?.charAt(0)?.toUpperCase() ?? "U"}
                         </AvatarFallback>

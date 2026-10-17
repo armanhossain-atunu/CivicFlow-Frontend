@@ -60,31 +60,27 @@ export type CreateFeedbackPayload = {
   complaintId: string;
 };
 
-export type FeedbackRecord = {
+export interface FeedbackRecord {
   id: string;
   rating: number;
   comment: string | null;
   complaintId: string;
   citizenId: string;
-  createdAt?: string;
-  updatedAt?: string;
-
-  complaint?: {
-    id: string;
-    trackingId?: string;
-    title?: string;
-    status?: string;
-    categoryName?: string;
-    department?: string;
-  } | null;
-
-  citizen?: {
+  citizen: {
     id: string;
     name: string;
     email: string;
     imageUrl: string | null;
   } | null;
-};
+  complaint?: {
+    id: string;
+    trackingId: string;
+    title: string;
+    status: string;
+    categoryName: string;
+    department: string;
+  } | null;
+}
 
 export type FeedbackListResponse = {
   success?: boolean;
