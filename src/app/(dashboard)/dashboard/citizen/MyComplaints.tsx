@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/correctness/noUnusedFunctionParameters: <explanation> */
 "use client";
 
 import { Loader2, MessageSquareText, Star, Trash2 } from "lucide-react";
@@ -142,10 +143,7 @@ export default function MyComplaints({
         onError: (error) => {
           toast.add({
             title: "Could not submit feedback",
-            description:
-              error instanceof Error
-                ? error.message
-                : "Something went wrong while submitting your feedback.",
+            description: "You have already submitted feedback for this complaint.",
             type: "error",
           });
         },

@@ -1,13 +1,15 @@
 "use client";
 
 import * as React from "react";
-
+import Autoplay from "embla-carousel-autoplay";
 import { Quote, Star } from "lucide-react";
 
 import { useGetFeedbacks } from "@/hooks/complain.hook";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+
 import {
   Carousel,
   CarouselContent,
@@ -15,49 +17,120 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import Autoplay from "embla-carousel-autoplay";
+
+type FeedbackItem = {
+  id: string;
+  rating: number;
+  comment: string | null;
+  complaintId: string;
+  citizen?: {
+    name?: string | null;
+    email?: string | null;
+    imageUrl?: string | null;
+  } | null;
+  complaint?: {
+    title?: string | null;
+    trackingId?: string | null;
+  } | null;
+};
+
+const demoFeedbacks: FeedbackItem[] = [
+  {
+    id: "demo-1",
+    rating: 5,
+    comment:
+      "I submitted a complaint through CivicFlow, and the process was simple and easy. Thank you for improving our community.",
+    complaintId: "CF-DEMO-001",
+    citizen: {
+      name: "Rahim Ahmed",
+      email: "rahim@example.com",
+    },
+    complaint: {
+      title: "Road damage repair",
+      trackingId: "CF-DEMO-001",
+    },
+  },
+  {
+    id: "demo-2",
+    rating: 5,
+    comment:
+      "CivicFlow makes it easy to report local problems. I can track my complaint and see its progress.",
+    complaintId: "CF-DEMO-002",
+    citizen: {
+      name: "Nusrat Jahan",
+      email: "nusrat@example.com",
+    },
+    complaint: {
+      title: "Street light maintenance",
+      trackingId: "CF-DEMO-002",
+    },
+  },
+  {
+    id: "demo-3",
+    rating: 4,
+    comment:
+      "The complaint submission process is convenient. I hope more citizens will use this platform to improve our city.",
+    complaintId: "CF-DEMO-003",
+    citizen: {
+      name: "Tanvir Hasan",
+      email: "tanvir@example.com",
+    },
+    complaint: {
+      title: "Waste collection service",
+      trackingId: "CF-DEMO-003",
+    },
+  },
+  {
+    id: "demo-4",
+    rating: 5,
+    comment:
+      "A useful platform for citizens. The clear complaint tracking system makes reporting public problems much easier.",
+    complaintId: "CF-DEMO-004",
+    citizen: {
+      name: "Sadia Islam",
+      email: "sadia@example.com",
+    },
+    complaint: {
+      title: "Drainage problem",
+      trackingId: "CF-DEMO-004",
+    },
+  },
+];
 
 const Feedback = () => {
   const plugin = React.useRef(
     Autoplay({
       delay: 3000,
-      stopOnInteraction: true,
+      playOnInit: true,
+      stopOnInteraction: false,
+      stopOnMouseEnter: false,
     }),
   );
 
-
   const feedbackQuery = useGetFeedbacks();
-  const feedback = feedbackQuery.data?.data ?? [];
- console.log("Full feedback response:", feedbackQuery.data);
-console.log("First feedback:", feedbackQuery.data?.data?.[0]);
+
+  const realFeedback: FeedbackItem[] = feedbackQuery.data?.data ?? [];
+
+  // Show loading skeleton while fetching API data.
   if (feedbackQuery.isLoading) {
     return (
       <section className="mx-auto w-full max-w-7xl space-y-8 px-4 py-12">
         <Skeleton className="mx-auto h-8 w-56" />
+
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {[
-            "feedback-skeleton-1",
-            "feedback-skeleton-2",
-            "feedback-skeleton-3",
-          ].map((key) => (
-            <Skeleton key={key} className="h-64 rounded-2xl" />
+          {[1, 2, 3].map((item) => (
+            <Skeleton key={item} className="h-64 rounded-2xl" />
           ))}
         </div>
       </section>
     );
   }
 
-  if (feedbackQuery.isError) {
-    return (
-      <p className="py-12 text-center text-sm text-red-500">
-        Failed to load feedback. Please try again later.
-      </p>
-    );
-  }
-
-  if (feedback.length === 0) {
-    return null;
-  }
+  // Use demo feedback if the API fails or returns no feedback.
+  const feedback: FeedbackItem[] =
+    feedbackQuery.isError || realFeedback.length === 0
+      ? demoFeedbacks
+      : realFeedback;
 
   return (
     <section className="mx-auto w-full max-w-7xl space-y-8 px-4 py-12">
@@ -67,17 +140,24 @@ console.log("First feedback:", feedbackQuery.data?.data?.[0]);
           Testimonials
         </p>
 
-        <div className="text-3xl font-bold tracking-tight sm:text-4xl">
+        <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
           What{" "}
           <span className="bg-gradient-to-r from-sky-600 to-teal-500 bg-clip-text text-transparent">
             Citizens
           </span>{" "}
           Say
-        </div>
+        </h2>
 
         <p className="mx-auto max-w-2xl text-muted-foreground">
           Discover what citizens think about our complaint management services.
         </p>
+
+        {/* Demo data indicator */}
+        {(feedbackQuery.isError || realFeedback.length === 0) && (
+          <p className="text-xs text-muted-foreground">
+            Sample testimonials displayed for preview.
+          </p>
+        )}
       </div>
 
       {/* Feedback carousel */}
@@ -85,26 +165,28 @@ console.log("First feedback:", feedbackQuery.data?.data?.[0]);
         opts={{
           align: "start",
           loop: feedback.length > 1,
+          watchDrag: true,
         }}
         plugins={feedback.length > 1 ? [plugin.current] : []}
-        onMouseEnter={plugin.current.stop}
-        onMouseLeave={plugin.current.reset}
         className="mx-auto w-full"
       >
         <CarouselContent>
-          {feedback.map((item  ) => (
-            <CarouselItem key={item.id} className="md:basis-1/2 lg:basis-1/3">
+          {feedback.map((item) => (
+            <CarouselItem
+              key={item.id}
+              className="md:basis-1/2 lg:basis-1/3"
+            >
               <div className="h-full p-2">
                 <Card className="h-full rounded-2xl border bg-card shadow-sm transition-shadow duration-300 hover:shadow-lg">
                   <CardContent className="flex h-full flex-col gap-5 p-6">
                     {/* Rating */}
                     <div className="flex items-center justify-between gap-3">
-                      <Quote className="h-8 w-8 text-primary/50" />
+                      <Quote className="h-8 w-8 shrink-0 text-primary/50" />
 
                       <div className="flex items-center gap-1">
                         {[1, 2, 3, 4, 5].map((star) => (
                           <Star
-                            key={`star-${item.id}-${star}`}
+                            key={`${item.id}-${star}`}
                             className={`h-4 w-4 ${
                               star <= item.rating
                                 ? "fill-yellow-400 text-yellow-400"
@@ -125,13 +207,13 @@ console.log("First feedback:", feedbackQuery.data?.data?.[0]);
                     </p>
 
                     {/* Citizen details */}
-                    {/* Citizen details */}
                     <div className="flex items-center gap-3 border-t pt-5">
                       <Avatar className="h-12 w-12 border">
                         <AvatarImage
                           src={item.citizen?.imageUrl || undefined}
                           alt={item.citizen?.name ?? "Citizen"}
                         />
+
                         <AvatarFallback className="bg-primary/10 font-semibold text-primary">
                           {item.citizen?.name?.charAt(0)?.toUpperCase() ?? "U"}
                         </AvatarFallback>
@@ -170,6 +252,7 @@ console.log("First feedback:", feedbackQuery.data?.data?.[0]);
           ))}
         </CarouselContent>
 
+        {/* Navigation */}
         {feedback.length > 1 && (
           <>
             <CarouselPrevious className="left-0 sm:-left-4" />
