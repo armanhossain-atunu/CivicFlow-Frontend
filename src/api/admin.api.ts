@@ -61,3 +61,10 @@ export function closeAdminAssignment(complaintId: string) {
     { method: "PATCH" },
   );
 }
+// Delete
+export function deleteAdminCategory(categoryId: string) {
+  return apiClient(`/categories/${encodeURIComponent(categoryId)}`, {
+    method: "DELETE",
+  });
+}
+

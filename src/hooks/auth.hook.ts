@@ -31,11 +31,14 @@ export function useGoogleOAuth() {
 }
 
 // get current user
-export function useGetme() {
+
+export function useGetme(enabled = true) {
   return useQuery({
     queryKey: ["user"],
     queryFn: getme,
+    enabled,
     retry: false,
+    refetchOnWindowFocus: false,
   });
 }
 // update profile

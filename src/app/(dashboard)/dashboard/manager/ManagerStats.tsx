@@ -55,7 +55,7 @@ export default function ManagerStats({
   return (
     <section
       aria-label="Complaint statistics"
-      className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+      className="grid gap-4 sm:grid-cols-4 xl:grid-cols-4"
     >
       {stats.map(({ label, value, icon: Icon }) => (
         <Card key={label}>

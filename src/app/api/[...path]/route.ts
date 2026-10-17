@@ -56,6 +56,17 @@ function omitTokens(value: unknown): unknown {
 }
 
 async function handleRequest(request: NextRequest, context: RouteContext) {
+  const { path } = await context.params;
+  const isCurrentUserRequest =
+    request.method === "GET" &&
+    path.length === 2 &&
+    path[0] === "auth" &&
+    path[1] === "me";
+
+  if (isCurrentUserRequest && !request.cookies.has("accessToken")) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
   const apiBaseUrl =
     process.env.API_BASE_URL ?? process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -69,7 +80,6 @@ async function handleRequest(request: NextRequest, context: RouteContext) {
   let upstreamUrl: URL;
 
   try {
-    const { path } = await context.params;
     const apiUrl = new URL(apiBaseUrl);
     const apiPath = path
       .map((segment) => encodeURIComponent(segment))
@@ -152,7 +162,6 @@ async function handleRequest(request: NextRequest, context: RouteContext) {
   responseHeaders.set("cache-control", "no-store");
 
   const responseText = await upstreamResponse.text();
-  const { path } = await context.params;
   const isLogin =
     path[0] === "auth" && (path[1] === "login" || path[1] === "google");
   const isLogout = path[0] === "auth" && path[1] === "logout";

@@ -17,16 +17,19 @@ export function registerUser(payload: RegisterPayload) {
 export function userLogin(payload: LoginPayload) {
   return apiClient("/auth/login", { method: "POST", body: payload });
 }
+// Get logged-in user
+export async function getme() {
+  try {
+    return await apiClient("/auth/me", {
+      method: "GET",
+    });
+  } catch (error: any) {
+    if (error?.status === 401) {
+      return null;
+    }
 
-// export function userLogin(payload: LoginPayload) {
-// return apiClient("/api/auth/login", {
-// method: "POST",
-// body: payload,
-// });
-// }
-// get current user
-export function getme() {
-  return apiClient("/auth/me", { method: "GET" });
+    throw error;
+  }
 }
 // profile update
 export function updateProfile(profileImage: File) {

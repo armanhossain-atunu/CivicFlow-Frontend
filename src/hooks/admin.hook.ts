@@ -3,6 +3,7 @@ import {
   closeAdminAssignment,
   createAdminAssignment,
   createAdminCategory,
+  deleteAdminCategory,
   deleteAdminUser,
   getAdminCategories,
   getAdminUsers,
@@ -92,7 +93,7 @@ export function useCreateAdminCategory() {
     },
   });
 }
-
+// update Category
 export function useUpdateAdminCategory() {
   const queryClient = useQueryClient();
 
@@ -112,7 +113,7 @@ export function useUpdateAdminCategory() {
     },
   });
 }
-
+//  
 export function useCreateAdminAssignment() {
   const queryClient = useQueryClient();
 
@@ -143,6 +144,20 @@ export function useCloseAdminAssignment() {
         queryClient.invalidateQueries({ queryKey: ["complaints"] }),
         queryClient.invalidateQueries({ queryKey: ["assignments"] }),
         queryClient.invalidateQueries({ queryKey: ["my-assignments"] }),
+      ]);
+    },
+  });
+}
+// Delete Category Hook
+export function useDeleteAdminCategory() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (categoryId: string) => deleteAdminCategory(categoryId),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: adminQueryKeys.categories }),
+        queryClient.invalidateQueries({ queryKey: ["categories"] }),
       ]);
     },
   });

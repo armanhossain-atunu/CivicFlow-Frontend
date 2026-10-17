@@ -27,12 +27,12 @@ import { toast } from "@/components/ui/toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetme, useLogout } from "@/hooks";
 
-export const Header = () => {
+export const Header = ({ hasSession }: { hasSession: boolean }) => {
   const pathname = usePathname();
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const { data, isLoading } = useGetme();
+  const { data, isLoading } = useGetme(hasSession);
   const { mutate: logout, isPending: logoutPending } = useLogout();
 
   const routes = [

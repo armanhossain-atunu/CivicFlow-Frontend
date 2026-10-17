@@ -8,6 +8,10 @@ import {
   CreditCard,
   FolderTree,
   Users,
+  CheckCircle2,
+  CircleCheck,
+  Clock,
+  ClipboardCheck,
 } from "lucide-react";
 
 import { useGetAllCategories } from "@/hooks/complain.hook";
@@ -17,6 +21,7 @@ import { useGetPayments } from "@/hooks/payments.hook";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AdminPage } from "./AdminPage";
+
 
 const sections = [
   {
@@ -57,6 +62,11 @@ const sections = [
   },
 ];
 
+type Complaint = {
+  id?: string;
+  status?: string;
+};
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -91,43 +101,120 @@ function countArrayPayload(value: unknown): number | undefined {
   return Array.isArray(current) ? current.length : undefined;
 }
 
+function getComplaintArray(value: unknown): Complaint[] {
+  let current = value;
+
+  for (let depth = 0; depth < 5; depth += 1) {
+    if (Array.isArray(current)) {
+      return current.filter(
+        (item): item is Complaint =>
+          isRecord(item) &&
+          (typeof item.status === "string" || item.status === undefined),
+      );
+    }
+
+    if (!isRecord(current)) {
+      return [];
+    }
+
+    if (Array.isArray(current.complaints)) {
+      current = current.complaints;
+      continue;
+    }
+
+    if ("data" in current) {
+      current = current.data;
+      continue;
+    }
+
+    return [];
+  }
+
+  return [];
+}
+
 export default function AdminDashboard() {
   const paymentsQuery = useGetPayments();
   const usersQuery = useGetTechnicians();
   const categoriesQuery = useGetAllCategories();
   const complaintsQuery = useManagerComplaints();
 
+  const complaints = getComplaintArray(complaintsQuery.data);
+
+  const closedCount = complaints.filter(
+    (complaint) => complaint.status === "CLOSED",
+  ).length;
+
+  const assingCount = complaints.filter(
+    (complaint) => complaint.status === "ASSIGNED",
+  ).length;
+
+  const resolvedCount = complaints.filter(
+    (complaint) => complaint.status === "RESOLVED",
+  ).length;
+
+  const inProgressCount = complaints.filter(
+    (complaint) => complaint.status === "IN_PROGRESS",
+  ).length;
+
   const metrics = [
     {
-      label: "Total complaints",
-      isLoading: complaintsQuery.isLoading,
-      value: complaintsQuery.isError
-        ? "Unavailable"
-        : (complaintsQuery.data?.total ?? 0).toLocaleString(),
-    },
-    {
-      label: "Payment records",
-      isLoading: paymentsQuery.isLoading,
-      value: paymentsQuery.isError
-        ? "Unavailable"
-        : (countArrayPayload(paymentsQuery.data)?.toLocaleString() ??
-          "Unavailable"),
-    },
-    {
       label: "User accounts",
-      isLoading: usersQuery.isLoading,
       value: usersQuery.isError
         ? "Unavailable"
-        : (countArrayPayload(usersQuery.data)?.toLocaleString() ??
-          "Unavailable"),
+        : (countArrayPayload(usersQuery.data) ?? 0).toLocaleString(),
+      isLoading: usersQuery.isLoading,
+      icon: Users,
     },
     {
       label: "Categories",
-      isLoading: categoriesQuery.isLoading,
       value: categoriesQuery.isError
         ? "Unavailable"
-        : (countArrayPayload(categoriesQuery.data)?.toLocaleString() ??
-          "Unavailable"),
+        : (countArrayPayload(categoriesQuery.data) ?? 0).toLocaleString(),
+      isLoading: categoriesQuery.isLoading,
+      icon: FolderTree,
+    },
+    {
+      label: "Payment records",
+      value: paymentsQuery.isError
+        ? "Unavailable"
+        : (countArrayPayload(paymentsQuery.data) ?? 0).toLocaleString(),
+      isLoading: paymentsQuery.isLoading,
+      icon: CreditCard,
+    },
+    {
+      label: "Total complaints",
+      value: complaintsQuery.isError
+        ? "Unavailable"
+        : (complaintsQuery.data?.total ?? complaints.length).toLocaleString(),
+      isLoading: complaintsQuery.isLoading,
+      icon: ClipboardList,
+    },
+
+    {
+      label: "Assigned complaints",
+      value: assingCount.toLocaleString(),
+      isLoading: complaintsQuery.isLoading,
+      icon: ClipboardCheck,
+    },
+    {
+      label: "In progress",
+      value: inProgressCount.toLocaleString(),
+      isLoading: complaintsQuery.isLoading,
+      icon: Clock,
+    },
+    {
+      label: "Resolved complaints",
+      value: resolvedCount.toLocaleString(),
+      isLoading: complaintsQuery.isLoading,
+      icon: CircleCheck,
+    },
+
+    {
+      label: "Closed complaints",
+      value: closedCount.toLocaleString(),
+      isLoading: complaintsQuery.isLoading,
+      icon: CheckCircle2,
     },
   ];
 
@@ -139,14 +226,19 @@ export default function AdminDashboard() {
       {/* Dashboard Metrics */}
       <section
         aria-label="Platform totals"
-        className=" grid grid-cols-2  gap-4 sm:grid-cols-4 xl:grid-cols-4"
+        className="grid grid-cols-1 gap-4 sm:grid-cols-4 xl:grid-cols-4"
       >
-        {metrics.map(({ label, value, isLoading }) => (
-          <Card key={label}>
-            <CardHeader>
-              <CardTitle className="text-sm text-muted-foreground">
+        {metrics.map(({ label, value, isLoading, icon: Icon }) => (
+          <Card key={label} className="transition-shadow hover:shadow-md">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 {label}
               </CardTitle>
+
+              <Icon
+                aria-hidden="true"
+                className="size-5 text-muted-foreground"
+              />
             </CardHeader>
 
             <CardContent>
@@ -160,10 +252,15 @@ export default function AdminDashboard() {
         ))}
       </section>
 
+      {/* Complaint Area Chart */}
+      {/* <section className="mt-6" aria-label="Complaint analytics">
+        <ComplaintAreaChart />
+      </section> */}
+
       {/* Administration Sections */}
       <section
         aria-label="Administration sections"
-        className="grid gap-4 md:grid-cols-2 xl:grid-cols-3"
+        className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3"
       >
         {sections.map(({ href, label, description, icon: Icon }) => (
           <Link key={href} href={href} className="group">

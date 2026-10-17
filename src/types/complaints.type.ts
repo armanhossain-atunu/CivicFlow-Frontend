@@ -63,11 +63,12 @@ export type CreateFeedbackPayload = {
 export type FeedbackRecord = {
   id: string;
   rating: number;
-  comment: string;
+  comment: string | null;
   complaintId: string;
   citizenId: string;
   createdAt?: string;
   updatedAt?: string;
+
   complaint?: {
     id: string;
     trackingId?: string;
@@ -75,12 +76,14 @@ export type FeedbackRecord = {
     status?: string;
     categoryName?: string;
     department?: string;
-  };
+  } | null;
+
   citizen?: {
     id: string;
-    name?: string;
-    email?: string;
-  };
+    name: string;
+    email: string;
+    imageUrl: string | null;
+  } | null;
 };
 
 export type FeedbackListResponse = {
@@ -117,4 +120,25 @@ export type MyComplaintsProps = {
 
   // Pagination
   onPageChange: (page: number) => void;
+};
+export type Category = {
+  id: string;
+  name: string;
+  department: string;
+  paymentRequired: boolean;
+  paymentAmount?: number | null;
+};
+
+export type ComplaintFormValues = {
+  title: string;
+  description: string;
+  categoryId: string;
+  department: string;
+  location: string;
+};
+
+export type CreateComplaintResponse = {
+  data: {
+    id: string;
+  };
 };

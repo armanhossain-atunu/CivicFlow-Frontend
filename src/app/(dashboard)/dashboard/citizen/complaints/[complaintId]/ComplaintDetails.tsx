@@ -165,6 +165,7 @@ export default function ComplaintDetails({
 }) {
   const complaintQuery = useGetSingleComplaint(complaintId);
   const feedbackQuery = useGetFeedbacks();
+
   const { mutateAsync: payForComplaint, isPending: isPaying } =
     usePayForComplaint();
   const complaint = complaintQuery.data
@@ -173,6 +174,7 @@ export default function ComplaintDetails({
   const feedback = getFeedbackRecords(feedbackQuery.data).find(
     (record) => record.complaintId === complaintId,
   );
+  console.log(feedback?.citizen, "feedback");
 
   const handlePayNow = async (id: string) => {
     try {
@@ -342,44 +344,82 @@ export default function ComplaintDetails({
           ) : feedback ? (
             <section
               aria-labelledby="complaint-feedback-heading"
-              className="space-y-4 rounded-xl border bg-card p-6"
+              className="space-y-5 rounded-xl border bg-card p-5 shadow-sm sm:p-6"
             >
-              <h2
-                id="complaint-feedback-heading"
-                className="text-xl font-semibold"
-              >
-                Feedback
-              </h2>
-              <article className="space-y-3">
-                <div
-                  className="flex items-center gap-1"
-                  role="img"
-                  aria-label={`Rated ${feedback.rating} out of 5 stars`}
+              <div className="flex items-center justify-between gap-3">
+                <h2
+                  id="complaint-feedback-heading"
+                  className="text-xl font-semibold"
                 >
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star
-                      key={star}
-                      aria-hidden="true"
-                      className={`size-5 ${
-                        star <= feedback.rating
-                          ? "fill-amber-500 text-amber-500"
-                          : "text-muted"
-                      }`}
-                    />
-                  ))}
-                  <span className="ml-2 text-sm font-medium">
-                    {feedback.rating} out of 5
-                  </span>
-                </div>
-                <p className="whitespace-pre-wrap text-sm leading-6">
-                  {feedback.comment}
-                </p>
-                {feedback.createdAt && (
-                  <p className="text-xs text-muted-foreground">
-                    Submitted {formatDate(feedback.createdAt)}
-                  </p>
-                )}
-              </article>
+                  Feedback
+                </h2>
+
+                <span className="rounded-full bg-amber-500/10 px-3 py-1 text-sm font-medium text-amber-600">
+                  {feedback.rating}/5 Rating
+                </span>
+              </div>
+
+              <div className="grid gap-5 md:grid-cols-[1fr_auto]">
+                {/* Feedback Details */}
+                <article className="min-w-0 space-y-3">
+                  <div
+                    className="flex flex-wrap items-center gap-1"
+                    role="img"
+                    aria-label={`Rated ${feedback.rating} out of 5 stars`}
+                  >
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        aria-hidden="true"
+                        className={`size-5 ${
+                          star <= feedback.rating
+                            ? "fill-amber-500 text-amber-500"
+                            : "text-muted-foreground/30"
+                        }`}
+                      />
+                    ))}
+
+                    <span className="ml-2 text-sm font-medium">
+                      {feedback.rating} out of 5
+                    </span>
+                  </div>
+
+                  <div className="rounded-lg bg-muted/50 p-4">
+                    <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Citizen Comment
+                    </p>
+
+                    <p className="whitespace-pre-wrap break-words text-sm leading-6">
+                      {feedback.comment || "No comment provided."}
+                    </p>
+                  </div>
+
+                  {feedback.createdAt && (
+                    <p className="text-xs text-muted-foreground">
+                      Submitted {formatDate(feedback.createdAt)}
+                    </p>
+                  )}
+                </article>
+
+                {/* Citizen Information */}
+                <aside className="space-y-3 rounded-lg border p-4 md:min-w-56">
+                  <h3 className="text-sm font-semibold">Citizen Information</h3>
+
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Name</p>
+                    <p className="break-words text-sm font-medium">
+                      {feedback.citizen?.name || "Unknown"}
+                    </p>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Email</p>
+                    <p className="break-all text-sm font-medium">
+                      {feedback.citizen?.email || "Not available"}
+                    </p>
+                  </div>
+                </aside>
+              </div>
             </section>
           ) : null}
         </>

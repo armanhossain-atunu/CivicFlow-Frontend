@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle, Loader2, Trash2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import {
   Table,
@@ -32,9 +42,10 @@ import { toast } from "@/components/ui/toast";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { useGetAllCategories } from "@/hooks/complain.hook";
-import { useCreateAdminCategory } from "@/hooks/admin.hook";
-
-import { useUpdateAdminCategory } from "@/hooks/admin.hook";
+import {
+  useCreateAdminCategory,
+  useDeleteAdminCategory,
+} from "@/hooks/admin.hook";
 
 import { AdminPage } from "../AdminPage";
 
@@ -347,10 +358,15 @@ function getCategories(value: unknown): Category[] {
 
 export default function AdminCategoriesPage() {
   const { data, isLoading, isError, error, refetch } = useGetAllCategories();
+  const { mutate: deleteCategory, isPending: isDeleting } =
+    useDeleteAdminCategory();
 
   const [search, setSearch] = useState("");
   const [paymentFilter, setPaymentFilter] = useState("ALL");
   const [page, setPage] = useState(1);
+  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(
+    null,
+  );
 
   const categories = useMemo(() => getCategories(data), [data]);
 
@@ -393,11 +409,43 @@ export default function AdminCategoriesPage() {
     void refetch();
   };
 
+  const handleDeleteCategory = () => {
+    if (!categoryToDelete || isDeleting) return;
+
+    const deletedCategory = categoryToDelete;
+
+    deleteCategory(deletedCategory.id, {
+      onSuccess: () => {
+        setCategoryToDelete(null);
+        setSearch("");
+        setPaymentFilter("ALL");
+        setPage(1);
+
+        toast.add({
+          title: "Category deleted",
+          description: `${deletedCategory.name} was deleted successfully.`,
+          type: "success",
+        });
+      },
+      onError: (deleteError) => {
+        toast.add({
+          title: "Failed to delete category",
+          description:
+            deleteError instanceof Error
+              ? deleteError.message
+              : "Unable to delete the category.",
+          type: "error",
+        });
+      },
+    });
+  };
+
   return (
-    <AdminPage
-      title="Categories"
-      description="Review service categories and their current payment requirements."
-    >
+    <>
+      <AdminPage
+        title="Categories"
+        description="Review service categories and their current payment requirements."
+      >
       {isLoading ? (
         <div
           className="space-y-4 rounded-xl border bg-card p-5"
@@ -485,6 +533,7 @@ export default function AdminCategoriesPage() {
                     <TableHead>Active</TableHead>
                     <TableHead>Payment requirement</TableHead>
                     <TableHead>Amount</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
 
@@ -528,12 +577,26 @@ export default function AdminCategoriesPage() {
                               )}`
                             : "—"}
                         </TableCell>
+
+                        <TableCell className="text-right">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            aria-label={`Delete ${category.name}`}
+                            title="Delete category"
+                            disabled={isDeleting}
+                            onClick={() => setCategoryToDelete(category)}
+                          >
+                            <Trash2 className="size-4 text-destructive" />
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))
                   ) : (
                     <TableRow>
                       <TableCell
-                        colSpan={6}
+                        colSpan={7}
                         className="h-24 text-center text-muted-foreground"
                       >
                         No categories match these filters.
@@ -554,6 +617,48 @@ export default function AdminCategoriesPage() {
           </CardContent>
         </Card>
       )}
-    </AdminPage>
+      </AdminPage>
+      <AlertDialog
+        open={Boolean(categoryToDelete)}
+        onOpenChange={(open) => {
+          if (!open && !isDeleting) {
+            setCategoryToDelete(null);
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete category?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete{" "}
+              <span className="font-medium text-foreground">
+                {categoryToDelete?.name || "this category"}
+              </span>
+              ? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={isDeleting}
+              onClick={(event) => {
+                event.preventDefault();
+                handleDeleteCategory();
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Delete category"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

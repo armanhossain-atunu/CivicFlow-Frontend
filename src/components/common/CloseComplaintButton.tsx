@@ -43,7 +43,7 @@ export function CloseAssignmentButton({
     <Button
       type="button"
       variant="outline"
-      disabled={isClosed || isPending}
+      disabled={status !== "RESOLVED" || isPending}
       onClick={handleClose}
     >
       {isPending ? (

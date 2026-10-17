@@ -6,7 +6,7 @@ const apiClient = ofetch.create({
   onResponseError({ response }) {
     const message = response._data?.message || "Something went wrong.";
 
-    throw new Error(message);
+    throw Object.assign(new Error(message), { status: response.status });
   },
 });
 

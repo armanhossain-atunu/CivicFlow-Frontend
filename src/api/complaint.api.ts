@@ -52,9 +52,8 @@ export function payForComplaint(complaintId: string) {
     },
   );
 }
-// get all complaints
-// services/complaint.service.ts
 
+// get all complaints
 export function getAllComplaints(params: GetAllComplaintsParams = {}) {
   const searchParams = new URLSearchParams();
 
@@ -85,9 +84,6 @@ export function getAllComplaints(params: GetAllComplaintsParams = {}) {
   );
 }
 // get my all complaints
-// export function getMyAllComplaints(params?: MyComplaintsQuery) {
-//   return apiClient("/complaint/my", { method: "GET" });
-// }
 
 export function getMyAllComplaints(params: MyComplaintsQuery) {
   const searchParams = new URLSearchParams();

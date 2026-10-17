@@ -246,7 +246,7 @@ export function useCreateFeedback() {
     },
   });
 }
-
+// get all feedback
 export function useGetFeedbacks() {
   return useQuery({
     queryKey: ["feedbacks"],
@@ -267,6 +267,7 @@ export function useGetAllPendingComplaints(page = 1, limit = 10) {
     refetchOnReconnect: true,
   });
 }
+// close complaint
 
 export function useCloseComplaint() {
   const queryClient = useQueryClient();
@@ -278,15 +279,19 @@ export function useCloseComplaint() {
       await Promise.all([
         queryClient.invalidateQueries({
           queryKey: ["complaints"],
+          refetchType: "active",
         }),
         queryClient.invalidateQueries({
           queryKey: ["my-complaints"],
+          refetchType: "active",
         }),
         queryClient.invalidateQueries({
           queryKey: ["assignments"],
+          refetchType: "active",
         }),
         queryClient.invalidateQueries({
           queryKey: ["my-assignments"],
+          refetchType: "active",
         }),
       ]);
     },
